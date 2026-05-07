@@ -241,6 +241,12 @@
         @test occursin("\\frac{1}{6} \\left", formatted_factored)
         @test occursin("3.0 & 2.0", formatted_factored)
 
+        disabled_pythoncall_cmd = setenv(
+            `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
+            "LALATEX_DISABLE_PYTHONCALL" => "1",
+        )
+        @test readchomp(disabled_pythoncall_cmd) == "true"
+
         if ok
             pc = getfield(LAlatex, :PythonCall)
             LAlatex.set_backend!(:sympy)
@@ -265,6 +271,12 @@
             @test LAlatex._to_latex_matrix_entry(2 * a_py) == LAlatex.to_latex(2 * a_py)
             @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
 
+            builtins = pc.pyimport("builtins")
+            non_sympy_py = builtins.object()
+            @test LAlatex._is_pythoncall_py(non_sympy_py)
+            @test !LAlatex._is_sympy_py(non_sympy_py)
+            @test_throws pc.PyException LAlatex.L_show(non_sympy_py)
+
             direct_sympy_matrix = sympy.Matrix(2, 2, pc.pylist([a_py, b_py, b_py, a_py]))
             converted_sympy_matrix = LAlatex._sympy_matrix_to_julia_matrix(direct_sympy_matrix)
             @test converted_sympy_matrix isa Matrix{Any}
@@ -274,6 +286,21 @@
             @test occursin("\\begin{bmatrix}", direct_sympy_bmatrix)
             @test occursin("a", direct_sympy_bmatrix)
             @test occursin("b", direct_sympy_bmatrix)
+
+            non_square_sympy_matrix = sympy.Matrix(2, 3, pc.pylist([a_py, b_py, 1, 2, a_py + b_py, 3]))
+            converted_non_square = LAlatex._sympy_matrix_to_julia_matrix(non_square_sympy_matrix)
+            @test converted_non_square isa Matrix{Any}
+            @test size(converted_non_square) == (2, 3)
+
+            non_square_latex = LAlatex.L_show(non_square_sympy_matrix; arraystyle=:bmatrix)
+            @test occursin("\\begin{bmatrix}", non_square_latex)
+            @test occursin("a + b", non_square_latex) || occursin("b + a", non_square_latex)
+
+            empty_sympy_matrix = sympy.zeros(0, 0)
+            converted_empty = LAlatex._sympy_matrix_to_julia_matrix(empty_sympy_matrix)
+            @test converted_empty isa Matrix{Any}
+            @test size(converted_empty) == (0, 0)
+            @test occursin("\\begin{bmatrix}", LAlatex.L_show(empty_sympy_matrix; arraystyle=:bmatrix))
 
             denoms_py = Int[]
             LAlatex._push_sympy_denominator!(denoms_py, sympy.Rational(1, 3))
