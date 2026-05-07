@@ -73,7 +73,17 @@ Render a matrix-like object as LaTeX.
 function L_show_matrix(A; arraystyle=:parray, is_block_array=false, color=nothing,
                        number_formatter=nothing, per_element_style=nothing,
                        factor_out=true, symopts=NamedTuple())
-    symopts = normalize_symopts(symopts)
+    return L_show_matrix(A, DisplayOptions(;
+        arraystyle=arraystyle,
+        color=color,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    ); is_block_array=is_block_array)
+end
+
+function L_show_matrix(A, options::DisplayOptions; is_block_array=false)
     is_transposed = A isa Transpose{<:Any, <:AbstractMatrix} ||
                     A isa Transpose{<:Any, <:BlockArray} ||
                     A isa Transpose{<:Any, <:AbstractVector}
@@ -94,11 +104,11 @@ function L_show_matrix(A; arraystyle=:parray, is_block_array=false, color=nothin
     end
 
     if any(_contains_symbolic_value, A)
-        A = map(x -> symbolic_transform(x; symopts...), A)
+        A = map(x -> symbolic_transform(x; options.symopts...), A)
     end
 
-    latex_output = construct_latex_matrix_body(A, arraystyle, is_block_array, per_element_style,
-                                               factor_out, number_formatter,
+    latex_output = construct_latex_matrix_body(A, options.arraystyle, is_block_array, options.per_element_style,
+                                               options.factor_out, options.number_formatter,
                                                is_transposed, is_hermitian)
-    return style_wrapper(latex_output, color)
+    return style_wrapper(latex_output, options.color)
 end

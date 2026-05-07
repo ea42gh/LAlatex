@@ -144,7 +144,18 @@ Render a LinearCombination group.
 function L_show_lc(lcobj::LinearCombination; setstyle=:parray, arraystyle=:parray, color=nothing,
                    number_formatter=nothing, per_element_style=nothing,
                    factor_out=true, symopts=NamedTuple())
-    symopts = normalize_symopts(symopts)
+    return L_show_lc(lcobj, DisplayOptions(;
+        setstyle=setstyle,
+        arraystyle=arraystyle,
+        color=color,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    ))
+end
+
+function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
     local s = lcobj.s
     local X = lcobj.X
 
@@ -153,12 +164,20 @@ function L_show_lc(lcobj::LinearCombination; setstyle=:parray, arraystyle=:parra
         :parens_coeff=>true, :omit_one=>true, :drop_zero=>true),
         Dict(pairs(lcobj.options))
     )
-    effective_factor_out = get(opts, :factor_out, factor_out)
+    effective_factor_out = get(opts, :factor_out, options.factor_out)
 
-    inner = x -> L_show_core(x;
-        arraystyle=arraystyle, color=color,
-        number_formatter=number_formatter, per_element_style=per_element_style,
-        factor_out=effective_factor_out, symopts=symopts)
+    inner_options = DisplayOptions(;
+        setstyle=options.setstyle,
+        arraystyle=options.arraystyle,
+        color=options.color,
+        separator=options.separator,
+        number_formatter=options.number_formatter,
+        per_element_style=options.per_element_style,
+        factor_out=effective_factor_out,
+        symopts=options.symopts,
+    )
+
+    inner = x -> L_show_core(x, inner_options)
 
     needs_parens = x -> begin
         t = replace(inner(x), r"\s" => "")
@@ -200,13 +219,13 @@ function L_show_lc(lcobj::LinearCombination; setstyle=:parray, arraystyle=:parra
         end |> x -> filter(!isnothing, x)
 
         if isempty(terms)
-            return L_show_number(0; color=color, number_formatter=number_formatter)
+            return L_show_number(0; color=options.color, number_formatter=options.number_formatter)
         end
 
         g = Group((terms...,), (; setstyle=:array))
         return L_show_set(g;
-            setstyle=:array, arraystyle=arraystyle, color=color,
-            number_formatter=number_formatter, per_element_style=per_element_style,
+            setstyle=:array, arraystyle=options.arraystyle, color=options.color,
+            number_formatter=options.number_formatter, per_element_style=options.per_element_style,
             separator = opts[:plus])
     end
 
@@ -241,12 +260,12 @@ function L_show_lc(lcobj::LinearCombination; setstyle=:parray, arraystyle=:parra
     end
 
     if isempty(pieces)
-        return L_show_number(0; color=color, number_formatter=number_formatter)
+        return L_show_number(0; color=options.color, number_formatter=options.number_formatter)
     end
 
     g = Group((pieces...,), (; setstyle=:array))
     return L_show_set(g;
-        setstyle=:array, arraystyle=arraystyle, color=color,
-        number_formatter=number_formatter, per_element_style=per_element_style,
+        setstyle=:array, arraystyle=options.arraystyle, color=options.color,
+        number_formatter=options.number_formatter, per_element_style=options.per_element_style,
         separator = L"")
 end

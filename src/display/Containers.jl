@@ -85,15 +85,7 @@ function L_show_set(obj_group; setstyle=:Barray, arraystyle=:parray, color=nothi
     clean_separator = normalize_separator(combined_options.separator)
     _, _, left_delim, right_delim = parse_arraystyle(combined_options.setstyle)
 
-    obj_latex = map(obj -> L_show_core(obj;
-                                       arraystyle=combined_options.arraystyle,
-                                       color=combined_options.color,
-                                        separator=combined_options.separator,
-                                        number_formatter=combined_options.number_formatter,
-                                        per_element_style=combined_options.per_element_style,
-                                        factor_out=combined_options.factor_out,
-                                        symopts=combined_options.symopts),
-                    obj_group.entries)
+    obj_latex = map(obj -> L_show_core(obj, combined_options), obj_group.entries)
 
     joined_latex = join(obj_latex, " " * clean_separator * " ")
 
@@ -110,28 +102,18 @@ function _case_entry_parts(entry)
     throw(ArgumentError("cases entries must be pairs or two-tuples; got $(typeof(entry))"))
 end
 
-function _display_container_options(options; arraystyle=:parray, color=nothing,
-                                    number_formatter=nothing, per_element_style=nothing,
-                                    factor_out=true, symopts=NamedTuple())
-    base_options = DisplayOptions(;
-        arraystyle=arraystyle,
-        color=color,
-        number_formatter=number_formatter,
-        per_element_style=per_element_style,
-        factor_out=factor_out,
-        symopts=symopts,
-    )
-    return merge_display_options(base_options, options)
-end
-
 function _render_display_cell(x, options)
-    return strip(L_show_core(x;
+    cell_options = DisplayOptions(;
+        setstyle=options.setstyle,
         arraystyle=options.arraystyle,
         color=nothing,
+        separator=options.separator,
         number_formatter=options.number_formatter,
         per_element_style=options.per_element_style,
         factor_out=options.factor_out,
-        symopts=options.symopts))
+        symopts=options.symopts,
+    )
+    return strip(L_show_core(x, cell_options))
 end
 
 """
@@ -142,9 +124,19 @@ Render a `Cases` group as a LaTeX `cases` environment.
 function L_show_cases(case_group::Cases; arraystyle=:parray, color=nothing,
                       number_formatter=nothing, per_element_style=nothing,
                       factor_out=true, symopts=NamedTuple())
-    combined_options = _display_container_options(case_group.options;
-        arraystyle=arraystyle, color=color, number_formatter=number_formatter,
-        per_element_style=per_element_style, factor_out=factor_out, symopts=symopts)
+    base_options = DisplayOptions(;
+        arraystyle=arraystyle,
+        color=color,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    )
+    return L_show_cases(case_group, base_options)
+end
+
+function L_show_cases(case_group::Cases, options::DisplayOptions)
+    combined_options = merge_display_options(options, case_group.options)
 
     rows = map(case_group.entries) do entry
         value, condition = _case_entry_parts(entry)
@@ -178,9 +170,19 @@ Render an `Aligned` group as a LaTeX `aligned` environment.
 function L_show_aligned(aligned_group::Aligned; arraystyle=:parray, color=nothing,
                         number_formatter=nothing, per_element_style=nothing,
                         factor_out=true, symopts=NamedTuple())
-    combined_options = _display_container_options(aligned_group.options;
-        arraystyle=arraystyle, color=color, number_formatter=number_formatter,
-        per_element_style=per_element_style, factor_out=factor_out, symopts=symopts)
+    base_options = DisplayOptions(;
+        arraystyle=arraystyle,
+        color=color,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    )
+    return L_show_aligned(aligned_group, base_options)
+end
+
+function L_show_aligned(aligned_group::Aligned, options::DisplayOptions)
+    combined_options = merge_display_options(options, aligned_group.options)
 
     rows = map(aligned_group.rows) do row
         cells = _aligned_row_cells(row)

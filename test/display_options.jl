@@ -98,4 +98,27 @@
         )
         @test occursin("1 ; 2", local_separator)
     end
+
+    @testset "top-level and core option plumbing" begin
+        default_setstyle = LAlatex.L_show(LAlatex.set())
+        @test occursin("\\left\\{", default_setstyle)
+
+        explicit_setstyle = LAlatex.L_show(LAlatex.set(); setstyle=:parray)
+        @test occursin("\\left(", explicit_setstyle)
+
+        direct_bmatrix = LAlatex.L_show([1 2; 3 4]; arraystyle=:bmatrix)
+        @test occursin("\\begin{bmatrix}", direct_bmatrix)
+
+        direct_separator = LAlatex.L_show((1, 2, 3); separator=L";")
+        @test occursin("1;2;3", direct_separator)
+
+        direct_color = LAlatex.L_show(42; color="red")
+        @test occursin("\\textcolor{red}{42}", direct_color)
+
+        local_named_tuple = LAlatex.L_show((value=[1 2; 3 4], arraystyle=:bmatrix); arraystyle=:parray)
+        @test occursin("\\begin{bmatrix}", local_named_tuple)
+
+        core_fragment = LAlatex.L_show_core((1, 2); separator=L";")
+        @test core_fragment == "1;2"
+    end
 end

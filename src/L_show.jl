@@ -201,9 +201,8 @@ function L_show_string(s; color=nothing)
     return style_wrapper(formatted, color)
 end
 
-include("display/MatrixDisplay.jl")
-
 include("display/DisplayOptions.jl")
+include("display/MatrixDisplay.jl")
 include("display/Containers.jl")
 include("display/LinearCombinationDisplay.jl")
 include("display/LShowCore.jl")
