@@ -78,7 +78,7 @@ export @syms, syms, syms_sympy, @syms_sympy, import_sympy, assume!, assumptions
 export symbolic_transform, symbolic_term_coefficients
 
 export to_latex, L_show, l_show, L_interp
-export to_html, show_html, pr, capture_output, show_side_by_side_html, show_side_by_side
+export to_html, show_html, pr, capture_output, show_side_by_side_html, show_side_by_side, RawHTML
 
 export mixed_matrix, @mixed_matrix, set, lc, cases, aligned
 export apply_function, round_value, round_matrices, print_np_array_def, factor_out_denominator

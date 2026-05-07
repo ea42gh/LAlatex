@@ -33,9 +33,11 @@ message for import failures.
 - `to_html`, `show_html`, `pr`
 - `capture_output`
 - `show_side_by_side_html`, `show_side_by_side`
+- `RawHTML`
 
 HTML helpers escape text content by default and are intended for ordinary text
-display. Build custom HTML outside these helpers if you need raw markup.
+display. Use `RawHTML(...)` when a side-by-side slot should render trusted HTML
+instead of escaped text.
 
 ## LaTeX helpers
 

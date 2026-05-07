@@ -153,6 +153,11 @@ ok, sympy, pyexe = _sympy_available()
 
         side_obj = LAlatex.show_side_by_side(["x", "y"])
         @test side_obj isa LAlatex.SideBySideHTML
+        mixed_obj = LAlatex.show_side_by_side(["x", LAlatex.RawHTML("<div class=\"arrow\">→</div>")], ["A", ""])
+        @test mixed_obj isa LAlatex.SideBySideHTML
+        @test occursin("<pre>x</pre>", mixed_obj.html)
+        @test occursin("<div class=\"arrow\">→</div>", mixed_obj.html)
+        @test !occursin("&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;", mixed_obj.html)
         @test occursin("x", side_obj.html)
         @test occursin("y", side_obj.html)
 

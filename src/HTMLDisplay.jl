@@ -12,6 +12,19 @@ end
 
 _escape_html_attr(x) = _escape_html_text(x)
 
+"""
+    RawHTML(html::String)
+
+Wrapper for explicitly trusted HTML content. Use this when a side-by-side panel
+should render markup rather than escaped text.
+"""
+struct RawHTML
+    html::String
+end
+
+_side_by_side_body(output::RawHTML) = output.html
+_side_by_side_body(output) = "<pre>$(_escape_html_text(output))</pre>"
+
 function _sanitize_css_color(color)
     value = strip(String(color))
     isempty(value) && return "darkred"
@@ -170,7 +183,7 @@ function show_side_by_side_html(captured_outputs, titles=nothing)
         for output in captured_outputs
             html *= """
             <div style="flex: 1; align-content:flex-start; margin-right: 10px;">
-            <pre>$(_escape_html_text(output))</pre>
+            $(_side_by_side_body(output))
             </div>
             """
         end
@@ -180,7 +193,7 @@ function show_side_by_side_html(captured_outputs, titles=nothing)
             html *= """
             <div style="flex: 1; align-content:flex-start; margin-right: 10px;">
             <h4>$(_escape_html_text(title))</h4>
-            <pre>$(_escape_html_text(output))</pre>
+            $(_side_by_side_body(output))
             </div>
             """
         end

@@ -76,6 +76,9 @@ F_bad = [1//2 x; (1 + im)//3 2*y]
 ```julia
 show_html("hello"; color="darkred")
 show_side_by_side(["left", "right"], ["A", "B"])
+
+arrow = RawHTML("""<div style="font-size:50px;">&#10230;</div>""")
+show_side_by_side(["left", arrow, "right"], ["A", "", "B"])
 ```
 
 ## LaTeX helpers
