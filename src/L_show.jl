@@ -203,6 +203,7 @@ end
 
 include("display/MatrixDisplay.jl")
 
+include("display/DisplayOptions.jl")
 include("display/Containers.jl")
 include("display/LinearCombinationDisplay.jl")
 include("display/LShowCore.jl")

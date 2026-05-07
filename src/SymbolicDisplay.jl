@@ -94,7 +94,7 @@ function normalize_symopts(symopts)
         return (; symopts...)
     end
     if symopts isa Pair
-        return (; symopts)
+        return NamedTuple{(first(symopts),)}((last(symopts),))
     end
     if symopts isa Bool
         throw(ArgumentError("symopts must be a NamedTuple; use symopts=(; factor=true)"))

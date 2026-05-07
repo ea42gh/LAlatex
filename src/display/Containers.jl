@@ -66,43 +66,39 @@ Render a `Group` with delimiters and separators.
 function L_show_set(obj_group; setstyle=:Barray, arraystyle=:parray, color=nothing, separator=", ",
                     number_formatter=nothing, per_element_style=nothing, factor_out=true,
                     symopts=NamedTuple())
-    symopts = normalize_symopts(symopts)
     if !(obj_group isa Group)
         error("L_show_set expected a Group, got: $(typeof(obj_group))")
     end
 
-    formatting_keys = [:setstyle, :arraystyle, :color, :separator, :number_formatter,
-                       :per_element_style, :factor_out, :symopts]
-    group_options = Dict(k => v for (k, v) in pairs(obj_group.options) if k in formatting_keys)
-    combined_options = merge(Dict(
-        :setstyle => setstyle,
-        :arraystyle => arraystyle,
-        :color => color,
-        :separator => separator,
-        :number_formatter => number_formatter,
-        :per_element_style => per_element_style,
-        :factor_out => factor_out,
-        :symopts => symopts,
-    ), group_options)
-    combined_options[:symopts] = normalize_symopts(combined_options[:symopts])
+    base_options = DisplayOptions(;
+        setstyle=setstyle,
+        arraystyle=arraystyle,
+        color=color,
+        separator=separator,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    )
+    combined_options = merge_display_options(base_options, obj_group.options)
 
-    clean_separator = normalize_separator(combined_options[:separator])
-    _, _, left_delim, right_delim = parse_arraystyle(combined_options[:setstyle])
+    clean_separator = normalize_separator(combined_options.separator)
+    _, _, left_delim, right_delim = parse_arraystyle(combined_options.setstyle)
 
     obj_latex = map(obj -> L_show_core(obj;
-                                       arraystyle=combined_options[:arraystyle],
-                                       color=combined_options[:color],
-                                        separator=combined_options[:separator],
-                                        number_formatter=combined_options[:number_formatter],
-                                        per_element_style=combined_options[:per_element_style],
-                                        factor_out=combined_options[:factor_out],
-                                        symopts=combined_options[:symopts]),
+                                       arraystyle=combined_options.arraystyle,
+                                       color=combined_options.color,
+                                        separator=combined_options.separator,
+                                        number_formatter=combined_options.number_formatter,
+                                        per_element_style=combined_options.per_element_style,
+                                        factor_out=combined_options.factor_out,
+                                        symopts=combined_options.symopts),
                     obj_group.entries)
 
     joined_latex = join(obj_latex, " " * clean_separator * " ")
 
     formatted_group = LaTeXString("$(left_delim) " * joined_latex * " $(right_delim)")
-    return style_wrapper(formatted_group, combined_options[:color])
+    return style_wrapper(formatted_group, combined_options.color)
 end
 
 function _case_entry_parts(entry)
@@ -117,27 +113,25 @@ end
 function _display_container_options(options; arraystyle=:parray, color=nothing,
                                     number_formatter=nothing, per_element_style=nothing,
                                     factor_out=true, symopts=NamedTuple())
-    symopts = normalize_symopts(symopts)
-    combined_options = merge(Dict(
-        :arraystyle => arraystyle,
-        :color => color,
-        :number_formatter => number_formatter,
-        :per_element_style => per_element_style,
-        :factor_out => factor_out,
-        :symopts => symopts,
-    ), Dict(pairs(options)))
-    combined_options[:symopts] = normalize_symopts(combined_options[:symopts])
-    return combined_options
+    base_options = DisplayOptions(;
+        arraystyle=arraystyle,
+        color=color,
+        number_formatter=number_formatter,
+        per_element_style=per_element_style,
+        factor_out=factor_out,
+        symopts=symopts,
+    )
+    return merge_display_options(base_options, options)
 end
 
 function _render_display_cell(x, options)
     return strip(L_show_core(x;
-        arraystyle=options[:arraystyle],
+        arraystyle=options.arraystyle,
         color=nothing,
-        number_formatter=options[:number_formatter],
-        per_element_style=options[:per_element_style],
-        factor_out=options[:factor_out],
-        symopts=options[:symopts]))
+        number_formatter=options.number_formatter,
+        per_element_style=options.per_element_style,
+        factor_out=options.factor_out,
+        symopts=options.symopts))
 end
 
 """
@@ -160,7 +154,7 @@ function L_show_cases(case_group::Cases; arraystyle=:parray, color=nothing,
     end
 
     formatted_cases = "\\begin{cases}\n" * join(rows, "\n") * "\n\\end{cases}"
-    return style_wrapper(formatted_cases, combined_options[:color])
+    return style_wrapper(formatted_cases, combined_options.color)
 end
 
 function _aligned_row_cells(row)
@@ -195,5 +189,5 @@ function L_show_aligned(aligned_group::Aligned; arraystyle=:parray, color=nothin
     end
 
     formatted_aligned = "\\begin{aligned}\n" * join(rows, "\n") * "\n\\end{aligned}"
-    return style_wrapper(formatted_aligned, combined_options[:color])
+    return style_wrapper(formatted_aligned, combined_options.color)
 end

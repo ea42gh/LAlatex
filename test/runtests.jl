@@ -28,6 +28,7 @@ ok, sympy, pyexe = _sympy_available()
 @testset "LAlatex" begin
     include("public_exports.jl")
     include("display_contracts.jl")
+    include("display_options.jl")
     include("backends.jl")
     include("html_helpers.jl")
     include("latex_helpers.jl")
