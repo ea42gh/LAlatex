@@ -170,8 +170,10 @@ function L_show_core(obj, options::DisplayOptions)
         A = _sympy_matrix_to_julia_matrix(obj)
         A !== nothing && return L_show_matrix(A, options)
         return style_wrapper(to_latex(obj), options.color)
-    elseif obj isa Number || _is_pythoncall_py(obj)
+    elseif obj isa Number
         return L_show_number(symbolic_transform(obj; options.symopts...); color=options.color, number_formatter=options.number_formatter)
+    elseif _is_pythoncall_py(obj)
+        throw(ArgumentError("Unsupported Python object type for L_show: $(typeof(obj))"))
     end
 
     error("Unsupported argument type: $(typeof(obj))")

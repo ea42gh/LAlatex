@@ -116,23 +116,31 @@ function _symbolics_denominators(expr; include_integers=false)
     return denominators
 end
 
-function _push_sympy_denominator!(denominators::Vector{<:Integer}, x)
-    _is_pythoncall_py(x) || return denominators
-    den = try
+function _pyconvert_any_or_nothing(x)
+    pc = _ensure_pythoncall()
+    pc === nothing && return nothing
+    return try
+        pc.pyconvert(Any, x)
+    catch
+        nothing
+    end
+end
+
+function _sympy_denominator_or_nothing(x)
+    _is_sympy_py(x) || return nothing
+    return try
         sympy = import_sympy()
         sympy.denom(sympy.together(x))
     catch
         nothing
     end
+end
+
+function _push_sympy_denominator!(denominators::Vector{<:Integer}, x)
+    den = _sympy_denominator_or_nothing(x)
     den === nothing && return denominators
 
-    pc = _ensure_pythoncall()
-    pc === nothing && return denominators
-    den_jl = try
-        pc.pyconvert(Any, den)
-    catch
-        nothing
-    end
+    den_jl = _pyconvert_any_or_nothing(den)
     if den_jl isa Integer
         push!(denominators, den_jl)
     elseif den_jl isa Rational
@@ -185,18 +193,24 @@ function factor_out_denominator(A::AbstractArray)
             xi = imag(x)
             if xr isa Symbolics.Num
                 _collect_symbolics_denominators!(denominators, xr)
-            elseif _is_pythoncall_py(xr)
+            elseif _is_sympy_py(xr)
                 _push_sympy_denominator!(denominators, xr)
+            elseif _is_pythoncall_py(xr)
+                return 1, A
             end
             if xi isa Symbolics.Num
                 _collect_symbolics_denominators!(denominators, xi)
-            elseif _is_pythoncall_py(xi)
+            elseif _is_sympy_py(xi)
                 _push_sympy_denominator!(denominators, xi)
+            elseif _is_pythoncall_py(xi)
+                return 1, A
             end
         elseif x isa Symbolics.Num
             _collect_symbolics_denominators!(denominators, x)
-        elseif _is_pythoncall_py(x)
+        elseif _is_sympy_py(x)
             _push_sympy_denominator!(denominators, x)
+        elseif _is_pythoncall_py(x)
+            return 1, A
         elseif x isa Number || x isa Symbolics.Num
             # ok
         else
@@ -217,9 +231,9 @@ function factor_out_denominator(A::AbstractArray)
         catch
             factored
         end
-    elseif any(_is_pythoncall_py, factored)
+    elseif any(_is_sympy_py, factored)
         sympy = import_sympy()
-        factored = map(x -> _is_pythoncall_py(x) ? sympy.expand(x) : x, factored)
+        factored = map(x -> _is_sympy_py(x) ? sympy.expand(x) : x, factored)
     end
     return d, factored
 end

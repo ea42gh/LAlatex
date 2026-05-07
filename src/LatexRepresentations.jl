@@ -215,8 +215,10 @@ function _to_latex_plain_number(x::Number)
 end
 
 function _to_latex_scalar(x; number_formatter=nothing)
-    if _is_pythoncall_py(x)
+    if _is_sympy_py(x)
         return _to_latex_sympy(x)
+    elseif _is_pythoncall_py(x)
+        throw(ArgumentError("Unsupported Python object type for LaTeX conversion: $(typeof(x))"))
     elseif x isa Symbolics.Num
         return _to_latex_symbolics(x; number_formatter=number_formatter)
     elseif x isa Complex

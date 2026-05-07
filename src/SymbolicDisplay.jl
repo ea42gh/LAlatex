@@ -47,7 +47,7 @@ function symbolic_transform(x; simplify=:auto, expand=false, factor=false, colle
         return symbolic_transform(Symbolics.Num(x); simplify=simplify, expand=expand, factor=factor, collect=collect)
     end
 
-    if _is_pythoncall_py(x)
+    if _is_sympy_py(x)
         sympy = import_sympy()
         y = x
         if simplify !== false
@@ -73,7 +73,7 @@ function _contains_symbolic_value(x)
         return _contains_symbolic_value(real(x)) || _contains_symbolic_value(imag(x))
     end
     return x isa Symbolics.Num ||
-           _is_pythoncall_py(x) ||
+           _is_sympy_py(x) ||
            Symbolics.SymbolicUtils.issym(x) ||
            Symbolics.SymbolicUtils.iscall(x)
 end

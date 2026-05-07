@@ -275,7 +275,16 @@
             non_sympy_py = builtins.object()
             @test LAlatex._is_pythoncall_py(non_sympy_py)
             @test !LAlatex._is_sympy_py(non_sympy_py)
-            @test_throws pc.PyException LAlatex.L_show(non_sympy_py)
+            @test_throws ArgumentError LAlatex.L_show(non_sympy_py)
+            @test_throws ArgumentError LAlatex.to_latex(non_sympy_py)
+            denoms_non_sympy = Int[]
+            LAlatex._push_sympy_denominator!(denoms_non_sympy, non_sympy_py)
+            @test isempty(denoms_non_sympy)
+
+            non_sympy_mixed = Any[non_sympy_py 1//2]
+            factor_non_sympy, factored_non_sympy = LAlatex.factor_out_denominator(non_sympy_mixed)
+            @test factor_non_sympy == 1
+            @test factored_non_sympy === non_sympy_mixed
 
             direct_sympy_matrix = sympy.Matrix(2, 2, pc.pylist([a_py, b_py, b_py, a_py]))
             converted_sympy_matrix = LAlatex._sympy_matrix_to_julia_matrix(direct_sympy_matrix)
