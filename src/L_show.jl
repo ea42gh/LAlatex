@@ -1,5 +1,5 @@
 using BlockArrays: BlockArray, BlockMatrix
-using LaTeXStrings: LaTeXString
+using LaTeXStrings: LaTeXString, latexstring
 using LinearAlgebra: Adjoint, Diagonal, Transpose
 using SparseArrays: SparseMatrixCSC
 raw"""
@@ -958,5 +958,5 @@ Return a LaTeXString for display in notebook environments.
 """
 function l_show(args...; kwargs...)
     rendered = L_show(args...; kwargs...)
-    return LaTeXString(strip_math_delims(rendered))
+    return latexstring(strip_math_delims(rendered))
 end

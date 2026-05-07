@@ -202,7 +202,11 @@ ok, sympy, pyexe = _sympy_available()
 
         quad_render = LAlatex.l_show(L"\\quad")
         @test quad_render isa LaTeXString
-        @test getfield(quad_render, :s) == "\\quad"
+        @test getfield(quad_render, :s) == "\$" * strip(getfield(L"\\quad", :s), '$') * "\$"
+        matrix_render = LAlatex.l_show([1 2; 3 4])
+        @test matrix_render isa LaTeXString
+        @test startswith(getfield(matrix_render, :s), "\$\\left(")
+        @test endswith(getfield(matrix_render, :s), "\\right)\$")
 
     end
 
