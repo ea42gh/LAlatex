@@ -263,6 +263,18 @@
             @test strip(LAlatex.L_show(sympy.I)) == "\$i\$"
             @test LAlatex._to_latex_scalar(sympy.I) == LAlatex.to_latex(sympy.I)
             @test LAlatex._to_latex_matrix_entry(2 * a_py) == LAlatex.to_latex(2 * a_py)
+            @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
+
+            direct_sympy_matrix = sympy.Matrix(2, 2, pc.pylist([a_py, b_py, b_py, a_py]))
+            converted_sympy_matrix = LAlatex._sympy_matrix_to_julia_matrix(direct_sympy_matrix)
+            @test converted_sympy_matrix isa Matrix{Any}
+            @test size(converted_sympy_matrix) == (2, 2)
+
+            direct_sympy_bmatrix = LAlatex.L_show(direct_sympy_matrix; arraystyle=:bmatrix)
+            @test occursin("\\begin{bmatrix}", direct_sympy_bmatrix)
+            @test occursin("a", direct_sympy_bmatrix)
+            @test occursin("b", direct_sympy_bmatrix)
+
             denoms_py = Int[]
             LAlatex._push_sympy_denominator!(denoms_py, sympy.Rational(1, 3))
             @test denoms_py == [3]

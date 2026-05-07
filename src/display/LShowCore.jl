@@ -3,6 +3,66 @@
 
 Render a single object into a LaTeX fragment without math delimiters.
 """
+function _sympy_shape_tuple(obj)
+    pc = _pythoncall_module()
+    pc === nothing && return nothing
+    try
+        shape = Base.invokelatest(pc.pygetattr, obj, "shape")
+        return Base.invokelatest(pc.pyconvert, Tuple, shape)
+    catch
+        return nothing
+    end
+end
+
+function _sympy_rows(obj)
+    pc = _pythoncall_module()
+    pc === nothing && return nothing
+    try
+        tolist = Base.invokelatest(pc.pygetattr, obj, "tolist")
+        pyrows = Base.invokelatest(pc.pycall, tolist)
+        return Base.invokelatest(pc.pyconvert, Vector, pyrows)
+    catch
+        return nothing
+    end
+end
+
+function _sympy_matrix_to_julia_matrix(obj)
+    pc = _pythoncall_module()
+    pc === nothing && return nothing
+
+    shp = _sympy_shape_tuple(obj)
+    shp === nothing && return nothing
+    length(shp) == 2 || return nothing
+
+    rows = _sympy_rows(obj)
+    rows === nothing && return nothing
+
+    m = length(rows)
+    n = 0
+    if m > 0
+        first_row = try
+            Base.invokelatest(pc.pyconvert, Vector, rows[1])
+        catch
+            return nothing
+        end
+        n = length(first_row)
+    end
+
+    A = Matrix{Any}(undef, m, n)
+    for i in 1:m
+        row = try
+            Base.invokelatest(pc.pyconvert, Vector, rows[i])
+        catch
+            return nothing
+        end
+        length(row) == n || return nothing
+        for j in 1:n
+            A[i, j] = row[j]
+        end
+    end
+    return A
+end
+
 function L_show_core(obj; setstyle=:Barray, arraystyle=:parray, color=nothing, separator=", ",
                      number_formatter=nothing, per_element_style=nothing,
                      factor_out=true, symopts=NamedTuple())
@@ -107,31 +167,8 @@ function L_show_core(obj, options::DisplayOptions)
     if obj isa Symbol || obj isa Symbolics.Num
         return style_wrapper(_to_latex_scalar(symbolic_transform(obj; options.symopts...)) * " ", options.color)
     elseif _is_sympy_py(obj)
-        pc = _pythoncall_module()
-        if pc !== nothing
-            # Prefer rendering SymPy matrices via L_show_matrix so arraystyle applies.
-            try
-                tolist = Base.invokelatest(pc.pygetattr, obj, "tolist")
-                shape = Base.invokelatest(pc.pygetattr, obj, "shape")
-                shp = Base.invokelatest(pc.pyconvert, Tuple, shape)
-                if length(shp) == 2
-                    pyrows = Base.invokelatest(pc.pycall, tolist)
-                    rows = Base.invokelatest(pc.pyconvert, Vector, pyrows)
-                    m = length(rows)
-                    n = m == 0 ? 0 : length(Base.invokelatest(pc.pyconvert, Vector, rows[1]))
-                    A = Matrix{Any}(undef, m, n)
-                    for i in 1:m
-                        row = Base.invokelatest(pc.pyconvert, Vector, rows[i])
-                        for j in 1:n
-                            A[i, j] = row[j]
-                        end
-                    end
-                    return L_show_matrix(A, options)
-                end
-            catch
-                # Fallback to sympy.latex below.
-            end
-        end
+        A = _sympy_matrix_to_julia_matrix(obj)
+        A !== nothing && return L_show_matrix(A, options)
         return style_wrapper(to_latex(obj), options.color)
     elseif obj isa Number || _is_pythoncall_py(obj)
         return L_show_number(symbolic_transform(obj; options.symopts...); color=options.color, number_formatter=options.number_formatter)
