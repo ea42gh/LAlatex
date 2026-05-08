@@ -106,9 +106,41 @@ function style_wrapper(content::Any, color_opt = nothing)
     str_content = string(content)
     str_content = strip(str_content, ['$', '\n'])
     if color_opt !== nothing
-        return "\\textcolor{$color_opt}{$str_content}"
+        color = validate_latex_color_value(color_opt)
+        return "\\textcolor{$color}{$str_content}"
     end
     return str_content
+end
+
+"""
+    validate_latex_color_value(color) -> String
+
+Validate a LaTeX color name/expression used inside `\\textcolor{...}{...}`.
+"""
+function validate_latex_color_value(color)
+    if color isa Symbol
+        color = String(color)
+    elseif color isa AbstractString
+        color = String(color)
+    else
+        throw(
+            ArgumentError(
+                "color must be a String, Symbol, or nothing; got $(repr(color)) of type $(typeof(color)).",
+            ),
+        )
+    end
+
+    if isempty(strip(color))
+        throw(ArgumentError("color must not be empty."))
+    end
+    if occursin(r"[{}\\\n\r\t%$&#^~]", color)
+        throw(
+            ArgumentError(
+                "color must be a LaTeX color name or xcolor expression without braces, backslashes, control characters, or LaTeX special characters.",
+            ),
+        )
+    end
+    return color
 end
 
 """

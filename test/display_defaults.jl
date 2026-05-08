@@ -50,7 +50,17 @@
         end
         @test explicit_no_color == "\$42\$\n"
 
+        scoped_symbol_color = LAlatex.with_display_defaults(color = :blue) do
+            LAlatex.L_show(42)
+        end
+        @test occursin("\\textcolor{blue}{42}", scoped_symbol_color)
+
         @test_throws ArgumentError LAlatex.set_display_defaults!(not_an_option = true)
+        @test_throws ArgumentError LAlatex.set_display_defaults!(color = "red}{\\bad")
+        @test_throws ArgumentError LAlatex.with_display_defaults(
+            () -> LAlatex.L_show(42);
+            color = 1,
+        )
         @test_throws ArgumentError LAlatex.set_display_defaults!(factor_out = "false")
         @test_throws ArgumentError LAlatex.with_display_defaults(
             () -> LAlatex.L_show([1//2 1//3]);

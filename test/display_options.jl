@@ -112,6 +112,12 @@
         direct_color = LAlatex.L_show(42; color = "red")
         @test occursin("\\textcolor{red}{42}", direct_color)
 
+        xcolor_expression = LAlatex.L_show(42; color = "red!50!black")
+        @test occursin("\\textcolor{red!50!black}{42}", xcolor_expression)
+
+        symbol_color = LAlatex.L_show(42; color = :blue)
+        @test occursin("\\textcolor{blue}{42}", symbol_color)
+
         local_named_tuple = LAlatex.L_show(
             (value = [1 2; 3 4], arraystyle = :bmatrix);
             arraystyle = :parray,
@@ -151,5 +157,13 @@
             LAlatex.lc([1], [[1//2, 1//3]]; factor_out = 0),
         )
         @test_throws ArgumentError LAlatex.L_show_core([1//2 1//3]; factor_out = nothing)
+    end
+
+    @testset "color option validation" begin
+        @test_throws ArgumentError LAlatex.L_show(42; color = "red}{\\bad")
+        @test_throws ArgumentError LAlatex.L_show(42; color = "\\red")
+        @test_throws ArgumentError LAlatex.L_show(42; color = "")
+        @test_throws ArgumentError LAlatex.L_show(42; color = 1)
+        @test_throws ArgumentError LAlatex.L_show(LAlatex.set(42; color = "red}"))
     end
 end

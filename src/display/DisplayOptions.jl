@@ -60,6 +60,9 @@ function _validate_display_default_values(defaults)
     if haskey(defaults, :arraystyle)
         validate_arraystyle_value(defaults.arraystyle, "arraystyle")
     end
+    if haskey(defaults, :color) && defaults.color !== nothing
+        validate_latex_color_value(defaults.color)
+    end
     if haskey(defaults, :factor_out)
         _validate_factor_out_value(defaults.factor_out)
     end
@@ -180,7 +183,7 @@ function DisplayOptions(;
     return DisplayOptions(
         validate_arraystyle_value(setstyle, "setstyle"),
         validate_arraystyle_value(arraystyle, "arraystyle"),
-        color,
+        color === nothing ? nothing : validate_latex_color_value(color),
         separator,
         _validate_callback_value(number_formatter, "number_formatter"),
         _validate_callback_value(per_element_style, "per_element_style"),

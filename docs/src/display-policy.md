@@ -227,6 +227,11 @@ Known container-local options are:
 - `factor_out`
 - `symopts`
 
+`color` accepts a LaTeX/xcolor color name or expression as a `String` or
+`Symbol`, such as `"red"` or `"red!50!black"`. It rejects braces,
+backslashes, control characters, and LaTeX special characters so the value
+cannot break out of `\textcolor{...}{...}`.
+
 For example:
 
 ```julia

@@ -117,6 +117,11 @@ apply their own keyword arguments as local overrides. Known display options are
 `per_element_style`, `factor_out`, and `symopts`. Container-local overrides
 apply only to that container's rendered cells.
 
+`color` accepts a LaTeX/xcolor color name or expression as a `String` or
+`Symbol`, such as `"red"` or `"red!50!black"`. Braces, backslashes, control
+characters, and LaTeX special characters are rejected because `color` is placed
+inside `\textcolor{...}{...}`.
+
 Notebook-wide style can be configured with `set_display_defaults!(...)` and
 cleared with `reset_display_defaults!()`. For temporary styles, use
 `with_display_defaults(...) do ... end`. Explicit keywords override scoped
