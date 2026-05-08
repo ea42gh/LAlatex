@@ -129,4 +129,16 @@
         core_fragment = LAlatex.L_show_core((1, 2); separator = L";")
         @test core_fragment == "1;2"
     end
+
+    @testset "style option validation" begin
+        @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; arraystyle = :not_a_style)
+        @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; arraystyle = "bmatrix")
+        @test_throws ArgumentError LAlatex.L_show(
+            LAlatex.set(1, 2);
+            setstyle = :not_a_style,
+        )
+        @test_throws ArgumentError LAlatex.L_show(
+            LAlatex.set([1 2; 3 4]; arraystyle = :not_a_style),
+        )
+    end
 end

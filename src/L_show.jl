@@ -116,23 +116,33 @@ end
 
 Normalize an arraystyle and return the LaTeX environment and brackets.
 """
-function parse_arraystyle(arraystyle, is_block_array = false)
-    valid_styles = [
-        :bmatrix,
-        :Bmatrix,
-        :pmatrix,
-        :vmatrix,
-        :Vmatrix,
-        :array,
-        :barray,
-        :Barray,
-        :parray,
-        :varray,
-        :Varray,
-    ]
-    if !(arraystyle in valid_styles)
-        arraystyle = :array
+const VALID_ARRAYSTYLES = (
+    :bmatrix,
+    :Bmatrix,
+    :pmatrix,
+    :vmatrix,
+    :Vmatrix,
+    :array,
+    :barray,
+    :Barray,
+    :parray,
+    :varray,
+    :Varray,
+)
+
+function validate_arraystyle_value(arraystyle, option_name = "arraystyle/setstyle")
+    if !(arraystyle isa Symbol) || !(arraystyle in VALID_ARRAYSTYLES)
+        throw(
+            ArgumentError(
+                "Unsupported $(option_name): $(repr(arraystyle)). Expected one of $(join(VALID_ARRAYSTYLES, ", ")).",
+            ),
+        )
     end
+    return arraystyle
+end
+
+function parse_arraystyle(arraystyle, is_block_array = false)
+    arraystyle = validate_arraystyle_value(arraystyle)
 
     if is_block_array
         arraystyle_map = Dict(

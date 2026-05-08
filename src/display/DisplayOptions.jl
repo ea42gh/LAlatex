@@ -31,8 +31,8 @@ function DisplayOptions(;
     symopts = NamedTuple(),
 )
     return DisplayOptions(
-        setstyle,
-        arraystyle,
+        validate_arraystyle_value(setstyle, "setstyle"),
+        validate_arraystyle_value(arraystyle, "arraystyle"),
         color,
         separator,
         number_formatter,
