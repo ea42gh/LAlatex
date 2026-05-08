@@ -286,6 +286,15 @@
             @test factor_non_sympy == 1
             @test factored_non_sympy === non_sympy_mixed
 
+            python_coeffs = pc.pylist([1, -2])
+            python_vectors = pc.pylist([[1, 0], [0, 1]])
+            python_lc = LAlatex.L_show(LAlatex.lc(python_coeffs, python_vectors))
+            @test occursin("\\left(\\begin{array}{r}\n1", python_lc)
+            @test occursin("-  2", python_lc)
+
+            unsupported_python_lc = LAlatex.lc(non_sympy_py, python_vectors)
+            @test_throws ArgumentError LAlatex.L_show(unsupported_python_lc)
+
             direct_sympy_matrix = sympy.Matrix(2, 2, pc.pylist([a_py, b_py, b_py, a_py]))
             converted_sympy_matrix = LAlatex._sympy_matrix_to_julia_matrix(direct_sympy_matrix)
             @test converted_sympy_matrix isa Matrix{Any}

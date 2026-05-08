@@ -14,29 +14,50 @@ end
 
 Create a linear-combination group that `l_show` can render.
 """
+function _pyconvert_vector_or_nothing(x)
+    pc = _ensure_pythoncall()
+    (pc === nothing || !_is_pythoncall_py(x)) && return nothing
+    return try
+        Base.invokelatest(pc.pyconvert, Vector{Any}, x)
+    catch
+        nothing
+    end
+end
+
+function _pyconvert_matrix_or_nothing(x)
+    pc = _ensure_pythoncall()
+    (pc === nothing || !_is_pythoncall_py(x)) && return nothing
+    return try
+        Base.invokelatest(pc.pyconvert, Matrix{Any}, x)
+    catch
+        nothing
+    end
+end
+
+function _pyconvert_lc_coefficients(s)
+    _is_pythoncall_py(s) || return s
+    converted = _pyconvert_vector_or_nothing(s)
+    converted !== nothing && return converted
+
+    converted = _pyconvert_matrix_or_nothing(s)
+    converted !== nothing && return vec(converted)
+    return s
+end
+
+function _pyconvert_lc_vectors(X)
+    _is_pythoncall_py(X) || return X
+    converted = _pyconvert_matrix_or_nothing(X)
+    converted !== nothing && return converted
+
+    converted = _pyconvert_vector_or_nothing(X)
+    converted !== nothing && return converted
+    return X
+end
+
 function lc(s, X; kwargs...)
     if _is_pythoncall_py(s) || _is_pythoncall_py(X)
-        pc = _ensure_pythoncall()
-        if pc !== nothing
-            if _is_pythoncall_py(s)
-                try
-                    s = Base.invokelatest(pc.pyconvert, Vector{Any}, s)
-                catch
-                    try
-                        s = vec(Base.invokelatest(pc.pyconvert, Matrix{Any}, s))
-                    catch
-                        # fall through with original s
-                    end
-                end
-            end
-            if _is_pythoncall_py(X)
-                try
-                    X = Base.invokelatest(pc.pyconvert, Matrix{Any}, X)
-                catch
-                    # fall through with original X
-                end
-            end
-        end
+        s = _pyconvert_lc_coefficients(s)
+        X = _pyconvert_lc_vectors(X)
     end
     return LinearCombination(s, X, (; kwargs...))
 end
@@ -71,7 +92,7 @@ function _lc_is_zero_coeff(x, raw::AbstractString)
             raw == "0"
         end
     end
-    if _is_pythoncall_py(x)
+    if _is_sympy_py(x)
         pc = _ensure_pythoncall()
         return try
             Base.invokelatest(pc.pyconvert, Bool, x == 0)
@@ -94,7 +115,7 @@ function _lc_symbolics_extract_negative(x)
 end
 
 function _lc_sympy_extract_negative(x)
-    _is_pythoncall_py(x) || return nothing
+    _is_sympy_py(x) || return nothing
     pc = _ensure_pythoncall()
     return try
         method = Base.invokelatest(pc.pygetattr, x, "could_extract_minus_sign")
