@@ -285,3 +285,4 @@ julia --project=. perf/benchmark.jl
 
 It measures representative first-call paths for matrix rendering, `lc(...)`,
 Symbolics rendering, and the first SymPy render when the SymPy backend is usable.
+Each line reports elapsed time and allocated bytes.

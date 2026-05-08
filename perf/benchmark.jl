@@ -3,9 +3,14 @@ using LinearAlgebra
 using Printf
 
 function bench(f, label)
-    elapsed = @elapsed result = f()
-    println(rpad(label, 24), @sprintf("%.6f s", elapsed))
-    return result
+    stats = @timed f()
+    println(
+        rpad(label, 24),
+        @sprintf("%.6f s", stats.time),
+        "  ",
+        @sprintf("%9d bytes", stats.bytes),
+    )
+    return stats.value
 end
 
 A = [1 2 3; 4 5 6]
@@ -26,23 +31,23 @@ bench(() -> L_show("x = ", lc([2, -1, 3], [A[:, 1], A[:, 2], b])), "steady lc")
 bench(() -> begin
     set_backend!(:symbolics)
     x, y = syms(:x, :y)
-    L_show((x + y)^2; symopts=(expand=true,))
+    L_show((x + y)^2; symopts = (expand = true,))
 end, "symbolics render")
 bench(() -> begin
     set_backend!(:symbolics)
     x, y = syms(:x, :y)
-    L_show((x + y)^2; symopts=(expand=true,))
+    L_show((x + y)^2; symopts = (expand = true,))
 end, "steady symbolics")
 
 if LAlatex.Backend.backend_usable(LAlatex.Backend.SymPyBackend)
     bench(() -> begin
         set_backend!(:sympy)
-        a = syms(:a; backend=:sympy, real=true)
+        a = syms(:a; backend = :sympy, real = true)
         L_show(a^2 + 2a + 1)
     end, "sympy bootstrap")
     bench(() -> begin
         set_backend!(:sympy)
-        a = syms(:a; backend=:sympy, real=true)
+        a = syms(:a; backend = :sympy, real = true)
         L_show(a^2 + 2a + 1)
     end, "sympy steady render")
 else

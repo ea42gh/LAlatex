@@ -62,4 +62,5 @@ julia --project=. perf/benchmark.jl
 ```
 
 This gives a lightweight view of first-call rendering cost for the main display
-paths and reports whether the SymPy-backed render path was exercised or skipped.
+paths, reports allocated bytes, and reports whether the SymPy-backed render path
+was exercised or skipped.
