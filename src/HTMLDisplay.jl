@@ -239,14 +239,17 @@ end
     show_side_by_side_html(captured_outputs, titles=nothing) -> String
 
 Create HTML that displays captured text outputs side by side.
+
+When `titles` is provided, its length must match `captured_outputs`.
 """
 function show_side_by_side_html(captured_outputs, titles = nothing)
+    outputs = collect(captured_outputs)
     html = """
     <div style="display: flex; justify-content: space-between;">
     """
 
     if isnothing(titles)
-        for output in captured_outputs
+        for output in outputs
             html *= """
             <div style="flex: 1; align-content:flex-start; margin-right: 10px;">
             $(_side_by_side_body(output))
@@ -254,8 +257,15 @@ function show_side_by_side_html(captured_outputs, titles = nothing)
             """
         end
     else
-        for (i, output) in enumerate(captured_outputs)
-            title = titles[i]
+        title_values = collect(titles)
+        if length(title_values) != length(outputs)
+            throw(
+                ArgumentError(
+                    "titles length ($(length(title_values))) must match captured_outputs length ($(length(outputs)))",
+                ),
+            )
+        end
+        for (title, output) in zip(title_values, outputs)
             html *= """
             <div style="flex: 1; align-content:flex-start; margin-right: 10px;">
             <h4>$(_escape_html_text(title))</h4>

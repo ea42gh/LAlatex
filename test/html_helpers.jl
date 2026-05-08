@@ -65,6 +65,8 @@
     @test occursin("two", side)
     @test occursin("A", side)
     @test occursin("B", side)
+    @test_throws ArgumentError LAlatex.show_side_by_side_html(["one", "two"], ["A"])
+    @test_throws ArgumentError LAlatex.show_side_by_side_html(["one"], ["A", "B"])
     escaped_side = LAlatex.show_side_by_side_html(["<b>x</b>"], ["<i>t</i>"])
     @test occursin("&lt;b&gt;x&lt;/b&gt;", escaped_side)
     @test occursin("&lt;i&gt;t&lt;/i&gt;", escaped_side)
