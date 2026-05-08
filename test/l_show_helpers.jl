@@ -84,4 +84,10 @@
 
     @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x y]))
     @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1, 2, 3], [x y]))
+    @test_throws ArgumentError LAlatex.L_show(
+        LAlatex.lc([1, -2], [x y]; sign_policy = :unknown),
+    )
+    @test_throws ArgumentError LAlatex.L_show(
+        LAlatex.lc([1, -2], [x y]; sign_policy = "signed"),
+    )
 end

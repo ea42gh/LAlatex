@@ -164,6 +164,15 @@ function _lc_split_sign(x, raw0::AbstractString, inner)
     return (false, r, false)
 end
 
+function _validate_lc_sign_policy(sign_policy)
+    sign_policy in (:signed, :plus) && return sign_policy
+    throw(
+        ArgumentError(
+            "Unsupported lc sign_policy: $(repr(sign_policy)). Expected :signed or :plus.",
+        ),
+    )
+end
+
 """
     L_show_lc(lcobj; kwargs...) -> String
 
@@ -209,6 +218,7 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
         ),
         Dict(pairs(lcobj.options)),
     )
+    sign_policy = _validate_lc_sign_policy(opts[:sign_policy])
     effective_factor_out = get(opts, :factor_out, options.factor_out)
 
     inner_options = DisplayOptions(;
@@ -257,7 +267,7 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
     end
     getvec(i) = X isa AbstractMatrix ? X[:, i] : X[i]
 
-    if opts[:sign_policy] === :plus
+    if sign_policy === :plus
         terms =
             map(1:n) do i
                 c = strip(inner(s[i]))
