@@ -5,13 +5,157 @@ Apply optional symbolic transformations for display. Works with Symbolics and Sy
 Non-symbolic inputs are returned unchanged.
 """
 function _symbolics_factor_transform(y::Symbolics.Num)
-    # Symbolics currently exposes no stable algebraic factoring API for Num.
-    return y
+    terms = _symbolics_add_terms(Symbolics.unwrap(y))
+    length(terms) > 1 || return y
+
+    term_factors = [_symbolics_factor_counts(term) for term in terms]
+    common_factors = _symbolics_common_factors(term_factors)
+    isempty(common_factors) && return y
+
+    common = _symbolics_factor_product(common_factors)
+    remainders = [Symbolics.Num(term) / common for term in terms]
+    return common * _symbolics_sum(remainders)
 end
 
-function _symbolics_collect_transform(y::Symbolics.Num, _collect)
-    # Symbolics currently exposes no stable collect-by-variable API for Num.
-    return y
+function _symbolics_collect_transform(y::Symbolics.Num, collect_var)
+    var = _symbolics_unwrap_num(collect_var)
+    terms = _symbolics_add_terms(Symbolics.unwrap(y))
+    length(terms) > 1 || return y
+
+    grouped = Dict{Int,Vector{Any}}()
+    for term in terms
+        power, coeff = _symbolics_split_var_power(term, var)
+        push!(get!(grouped, power, Any[]), coeff)
+    end
+
+    collected_terms = Any[]
+    for power in sort(collect(keys(grouped)); rev = true)
+        coeff = _symbolics_sum(grouped[power])
+        if power == 0
+            push!(collected_terms, coeff)
+        else
+            var_term = _symbolics_power(var, power)
+            if isequal(Symbolics.unwrap(coeff), 1)
+                push!(collected_terms, var_term)
+            else
+                push!(collected_terms, var_term * coeff)
+            end
+        end
+    end
+    return _symbolics_sum(collected_terms)
+end
+
+function _symbolics_is_call(expr, op)
+    return Symbolics.SymbolicUtils.iscall(expr) &&
+           Symbolics.SymbolicUtils.operation(expr) == op
+end
+
+function _symbolics_add_terms(expr)
+    if Symbolics.SymbolicUtils.isadd(expr) || _symbolics_is_call(expr, +)
+        return collect(Symbolics.SymbolicUtils.arguments(expr))
+    elseif _symbolics_is_call(expr, -) &&
+           length(Symbolics.SymbolicUtils.arguments(expr)) == 2
+        args = Symbolics.SymbolicUtils.arguments(expr)
+        return Any[args[1], -Symbolics.Num(args[2])]
+    end
+    return Any[expr]
+end
+
+function _symbolics_mul_factors(expr)
+    if Symbolics.SymbolicUtils.ismul(expr) || _symbolics_is_call(expr, *)
+        return collect(Symbolics.SymbolicUtils.arguments(expr))
+    end
+    return Any[expr]
+end
+
+function _symbolics_integer_power(expr)
+    if _symbolics_is_call(expr, ^)
+        args = Symbolics.SymbolicUtils.arguments(expr)
+        if length(args) == 2
+            exponent = _symbolics_literal_number(args[2])
+            exponent isa Integer && exponent > 0 && return args[1], exponent
+        end
+    end
+    return expr, 1
+end
+
+function _symbolics_literal_number(expr)
+    if expr isa Symbolics.Num
+        expr = Symbolics.unwrap(expr)
+    end
+    if Symbolics.SymbolicUtils.is_literal_number(expr)
+        return Symbolics.SymbolicUtils.unwrap_const(expr)
+    end
+    return expr isa Number ? expr : nothing
+end
+
+function _symbolics_factor_counts(term)
+    counts = Dict{Any,Int}()
+    for factor in _symbolics_mul_factors(term)
+        _symbolics_literal_number(factor) !== nothing && continue
+        base, power = _symbolics_integer_power(factor)
+        counts[base] = get(counts, base, 0) + power
+    end
+    return counts
+end
+
+function _symbolics_common_factors(term_factors)
+    isempty(term_factors) && return Dict{Any,Int}()
+    common = copy(first(term_factors))
+    for factors in Iterators.drop(term_factors, 1)
+        for key in collect(keys(common))
+            if haskey(factors, key)
+                common[key] = min(common[key], factors[key])
+            else
+                delete!(common, key)
+            end
+        end
+    end
+    return common
+end
+
+function _symbolics_power(base, power::Integer)
+    base_num = Symbolics.Num(base)
+    power == 1 && return base_num
+    return base_num^power
+end
+
+function _symbolics_factor_product(factors::Dict)
+    result = 1
+    for (base, power) in factors
+        result *= _symbolics_power(base, power)
+    end
+    return result
+end
+
+function _symbolics_product(factors)
+    result = 1
+    for factor in factors
+        result *= Symbolics.Num(factor)
+    end
+    return result
+end
+
+function _symbolics_sum(terms)
+    result = 0
+    for term in terms
+        result += Symbolics.Num(term)
+    end
+    return result
+end
+
+function _symbolics_split_var_power(term, var)
+    power = 0
+    remainder_factors = Any[]
+    for factor in _symbolics_mul_factors(term)
+        base, exponent = _symbolics_integer_power(factor)
+        if isequal(base, var)
+            power += exponent
+        else
+            push!(remainder_factors, factor)
+        end
+    end
+    return power, _symbolics_product(remainder_factors)
 end
 
 function symbolic_transform(

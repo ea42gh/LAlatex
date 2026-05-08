@@ -90,6 +90,10 @@ to_latex(3//4)
 ## Symbolic display controls
 
 Use `symbolic_transform` directly, or pass `symopts` to `L_show`/`l_show` for display-time transforms.
+For the Symbolics backend, `factor` performs conservative common-factor
+extraction and `collect` groups polynomial-like additive terms by a requested
+variable. For the SymPy backend, `expand`, `simplify`, `factor`, and `collect`
+are delegated to SymPy.
 
 ```julia
 set_backend!(:symbolics)
@@ -97,6 +101,8 @@ x, y = syms(:x, :y)
 expr = (x + y)^2
 
 L_show(expr; symopts=(expand=true,))
+L_show(x^2 + x*y; symopts=(factor=true,))
+L_show(x^2 + x*y + x + 1; symopts=(collect=x,))
 ```
 
 Symbolic coefficients also work in linear combinations. In signed mode,

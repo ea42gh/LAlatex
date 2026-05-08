@@ -53,10 +53,21 @@ instead of escaped text.
 | --- | --- | --- |
 | `simplify` | `true`/`false` | Apply backend simplification. |
 | `expand` | `true`/`false` | Expand algebraic products. |
-| `factor` | `true`/`false` | Factor algebraic expressions when the active backend exposes a stable factor API. Currently active for SymPy and a no-op for Symbolics. |
-| `collect` | `Symbolics.Num`/`PythonCall.Py`/`nothing` | Collect terms with respect to a variable when the active backend exposes a stable collect API. Currently active for SymPy and a no-op for Symbolics. |
+| `factor` | `true`/`false` | Factor algebraic expressions. Symbolics uses conservative common-factor extraction for additive expressions; SymPy delegates to `sympy.factor`. |
+| `collect` | `Symbolics.Num`/`PythonCall.Py`/`nothing` | Collect terms with respect to a variable. Symbolics groups polynomial-like additive terms; SymPy delegates to `sympy.collect`. |
 
 Use `symopts=(; factor=true)` or `symopts=(factor=true,)` to build a `NamedTuple`.
+
+Examples:
+
+```julia
+@syms x y
+
+L_show((x + y)^2; symopts=(expand=true,))
+L_show(x^2 + x*y; symopts=(factor=true,))
+L_show(x^2 + x*y + x + 1; symopts=(collect=x,))
+L_show((x + y)^2; symopts=(expand=true, simplify=true))
+```
 
 ## Formatter helpers
 
