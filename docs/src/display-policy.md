@@ -57,6 +57,10 @@ as already-authored LaTeX and are inserted as math fragments. If a condition,
 label, or aligned cell should render in math mode, pass `L"..."` instead of a
 plain string.
 
+`LinearAlgebra.UniformScaling` values are rendered as math identity fragments,
+not text. For example, `L_show(I)`, `L_show(0I)`, and `L_show(2I)` render as
+`$I$`, `$0$`, and `$2 I$` rather than `\text{I}` or `\text{2 I}`.
+
 ## Cases
 
 Use `cases` for piecewise definitions. Each entry may be written as a pair:

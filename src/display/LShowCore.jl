@@ -150,17 +150,17 @@ function L_show_core(obj, options::DisplayOptions)
     end
 
     if obj isa UniformScaling{Bool}
-        return L_show_string(obj.λ ? "I" : "0"; color = options.color)
+        return style_wrapper(obj.λ ? "I" : "0", options.color)
     end
 
     if obj isa UniformScaling
         λ = obj.λ
         if λ == 0
-            return L_show_string("0"; color = options.color)
+            return style_wrapper("0", options.color)
         elseif λ == 1
-            return L_show_string("I"; color = options.color)
+            return style_wrapper("I", options.color)
         else
-            return L_show_string("$(to_latex(λ)) I"; color = options.color)
+            return style_wrapper("$(to_latex(λ)) I", options.color)
         end
     end
 

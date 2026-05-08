@@ -95,6 +95,8 @@ render directly in a display frontend.
 Plain `String` values are rendered as text. `LaTeXString` values are treated
 as already-authored LaTeX math fragments. The same distinction applies to
 top-level arguments and to cells inside `set`, `cases`, and `aligned`.
+`LinearAlgebra.UniformScaling` values such as `I`, `0I`, and `2I` render as
+math identity fragments rather than plain text.
 
 Display containers inherit options from the surrounding `L_show` call, then
 apply their own keyword arguments as local overrides. Known display options are
