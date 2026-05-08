@@ -51,6 +51,11 @@
         @test explicit_no_color == "\$42\$\n"
 
         @test_throws ArgumentError LAlatex.set_display_defaults!(not_an_option = true)
+        @test_throws ArgumentError LAlatex.set_display_defaults!(factor_out = "false")
+        @test_throws ArgumentError LAlatex.with_display_defaults(
+            () -> LAlatex.L_show([1//2 1//3]);
+            factor_out = 1,
+        )
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; arraystyle = :not_a_style)
     finally
         LAlatex.reset_display_defaults!()

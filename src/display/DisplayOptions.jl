@@ -35,6 +35,36 @@ function _validate_display_default_keys(defaults)
     return defaults
 end
 
+function _validate_factor_out_value(factor_out)
+    factor_out isa Bool && return factor_out
+    throw(
+        ArgumentError(
+            "factor_out must be a Bool; got $(repr(factor_out)) of type $(typeof(factor_out)).",
+        ),
+    )
+end
+
+function _validate_display_default_values(defaults)
+    if haskey(defaults, :setstyle)
+        validate_arraystyle_value(defaults.setstyle, "setstyle")
+    end
+    if haskey(defaults, :arraystyle)
+        validate_arraystyle_value(defaults.arraystyle, "arraystyle")
+    end
+    if haskey(defaults, :factor_out)
+        _validate_factor_out_value(defaults.factor_out)
+    end
+    if haskey(defaults, :symopts)
+        normalize_symopts(defaults.symopts)
+    end
+    return defaults
+end
+
+function _validate_display_defaults(defaults)
+    _validate_display_default_keys(defaults)
+    return _validate_display_default_values(defaults)
+end
+
 function _scoped_display_defaults()
     return get(task_local_storage(), DISPLAY_DEFAULTS_TASK_KEY, NamedTuple())
 end
@@ -71,7 +101,7 @@ Set process-wide display defaults used by `L_show`, `l_show`, and nested display
 containers. Explicit call-site keywords still take precedence.
 """
 function set_display_defaults!(; kwargs...)
-    defaults = _validate_display_default_keys((; kwargs...))
+    defaults = _validate_display_defaults((; kwargs...))
     GLOBAL_DISPLAY_DEFAULTS[] = merge(GLOBAL_DISPLAY_DEFAULTS[], defaults)
     return GLOBAL_DISPLAY_DEFAULTS[]
 end
@@ -100,7 +130,7 @@ Run `f` with task-local display defaults. Scoped defaults override process-wide
 defaults, and explicit display keywords override both.
 """
 function with_display_defaults(f; kwargs...)
-    defaults = _validate_display_default_keys((; kwargs...))
+    defaults = _validate_display_defaults((; kwargs...))
     previous = _scoped_display_defaults()
     task_local_storage(DISPLAY_DEFAULTS_TASK_KEY, merge(previous, defaults))
     try
@@ -139,7 +169,7 @@ function DisplayOptions(;
         separator,
         number_formatter,
         per_element_style,
-        factor_out,
+        _validate_factor_out_value(factor_out),
         normalize_symopts(symopts),
     )
 end

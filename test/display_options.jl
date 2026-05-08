@@ -141,4 +141,15 @@
             LAlatex.set([1 2; 3 4]; arraystyle = :not_a_style),
         )
     end
+
+    @testset "factor_out option validation" begin
+        @test_throws ArgumentError LAlatex.L_show([1//2 1//3]; factor_out = :not_bool)
+        @test_throws ArgumentError LAlatex.L_show(
+            LAlatex.set([1//2 1//3]; factor_out = "false"),
+        )
+        @test_throws ArgumentError LAlatex.L_show(
+            LAlatex.lc([1], [[1//2, 1//3]]; factor_out = 0),
+        )
+        @test_throws ArgumentError LAlatex.L_show_core([1//2 1//3]; factor_out = nothing)
+    end
 end
