@@ -12,7 +12,6 @@ const DISPLAY_OPTION_KEYS = (
 struct DisplayOptionUnset end
 
 const DISPLAY_OPTION_UNSET = DisplayOptionUnset()
-const GLOBAL_DISPLAY_DEFAULTS = Ref{Any}(NamedTuple())
 const DISPLAY_DEFAULTS_TASK_KEY = (:LAlatex, :display_defaults)
 
 struct DisplayOptions
@@ -25,6 +24,46 @@ struct DisplayOptions
     factor_out::Bool
     symopts::NamedTuple
 end
+
+struct DisplayDefaults
+    setstyle::Any
+    has_setstyle::Bool
+    arraystyle::Any
+    has_arraystyle::Bool
+    color::Any
+    has_color::Bool
+    separator::Any
+    has_separator::Bool
+    number_formatter::Any
+    has_number_formatter::Bool
+    per_element_style::Any
+    has_per_element_style::Bool
+    factor_out::Any
+    has_factor_out::Bool
+    symopts::Any
+    has_symopts::Bool
+end
+
+DisplayDefaults() = DisplayDefaults(
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+    DISPLAY_OPTION_UNSET,
+    false,
+)
+
+const GLOBAL_DISPLAY_DEFAULTS = Ref(DisplayDefaults())
 
 function _validate_display_default_keys(defaults)
     for key in keys(defaults)
@@ -83,8 +122,44 @@ function _validate_display_defaults(defaults)
     return _validate_display_default_values(defaults)
 end
 
+function _display_default_value(defaults::DisplayDefaults, key::Symbol)
+    has_key = getfield(defaults, Symbol(:has_, key))
+    return has_key ? getfield(defaults, key) : DISPLAY_OPTION_UNSET
+end
+
+function _display_defaults_to_named_tuple(defaults::DisplayDefaults)
+    pairs = Pair{Symbol,Any}[]
+    for key in DISPLAY_OPTION_KEYS
+        value = _display_default_value(defaults, key)
+        value === DISPLAY_OPTION_UNSET || push!(pairs, key => value)
+    end
+    return (; pairs...)
+end
+
+function _merge_display_defaults(defaults::DisplayDefaults, overrides)
+    overrides = _validate_display_defaults(overrides)
+    return DisplayDefaults(
+        get(overrides, :setstyle, defaults.setstyle),
+        haskey(overrides, :setstyle) || defaults.has_setstyle,
+        get(overrides, :arraystyle, defaults.arraystyle),
+        haskey(overrides, :arraystyle) || defaults.has_arraystyle,
+        get(overrides, :color, defaults.color),
+        haskey(overrides, :color) || defaults.has_color,
+        get(overrides, :separator, defaults.separator),
+        haskey(overrides, :separator) || defaults.has_separator,
+        get(overrides, :number_formatter, defaults.number_formatter),
+        haskey(overrides, :number_formatter) || defaults.has_number_formatter,
+        get(overrides, :per_element_style, defaults.per_element_style),
+        haskey(overrides, :per_element_style) || defaults.has_per_element_style,
+        get(overrides, :factor_out, defaults.factor_out),
+        haskey(overrides, :factor_out) || defaults.has_factor_out,
+        get(overrides, :symopts, defaults.symopts),
+        haskey(overrides, :symopts) || defaults.has_symopts,
+    )
+end
+
 function _scoped_display_defaults()
-    return get(task_local_storage(), DISPLAY_DEFAULTS_TASK_KEY, NamedTuple())
+    return get(task_local_storage(), DISPLAY_DEFAULTS_TASK_KEY, DisplayDefaults())
 end
 
 function _hardcoded_display_defaults()
@@ -101,10 +176,22 @@ function _hardcoded_display_defaults()
 end
 
 function _effective_display_defaults()
-    return merge(
-        _hardcoded_display_defaults(),
-        GLOBAL_DISPLAY_DEFAULTS[],
-        _scoped_display_defaults(),
+    hardcoded = _hardcoded_display_defaults()
+    global_defaults = GLOBAL_DISPLAY_DEFAULTS[]
+    scoped_defaults = _scoped_display_defaults()
+    return (;
+        (
+            key => begin
+                scoped = _display_default_value(scoped_defaults, key)
+                if scoped !== DISPLAY_OPTION_UNSET
+                    scoped
+                else
+                    global_value = _display_default_value(global_defaults, key)
+                    global_value !== DISPLAY_OPTION_UNSET ? global_value :
+                    getproperty(hardcoded, key)
+                end
+            end for key in DISPLAY_OPTION_KEYS
+        )...,
     )
 end
 
@@ -119,9 +206,9 @@ Set process-wide display defaults used by `L_show`, `l_show`, and nested display
 containers. Explicit call-site keywords still take precedence.
 """
 function set_display_defaults!(; kwargs...)
-    defaults = _validate_display_defaults((; kwargs...))
-    GLOBAL_DISPLAY_DEFAULTS[] = merge(GLOBAL_DISPLAY_DEFAULTS[], defaults)
-    return GLOBAL_DISPLAY_DEFAULTS[]
+    GLOBAL_DISPLAY_DEFAULTS[] =
+        _merge_display_defaults(GLOBAL_DISPLAY_DEFAULTS[], (; kwargs...))
+    return display_defaults()
 end
 
 """
@@ -130,8 +217,8 @@ end
 Clear process-wide display defaults.
 """
 function reset_display_defaults!()
-    GLOBAL_DISPLAY_DEFAULTS[] = NamedTuple()
-    return GLOBAL_DISPLAY_DEFAULTS[]
+    GLOBAL_DISPLAY_DEFAULTS[] = DisplayDefaults()
+    return display_defaults()
 end
 
 """
@@ -139,7 +226,7 @@ end
 
 Return the currently configured process-wide display defaults.
 """
-display_defaults() = GLOBAL_DISPLAY_DEFAULTS[]
+display_defaults() = _display_defaults_to_named_tuple(GLOBAL_DISPLAY_DEFAULTS[])
 
 """
     with_display_defaults(f; kwargs...)
@@ -148,9 +235,11 @@ Run `f` with task-local display defaults. Scoped defaults override process-wide
 defaults, and explicit display keywords override both.
 """
 function with_display_defaults(f; kwargs...)
-    defaults = _validate_display_defaults((; kwargs...))
     previous = _scoped_display_defaults()
-    task_local_storage(DISPLAY_DEFAULTS_TASK_KEY, merge(previous, defaults))
+    task_local_storage(
+        DISPLAY_DEFAULTS_TASK_KEY,
+        _merge_display_defaults(previous, (; kwargs...)),
+    )
     try
         return f()
     finally

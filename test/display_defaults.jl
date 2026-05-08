@@ -55,6 +55,17 @@
         end
         @test occursin("\\textcolor{blue}{42}", scoped_symbol_color)
 
+        explicit_nothing_default = LAlatex.set_display_defaults!(color = nothing)
+        @test haskey(explicit_nothing_default, :color)
+        @test explicit_nothing_default.color === nothing
+        @test LAlatex.L_show(42) == "\$42\$\n"
+
+        @test_throws ErrorException LAlatex.with_display_defaults(arraystyle = :vmatrix) do
+            error("boom")
+        end
+        restored_after_error = LAlatex.L_show([1 2; 3 4])
+        @test occursin("\\begin{bmatrix}", restored_after_error)
+
         @test_throws ArgumentError LAlatex.set_display_defaults!(not_an_option = true)
         @test_throws ArgumentError LAlatex.set_display_defaults!(color = "red}{\\bad")
         @test_throws ArgumentError LAlatex.with_display_defaults(
