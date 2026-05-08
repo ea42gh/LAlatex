@@ -43,4 +43,5 @@ ok, sympy, pyexe = RUN_SYMPY_TESTS ? _sympy_available() : (false, nothing, nothi
     include("display_invariants.jl")
     include("formatters.jl")
     include("l_show_helpers.jl")
+    include("quality_checks.jl")
 end
