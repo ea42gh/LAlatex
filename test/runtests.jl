@@ -33,6 +33,7 @@ ok, sympy, pyexe = _sympy_available()
     include("html_helpers.jl")
     include("latex_helpers.jl")
     include("symbolic_display.jl")
+    include("golden_snapshots.jl")
     include("formatters.jl")
     include("l_show_helpers.jl")
 end
