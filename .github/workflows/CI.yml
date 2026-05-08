@@ -53,6 +53,11 @@ jobs:
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+      - name: Core tests without PythonCall
+        run: julia --project=. test/runtests.jl
+        env:
+          LALATEX_DISABLE_PYTHONCALL: "1"
+          LALATEX_TEST_SUITE: core
       - uses: julia-actions/julia-runtest@v1
         env:
           JULIA_CONDAPKG_BACKEND: Null

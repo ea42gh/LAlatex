@@ -5,6 +5,12 @@ using BlockArrays
 using LAlatex
 using Symbolics
 
+const TEST_SUITE = get(ENV, "LALATEX_TEST_SUITE", "all")
+if !(TEST_SUITE in ("all", "core"))
+    throw(ArgumentError("LALATEX_TEST_SUITE must be `all` or `core`; got `$TEST_SUITE`"))
+end
+const RUN_SYMPY_TESTS = TEST_SUITE == "all"
+
 """
 Return (ok, sympy, exe) where `ok` is true if SymPy is importable via PythonCall.
 `exe` is the Python executable reported by PythonCall when available.
@@ -23,7 +29,7 @@ function _sympy_available()
     end
 end
 
-ok, sympy, pyexe = _sympy_available()
+ok, sympy, pyexe = RUN_SYMPY_TESTS ? _sympy_available() : (false, nothing, nothing)
 
 @testset "LAlatex" begin
     include("public_exports.jl")
