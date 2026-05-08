@@ -7,7 +7,7 @@ export BackendTag, SymbolicsBackend, SymPyBackend, get_backend, set_backend!, ba
 
 abstract type BackendTag end
 struct SymbolicsBackend <: BackendTag end
-struct SymPyBackend      <: BackendTag end
+struct SymPyBackend <: BackendTag end
 
 const _backend = Ref{BackendTag}(SymbolicsBackend())
 

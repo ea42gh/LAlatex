@@ -29,7 +29,8 @@ See the Quickstart page for a minimal setup and first render.
 See the Upgrading page for the 1.0 migration notes and current release policy.
 
 See the Examples page for backend switching, assumptions, HTML helpers, and LaTeX helpers.
-See the Display policy page for `cases` and `aligned` rendering rules.
+See the Display policy page for `L_show`/`l_show` contracts, text-vs-math
+rendering, option precedence, and `cases`/`aligned` rendering rules.
 
 ## Gallery
 

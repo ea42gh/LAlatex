@@ -21,7 +21,7 @@ end
 
 Wrap the formatted entry in `\\textcolor{color}{}`.
 """
-function color_formatter(x, i, j, formatted_x; color="red")
+function color_formatter(x, i, j, formatted_x; color = "red")
     return "\\textcolor{$color}{$formatted_x}"
 end
 
@@ -45,7 +45,7 @@ end
 
 Wrap entries with absolute value above `threshold` in `\\boxed{}`.
 """
-function highlight_large_values(x, i, j, formatted_x; threshold=10)
+function highlight_large_values(x, i, j, formatted_x; threshold = 10)
     if abs(x) > threshold
         return "\\boxed{$formatted_x}"
     else

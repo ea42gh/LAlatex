@@ -6,7 +6,8 @@ _in_precompile() = ccall(:jl_generating_output, Cint, ()) == 1
 _pythoncall_disabled() = get(ENV, "LALATEX_DISABLE_PYTHONCALL", "") != ""
 
 function _pythoncall_module()
-    return isdefined(@__MODULE__, :PythonCall) ? Base.invokelatest(getfield, @__MODULE__, :PythonCall) : nothing
+    return isdefined(@__MODULE__, :PythonCall) ?
+           Base.invokelatest(getfield, @__MODULE__, :PythonCall) : nothing
 end
 
 function _ensure_pythoncall()
@@ -25,7 +26,7 @@ function _ensure_pythoncall()
                     "PythonCall is not installed in the active environment.\n\n" *
                     "Install optional SymPy support with:\n" *
                     "  using Pkg; Pkg.add(\"PythonCall\")\n\n" *
-                    "Original error:\n$err"
+                    "Original error:\n$err",
                 )
             end
             rethrow()
@@ -78,15 +79,18 @@ export @syms, syms, syms_sympy, @syms_sympy, import_sympy, assume!, assumptions
 export symbolic_transform, symbolic_term_coefficients
 
 export to_latex, L_show, l_show, L_interp
-export to_html, show_html, pr, capture_output, show_side_by_side_html, show_side_by_side, RawHTML
+export to_html,
+    show_html, pr, capture_output, show_side_by_side_html, show_side_by_side, RawHTML
 
 export mixed_matrix, @mixed_matrix, set, lc, cases, aligned
-export apply_function, round_value, round_matrices, print_np_array_def, factor_out_denominator
+export apply_function,
+    round_value, round_matrices, print_np_array_def, factor_out_denominator
 
 export bold_formatter, italic_formatter, color_formatter, conditional_color_formatter
 export highlight_large_values, underline_formatter, overline_formatter, combine_formatters
 export scientific_formatter, percentage_formatter, exponential_formatter
-export tril_formatter, block_formatter, diagonal_blocks_formatter, jordanblock_formatter, rowechelon_formatter
+export tril_formatter,
+    block_formatter, diagonal_blocks_formatter, jordanblock_formatter, rowechelon_formatter
 
 """
     get_backend() -> BackendTag
@@ -127,7 +131,11 @@ function assume!(var; kwargs...)
     if var isa Symbolics.Num
         return assume_symbolics!(var; kwargs...)
     end
-    throw(ArgumentError("assume! expects a Symbolics variable; use SymPy assumptions with SymPy backend."))
+    throw(
+        ArgumentError(
+            "assume! expects a Symbolics variable; use SymPy assumptions with SymPy backend.",
+        ),
+    )
 end
 
 """
@@ -139,7 +147,7 @@ function assumptions(var)
     if var isa Symbolics.Num
         return symbolics_assumptions(var)
     end
-    return Dict{Symbol, Any}()
+    return Dict{Symbol,Any}()
 end
 
 """
@@ -187,10 +195,15 @@ macro syms(args...)
             if key isa QuoteNode
                 key = key.value
             end
-            key isa Symbol || throw(ArgumentError("@syms option keys must be Symbols; got: $(key)"))
+            key isa Symbol ||
+                throw(ArgumentError("@syms option keys must be Symbols; got: $(key)"))
             push!(opts, Expr(:kw, key, val))
         else
-            throw(ArgumentError("@syms expects Symbols and optional `key => value` pairs; got: $(a)"))
+            throw(
+                ArgumentError(
+                    "@syms expects Symbols and optional `key => value` pairs; got: $(a)",
+                ),
+            )
         end
     end
 
@@ -198,10 +211,10 @@ macro syms(args...)
     for v in vars
         name_str = String(v)
         if isempty(opts)
-            push!(assigns, :( $(esc(v)) = LAlatex.syms($name_str) ))
+            push!(assigns, :($(esc(v)) = LAlatex.syms($name_str)))
         else
             kw = Expr(:parameters, opts...)
-            push!(assigns, :( $(esc(v)) = LAlatex.syms($kw, $name_str) ))
+            push!(assigns, :($(esc(v)) = LAlatex.syms($kw, $name_str)))
         end
     end
 
@@ -229,16 +242,31 @@ include("L_show.jl")
         to_latex(int_vector)
         to_latex(int_matrix)
 
-        L_show(LaTeXString("A = "), int_matrix, LaTeXString(",\\quad A^T A = "), int_matrix' * int_matrix)
-        l_show(LaTeXString("A = "), int_matrix, LaTeXString(",\\quad A^T A = "), int_matrix' * int_matrix)
+        L_show(
+            LaTeXString("A = "),
+            int_matrix,
+            LaTeXString(",\\quad A^T A = "),
+            int_matrix' * int_matrix,
+        )
+        l_show(
+            LaTeXString("A = "),
+            int_matrix,
+            LaTeXString(",\\quad A^T A = "),
+            int_matrix' * int_matrix,
+        )
         L_show(LaTeXString("R = "), rational_matrix)
         L_show(LaTeXString("v = "), int_vector)
-        L_show(LaTeXString("M = "), symbolic_matrix; symopts=(expand=true,))
+        L_show(LaTeXString("M = "), symbolic_matrix; symopts = (expand = true,))
         L_show(lc([1, -2], identity_cols))
         L_show(cases(int_vector => LaTeXString("x > 0"), rational_matrix => "otherwise"))
-        L_show(aligned(LaTeXString("A") => int_matrix, (LaTeXString("x"), LaTeXString("\\in"), int_vector)))
+        L_show(
+            aligned(
+                LaTeXString("A") => int_matrix,
+                (LaTeXString("x"), LaTeXString("\\in"), int_vector),
+            ),
+        )
 
-        to_html("warmup"; sz=12)
+        to_html("warmup"; sz = 12)
         show_side_by_side_html(["left"], ["right"])
     end
 end

@@ -63,22 +63,30 @@ end
 
 Render a `Group` with delimiters and separators.
 """
-function L_show_set(obj_group; setstyle=:Barray, arraystyle=:parray, color=nothing, separator=", ",
-                    number_formatter=nothing, per_element_style=nothing, factor_out=true,
-                    symopts=NamedTuple())
+function L_show_set(
+    obj_group;
+    setstyle = :Barray,
+    arraystyle = :parray,
+    color = nothing,
+    separator = ", ",
+    number_formatter = nothing,
+    per_element_style = nothing,
+    factor_out = true,
+    symopts = NamedTuple(),
+)
     if !(obj_group isa Group)
         error("L_show_set expected a Group, got: $(typeof(obj_group))")
     end
 
     base_options = DisplayOptions(;
-        setstyle=setstyle,
-        arraystyle=arraystyle,
-        color=color,
-        separator=separator,
-        number_formatter=number_formatter,
-        per_element_style=per_element_style,
-        factor_out=factor_out,
-        symopts=symopts,
+        setstyle = setstyle,
+        arraystyle = arraystyle,
+        color = color,
+        separator = separator,
+        number_formatter = number_formatter,
+        per_element_style = per_element_style,
+        factor_out = factor_out,
+        symopts = symopts,
     )
     combined_options = merge_display_options(base_options, obj_group.options)
 
@@ -104,14 +112,14 @@ end
 
 function _render_display_cell(x, options)
     cell_options = DisplayOptions(;
-        setstyle=options.setstyle,
-        arraystyle=options.arraystyle,
-        color=nothing,
-        separator=options.separator,
-        number_formatter=options.number_formatter,
-        per_element_style=options.per_element_style,
-        factor_out=options.factor_out,
-        symopts=options.symopts,
+        setstyle = options.setstyle,
+        arraystyle = options.arraystyle,
+        color = nothing,
+        separator = options.separator,
+        number_formatter = options.number_formatter,
+        per_element_style = options.per_element_style,
+        factor_out = options.factor_out,
+        symopts = options.symopts,
     )
     return strip(L_show_core(x, cell_options))
 end
@@ -121,16 +129,22 @@ end
 
 Render a `Cases` group as a LaTeX `cases` environment.
 """
-function L_show_cases(case_group::Cases; arraystyle=:parray, color=nothing,
-                      number_formatter=nothing, per_element_style=nothing,
-                      factor_out=true, symopts=NamedTuple())
+function L_show_cases(
+    case_group::Cases;
+    arraystyle = :parray,
+    color = nothing,
+    number_formatter = nothing,
+    per_element_style = nothing,
+    factor_out = true,
+    symopts = NamedTuple(),
+)
     base_options = DisplayOptions(;
-        arraystyle=arraystyle,
-        color=color,
-        number_formatter=number_formatter,
-        per_element_style=per_element_style,
-        factor_out=factor_out,
-        symopts=symopts,
+        arraystyle = arraystyle,
+        color = color,
+        number_formatter = number_formatter,
+        per_element_style = per_element_style,
+        factor_out = factor_out,
+        symopts = symopts,
     )
     return L_show_cases(case_group, base_options)
 end
@@ -159,7 +173,9 @@ function _aligned_row_cells(row)
         isempty(row) && throw(ArgumentError("aligned rows must contain at least one cell"))
         return Tuple(row)
     end
-    throw(ArgumentError("aligned rows must be pairs, tuples, or vectors; got $(typeof(row))"))
+    throw(
+        ArgumentError("aligned rows must be pairs, tuples, or vectors; got $(typeof(row))"),
+    )
 end
 
 """
@@ -167,16 +183,22 @@ end
 
 Render an `Aligned` group as a LaTeX `aligned` environment.
 """
-function L_show_aligned(aligned_group::Aligned; arraystyle=:parray, color=nothing,
-                        number_formatter=nothing, per_element_style=nothing,
-                        factor_out=true, symopts=NamedTuple())
+function L_show_aligned(
+    aligned_group::Aligned;
+    arraystyle = :parray,
+    color = nothing,
+    number_formatter = nothing,
+    per_element_style = nothing,
+    factor_out = true,
+    symopts = NamedTuple(),
+)
     base_options = DisplayOptions(;
-        arraystyle=arraystyle,
-        color=color,
-        number_formatter=number_formatter,
-        per_element_style=per_element_style,
-        factor_out=factor_out,
-        symopts=symopts,
+        arraystyle = arraystyle,
+        color = color,
+        number_formatter = number_formatter,
+        per_element_style = per_element_style,
+        factor_out = factor_out,
+        symopts = symopts,
     )
     return L_show_aligned(aligned_group, base_options)
 end

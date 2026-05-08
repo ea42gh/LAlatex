@@ -18,7 +18,10 @@ function looks_like_math(s::AbstractString)
     stripped = strip(String(s))
     isempty(stripped) && return false
     startswith(stripped, "\\") && return true
-    return all(c -> isdigit(c) || c in (' ', '=', '+', '-', '*', '/', '(', ')', '^', '.', ','), stripped)
+    return all(
+        c -> isdigit(c) || c in (' ', '=', '+', '-', '*', '/', '(', ')', '^', '.', ','),
+        stripped,
+    )
 end
 
 """
@@ -51,7 +54,11 @@ Clean Symbolics-generated LaTeX for consistent math rendering.
 """
 function normalize_symbolics_latex(s::AbstractString)
     cleaned = strip(String(s))
-    cleaned = replace(cleaned, r"^\\begin\{equation\}\s*" => "", r"\s*\\end\{equation\}\s*$" => "")
+    cleaned = replace(
+        cleaned,
+        r"^\\begin\{equation\}\s*" => "",
+        r"\s*\\end\{equation\}\s*$" => "",
+    )
     cleaned = replace(cleaned, r"\\mathtt\{([^}]*)\}" => s"\1")
     cleaned = replace(cleaned, "\\_" => "_")
     return strip_math_delims(cleaned)

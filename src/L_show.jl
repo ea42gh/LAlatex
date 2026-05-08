@@ -29,8 +29,8 @@ end
 
 Round a numeric value, returning `Int` when `digits == 0`.
 """
-function round_value(x, digits::Int=0)
-    v = round(x, digits=digits)
+function round_value(x, digits::Int = 0)
+    v = round(x, digits = digits)
     return digits == 0 ? Int(v) : v
 end
 
@@ -39,7 +39,7 @@ end
 
 Round complex values elementwise.
 """
-function round_value(x::Complex, digits::Int=0)
+function round_value(x::Complex, digits::Int = 0)
     return Complex(round_value(real(x), digits), round_value(imag(x), digits))
 end
 
@@ -48,7 +48,7 @@ end
 
 Round each numeric entry in a list of lists of matrices.
 """
-function round_matrices(matrices; digits=0)
+function round_matrices(matrices; digits = 0)
     return apply_function(x -> round_value(x, digits), matrices)
 end
 
@@ -58,7 +58,7 @@ end
 Positional `digits` overload for rounding nested matrix collections.
 """
 function round_matrices(matrices, digits::Int)
-    return round_matrices(matrices; digits=digits)
+    return round_matrices(matrices; digits = digits)
 end
 
 """
@@ -66,7 +66,7 @@ end
 
 Return a NumPy array definition string for display or copy/paste.
 """
-function print_np_array_def(A; nm="A")
+function print_np_array_def(A; nm = "A")
     function format_element(x)
         if x isa Rational
             return string(numerator(x)) * "//" * string(denominator(x))
@@ -74,7 +74,10 @@ function print_np_array_def(A; nm="A")
             real_part = real(x)
             imag_part = imag(x)
             if imag_part < 0
-                return string(format_element(real_part)) * " - " * string(abs(imag_part)) * "j"
+                return string(format_element(real_part)) *
+                       " - " *
+                       string(abs(imag_part)) *
+                       "j"
             else
                 return string(format_element(real_part)) * " + " * string(imag_part) * "j"
             end
@@ -90,7 +93,7 @@ function print_np_array_def(A; nm="A")
         return nm * " = np.array([" * join(format_element.(A), ", ") * "])"
     else
         M, N = size(A)
-        rows = ["[" * join(format_element.(A[i, :]), ", ") * "]" for i in 1:M]
+        rows = ["[" * join(format_element.(A[i, :]), ", ") * "]" for i = 1:M]
         return nm * " = np.array([\n" * join(rows, ",\n") * "\n])"
     end
 end
@@ -99,7 +102,7 @@ end
 
 Optionally wrap LaTeX content in a `\\textcolor{}` block.
 """
-function style_wrapper(content::Any, color_opt=nothing)
+function style_wrapper(content::Any, color_opt = nothing)
     str_content = string(content)
     str_content = strip(str_content, ['$', '\n'])
     if color_opt !== nothing
@@ -113,8 +116,20 @@ end
 
 Normalize an arraystyle and return the LaTeX environment and brackets.
 """
-function parse_arraystyle(arraystyle, is_block_array=false)
-    valid_styles = [:bmatrix, :Bmatrix, :pmatrix, :vmatrix, :Vmatrix, :array, :barray, :Barray, :parray, :varray, :Varray]
+function parse_arraystyle(arraystyle, is_block_array = false)
+    valid_styles = [
+        :bmatrix,
+        :Bmatrix,
+        :pmatrix,
+        :vmatrix,
+        :Vmatrix,
+        :array,
+        :barray,
+        :Barray,
+        :parray,
+        :varray,
+        :Varray,
+    ]
     if !(arraystyle in valid_styles)
         arraystyle = :array
     end
@@ -126,7 +141,7 @@ function parse_arraystyle(arraystyle, is_block_array=false)
             :pmatrix => :parray,
             :vmatrix => :varray,
             :Vmatrix => :Varray,
-            :array => :array
+            :array => :array,
         )
         arraystyle = get(arraystyle_map, arraystyle, arraystyle)
     end
@@ -142,7 +157,7 @@ function parse_arraystyle(arraystyle, is_block_array=false)
         :Barray => "array",
         :parray => "array",
         :varray => "array",
-        :Varray => "array"
+        :Varray => "array",
     )
     matrix_env = get(env_map, arraystyle, "array")
 
@@ -152,7 +167,7 @@ function parse_arraystyle(arraystyle, is_block_array=false)
         :parray => ("\\left(", "\\right)"),
         :varray => ("\\left|", "\\right|"),
         :Varray => ("\\left\\|", "\\right\\|"),
-        :array => ("", "")
+        :array => ("", ""),
     )
     left_bracket, right_bracket = get(bracket_format, arraystyle, ("", ""))
     return arraystyle, matrix_env, left_bracket, right_bracket
@@ -163,9 +178,10 @@ end
 
 Construct a LaTeX column alignment string with optional dividers.
 """
-function construct_col_format(num_cols, col_dividers, alignment="r")
+function construct_col_format(num_cols, col_dividers, alignment = "r")
     clean_dividers = filter(d -> d < num_cols, col_dividers)
-    col_format = join(["$alignment" * (j in clean_dividers ? "|" : "") for j in 1:num_cols], "")
+    col_format =
+        join(["$alignment" * (j in clean_dividers ? "|" : "") for j = 1:num_cols], "")
     return "{$col_format}"
 end
 
@@ -174,7 +190,7 @@ end
 
 Apply denominator factorization for rational arrays when requested.
 """
-function process_array(A, factor_out=true)
+function process_array(A, factor_out = true)
     if !factor_out
         return 1, A
     end
@@ -186,8 +202,8 @@ end
 
 Render a number as LaTeX, with optional formatting and color.
 """
-function L_show_number(x; color=nothing, number_formatter=nothing)
-    formatted = _to_latex_scalar(x; number_formatter=number_formatter)
+function L_show_number(x; color = nothing, number_formatter = nothing)
+    formatted = _to_latex_scalar(x; number_formatter = number_formatter)
     return style_wrapper(formatted, color)
 end
 
@@ -196,7 +212,7 @@ end
 
 Render a string or LaTeXString with optional color.
 """
-function L_show_string(s; color=nothing)
+function L_show_string(s; color = nothing)
     formatted = to_latex(s)
     return style_wrapper(formatted, color)
 end

@@ -80,6 +80,31 @@ Use `symopts=(; factor=true)` or `symopts=(factor=true,)` to build a `NamedTuple
 - `L_show(...; number_formatter=f)` applies `f` while rendering scalar entries; matrix-wide denominator factoring runs before entry formatting. Formatter results that are `String` or `LaTeXString` are treated as already-rendered LaTeX fragments, while numeric results are converted normally.
 - `factor_out_denominator` (returns `(den, scaled)` and expands symbolic entries elementwise; symbolic factoring is coefficient-level and does not pull denominators out of powers/functions or non-scalar symbolic denominators)
 
+### Display contracts
+
+`L_show(args...)` returns a `String` containing a complete LaTeX math fragment.
+With the default `inline=true`, the returned string is wrapped in dollar
+delimiters and ends with a newline. With `inline=false`, the returned string is
+wrapped in display-math delimiters.
+
+`l_show(args...)` calls `L_show(args...)`, strips the outer math delimiters,
+and returns a `LaTeXString` for notebook/rich-display output. Use `L_show`
+when you need the literal LaTeX string, and use `l_show` when the value should
+render directly in a display frontend.
+
+Plain `String` values are rendered as text. `LaTeXString` values are treated
+as already-authored LaTeX math fragments. The same distinction applies to
+top-level arguments and to cells inside `set`, `cases`, and `aligned`.
+
+Display containers inherit options from the surrounding `L_show` call, then
+apply their own keyword arguments as local overrides. Known display options are
+`setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
+`per_element_style`, `factor_out`, and `symopts`. Container-local overrides
+apply only to that container's rendered cells.
+
+See the Display policy page for examples and the exact row policies for
+`cases` and `aligned`.
+
 
 ## Internal API coverage
 

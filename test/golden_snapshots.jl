@@ -37,8 +37,7 @@
           "3 & 4 \\\\\n" *
           "\\end{array}\\right)\$\n"
 
-    @test LAlatex.L_show(LAlatex.set(1, 2, 3)) ==
-          "\$\\left\\{ 1 , 2 , 3 \\right\\}\$\n"
+    @test LAlatex.L_show(LAlatex.set(1, 2, 3)) == "\$\\left\\{ 1 , 2 , 3 \\right\\}\$\n"
 
     @test LAlatex.L_show(LAlatex.lc([1, -2], [[1, 0], [0, 1]])) ==
           "\$ \\left(\\begin{array}{r}\n" *
@@ -49,9 +48,7 @@
           "1 \\\\\n" *
           "\\end{array}\\right) \$\n"
 
-    @test LAlatex.L_show(
-        LAlatex.cases([x, 0] => L"x > 0", [0, y] => "otherwise")
-    ) ==
+    @test LAlatex.L_show(LAlatex.cases([x, 0] => L"x > 0", [0, y] => "otherwise")) ==
           "\$\\begin{cases}\n" *
           "\\left(\\begin{array}{r}\n" *
           "x \\\\\n" *
@@ -64,7 +61,7 @@
           "\\end{cases}\$\n"
 
     @test LAlatex.L_show(
-        LAlatex.aligned(L"Ax" => [x, y], (L"x", L"\in", L"\mathcal{N}(A)"))
+        LAlatex.aligned(L"Ax" => [x, y], (L"x", L"\in", L"\mathcal{N}(A)")),
     ) ==
           "\$\\begin{aligned}\n" *
           "Ax & = & \\left(\\begin{array}{r}\n" *

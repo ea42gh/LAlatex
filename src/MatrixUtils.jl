@@ -22,8 +22,8 @@ function mixed_matrix(rows::Tuple...)
         length(row) == ncols || throw(ArgumentError("All rows must have the same length"))
     end
     A = Matrix{Any}(undef, nrows, ncols)
-    for i in 1:nrows
-        for j in 1:ncols
+    for i = 1:nrows
+        for j = 1:ncols
             A[i, j] = rows[i][j]
         end
     end

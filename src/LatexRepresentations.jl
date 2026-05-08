@@ -16,13 +16,14 @@ is_none_val(x) = x === :none || x === nothing
 
 Remove `\\cdot` only in numeric-times-symbol patterns for cleaner LaTeX output.
 """
-fix_num_symbol_mul(s::AbstractString) = replace(String(s),
+fix_num_symbol_mul(s::AbstractString) = replace(
+    String(s),
     r"(?:(?<=^)|(?<=\s))(-?(?:\d+(?:\.\d+)?))\s*\\cdot\s+(?=(\\?[A-Za-z]))" => s"\1 ",
-    r"(\\frac\{[^}]+\}\{[^}]+\})\s*\\cdot\s+(?=(\\?[A-Za-z]))"               => s"\1 ",
-    r"(\\left\([^)]*\\right\))\s*\\cdot\s+(?=(\\?[A-Za-z]))"                 => s"\1 ",
+    r"(\\frac\{[^}]+\}\{[^}]+\})\s*\\cdot\s+(?=(\\?[A-Za-z]))" => s"\1 ",
+    r"(\\left\([^)]*\\right\))\s*\\cdot\s+(?=(\\?[A-Za-z]))" => s"\1 ",
 )
 
-function _to_latex_symbolics(x::Symbolics.Num; number_formatter=nothing)
+function _to_latex_symbolics(x::Symbolics.Num; number_formatter = nothing)
     y = x
     s = _symbolics_to_latex(y)
     s = normalize_symbolics_latex(s)
@@ -214,15 +215,19 @@ function _to_latex_plain_number(x::Number)
     return nothing
 end
 
-function _to_latex_scalar(x; number_formatter=nothing)
+function _to_latex_scalar(x; number_formatter = nothing)
     if _is_sympy_py(x)
         return _to_latex_sympy(x)
     elseif _is_pythoncall_py(x)
-        throw(ArgumentError("Unsupported Python object type for LaTeX conversion: $(typeof(x))"))
+        throw(
+            ArgumentError(
+                "Unsupported Python object type for LaTeX conversion: $(typeof(x))",
+            ),
+        )
     elseif x isa Symbolics.Num
-        return _to_latex_symbolics(x; number_formatter=number_formatter)
+        return _to_latex_symbolics(x; number_formatter = number_formatter)
     elseif x isa Complex
-        return _to_latex_complex(x; number_formatter=number_formatter)
+        return _to_latex_complex(x; number_formatter = number_formatter)
     end
 
     formatted_x = number_formatter !== nothing && x isa Number ? number_formatter(x) : x
@@ -237,8 +242,8 @@ function _to_latex_scalar(x; number_formatter=nothing)
     return isempty(s) ? string(formatted_x) : s
 end
 
-function _to_latex_matrix_entry(x; number_formatter=nothing)
-    return _to_latex_scalar(x; number_formatter=number_formatter)
+function _to_latex_matrix_entry(x; number_formatter = nothing)
+    return _to_latex_scalar(x; number_formatter = number_formatter)
 end
 
 """
@@ -246,14 +251,14 @@ end
 
 Convert a Julia object to a LaTeX string, with optional number formatting.
 """
-function to_latex(x; number_formatter=nothing)
-    return _to_latex_scalar(x; number_formatter=number_formatter)
+function to_latex(x; number_formatter = nothing)
+    return _to_latex_scalar(x; number_formatter = number_formatter)
 end
 
 """
     to_latex(x::LaTeXString; number_formatter=nothing) -> String
 """
-function to_latex(x::LaTeXString; number_formatter=nothing)
+function to_latex(x::LaTeXString; number_formatter = nothing)
     return strip_math_delims(string(x))
 end
 
@@ -262,7 +267,7 @@ end
 
 Convert a string to LaTeX, treating math-like strings as math.
 """
-function to_latex(x::String; number_formatter=nothing)
+function to_latex(x::String; number_formatter = nothing)
     if looks_like_math(x)
         return strip_math_delims(x)
     end
@@ -273,46 +278,49 @@ end
 """
     to_latex(x::Char; number_formatter=nothing) -> String
 """
-function to_latex(x::Char; number_formatter=nothing)
+function to_latex(x::Char; number_formatter = nothing)
     return to_latex(string(x))
 end
 
 """
     to_latex(x::Rational{Int}; number_formatter=nothing) -> String
 """
-function to_latex(x::Rational{Int}; number_formatter=nothing)
-    return number_formatter === nothing ? _to_latex_rational(x) : _to_latex_scalar(x; number_formatter=number_formatter)
+function to_latex(x::Rational{Int}; number_formatter = nothing)
+    return number_formatter === nothing ? _to_latex_rational(x) :
+           _to_latex_scalar(x; number_formatter = number_formatter)
 end
 
 """
     to_latex(x::Complex; number_formatter=nothing) -> String
 """
-function _to_latex_complex(x::Complex; number_formatter=nothing)
+function _to_latex_complex(x::Complex; number_formatter = nothing)
     x_real = real(x)
     x_imag = imag(x)
     real_numeric = x_real isa Number && !(x_real isa Symbolics.Num)
     imag_numeric = x_imag isa Number && !(x_imag isa Symbolics.Num)
 
     if imag_numeric && x_imag == 0
-        return _to_latex_scalar(x_real, number_formatter=number_formatter)
+        return _to_latex_scalar(x_real, number_formatter = number_formatter)
     elseif real_numeric && x_real == 0
         if imag_numeric && x_imag == 1
             return "\\mathit{i}"
         elseif imag_numeric && x_imag == -1
             return "-\\mathit{i}"
         else
-            return _to_latex_scalar(x_imag, number_formatter=number_formatter) * "\\mathit{i}"
+            return _to_latex_scalar(x_imag, number_formatter = number_formatter) *
+                   "\\mathit{i}"
         end
     else
-        xr = _to_latex_scalar(x_real; number_formatter=number_formatter)
+        xr = _to_latex_scalar(x_real; number_formatter = number_formatter)
         sgn = "+"
         coeff = ""
         if imag_numeric
             sgn = x_imag < 0 ? "-" : "+"
             axi = abs(x_imag)
-            coeff = (axi == 1 ? "" : _to_latex_scalar(axi; number_formatter=number_formatter))
+            coeff =
+                (axi == 1 ? "" : _to_latex_scalar(axi; number_formatter = number_formatter))
         else
-            imag_str = strip(_to_latex_scalar(x_imag; number_formatter=number_formatter))
+            imag_str = strip(_to_latex_scalar(x_imag; number_formatter = number_formatter))
             if startswith(imag_str, "-")
                 sgn = "-"
                 imag_str = strip(imag_str[2:end])
@@ -324,14 +332,14 @@ function _to_latex_complex(x::Complex; number_formatter=nothing)
     end
 end
 
-function to_latex(x::Complex{T}; number_formatter=nothing) where T
-    return _to_latex_complex(x; number_formatter=number_formatter)
+function to_latex(x::Complex{T}; number_formatter = nothing) where {T}
+    return _to_latex_complex(x; number_formatter = number_formatter)
 end
 
 """
     to_latex(x::Float64; number_formatter=nothing) -> String
 """
-function to_latex(x::Float64; number_formatter=nothing)
+function to_latex(x::Float64; number_formatter = nothing)
     x = number_formatter !== nothing ? number_formatter(x) : x
     formatted_latex = _formatted_number_to_latex(x)
     formatted_latex !== nothing && return formatted_latex
@@ -342,48 +350,56 @@ end
 """
     to_latex(x::Symbol; number_formatter=nothing) -> String
 """
-function to_latex(x::Symbol; number_formatter=nothing)
+function to_latex(x::Symbol; number_formatter = nothing)
     return string(x)
 end
 
 """
     to_latex(x::Symbolics.Num; number_formatter=nothing) -> String
 """
-function to_latex(x::Symbolics.Num; number_formatter=nothing)
-    return _to_latex_scalar(x; number_formatter=number_formatter)
+function to_latex(x::Symbolics.Num; number_formatter = nothing)
+    return _to_latex_scalar(x; number_formatter = number_formatter)
 end
 
 """
     to_latex(A::AbstractArray; number_formatter=nothing)
 """
-function to_latex(A::AbstractArray; number_formatter=nothing)
-    return map(x -> _to_latex_matrix_entry(x; number_formatter=number_formatter), A)
+function to_latex(A::AbstractArray; number_formatter = nothing)
+    return map(x -> _to_latex_matrix_entry(x; number_formatter = number_formatter), A)
 end
 
 """
     to_latex(A::Transpose; number_formatter=nothing)
 """
-function to_latex(A::Transpose; number_formatter=nothing)
-    return permutedims(to_latex(parent(A); number_formatter=number_formatter))
+function to_latex(A::Transpose; number_formatter = nothing)
+    return permutedims(to_latex(parent(A); number_formatter = number_formatter))
 end
 
 """
     to_latex(A::Adjoint; number_formatter=nothing)
 """
-function to_latex(A::Adjoint; number_formatter=nothing)
-    return permutedims(to_latex(parent(A); number_formatter=number_formatter))
+function to_latex(A::Adjoint; number_formatter = nothing)
+    return permutedims(to_latex(parent(A); number_formatter = number_formatter))
 end
 
 """
     to_latex(A::BlockArray; number_formatter=nothing)
 """
-function to_latex(A::BlockArray; number_formatter=nothing)
-    return map(x -> _to_latex_matrix_entry(x; number_formatter=number_formatter), Array(A))
+function to_latex(A::BlockArray; number_formatter = nothing)
+    return map(
+        x -> _to_latex_matrix_entry(x; number_formatter = number_formatter),
+        Array(A),
+    )
 end
 
 """
     to_latex(matrices::AbstractVector{<:AbstractVector}; number_formatter=nothing)
 """
-function to_latex(matrices::AbstractVector{<:AbstractVector}; number_formatter=nothing)
-    return [[is_none_val(mat) ? nothing : to_latex(mat; number_formatter=number_formatter) for mat in row] for row in matrices]
+function to_latex(matrices::AbstractVector{<:AbstractVector}; number_formatter = nothing)
+    return [
+        [
+            is_none_val(mat) ? nothing : to_latex(mat; number_formatter = number_formatter)
+            for mat in row
+        ] for row in matrices
+    ]
 end

@@ -6,10 +6,23 @@
 
         Aqua.test_all(
             LAlatex;
-            ambiguities=false,
-            stale_deps=false,
-            deps_compat=false,
-            persistent_tasks=false,
+            ambiguities = false,
+            stale_deps = false,
+            deps_compat = false,
+            persistent_tasks = false,
+        )
+    end
+
+    if Base.find_package("JuliaFormatter") === nothing
+        @info "JuliaFormatter is not available in the active project; run `Pkg.test()` to execute formatter checks."
+    else
+        import JuliaFormatter
+
+        package_root = pkgdir(LAlatex)
+        @test JuliaFormatter.format(
+            [joinpath(package_root, "src"), joinpath(package_root, "test")];
+            overwrite = false,
+            verbose = false,
         )
     end
 end

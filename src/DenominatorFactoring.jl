@@ -20,7 +20,11 @@ function _symbolics_unwrap_literal(val)
     return val
 end
 
-function _push_literal_denominator!(denominators::Vector{<:Integer}, val; include_integers=false)
+function _push_literal_denominator!(
+    denominators::Vector{<:Integer},
+    val;
+    include_integers = false,
+)
     val = _symbolics_unwrap_literal(val)
     if val isa Rational
         push!(denominators, denominator(val))
@@ -44,9 +48,13 @@ function _push_divisor_denominator!(denominators::Vector{<:Integer}, val)
     return denominators
 end
 
-function _collect_symbolics_division_key_denominators!(denominators::Vector{<:Integer}, expr)
+function _collect_symbolics_division_key_denominators!(
+    denominators::Vector{<:Integer},
+    expr,
+)
     expr = _symbolics_unwrap_num(expr)
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) === (/)
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) === (/)
         args = Symbolics.SymbolicUtils.arguments(expr)
         length(args) >= 2 && _push_divisor_denominator!(denominators, args[2])
         _collect_symbolics_denominators!(denominators, args[1])
@@ -54,11 +62,19 @@ function _collect_symbolics_division_key_denominators!(denominators::Vector{<:In
     return denominators
 end
 
-function _collect_symbolics_denominators!(denominators::Vector{<:Integer}, expr; include_integers=false)
+function _collect_symbolics_denominators!(
+    denominators::Vector{<:Integer},
+    expr;
+    include_integers = false,
+)
     expr = _symbolics_unwrap_num(expr)
 
     if Symbolics.SymbolicUtils.is_literal_number(expr)
-        return _push_literal_denominator!(denominators, expr; include_integers=include_integers)
+        return _push_literal_denominator!(
+            denominators,
+            expr;
+            include_integers = include_integers,
+        )
     end
 
     if expr isa Rational
@@ -84,22 +100,35 @@ function _collect_symbolics_denominators!(denominators::Vector{<:Integer}, expr;
             return denominators
         elseif op === (+)
             for arg in args
-                _collect_symbolics_denominators!(denominators, arg; include_integers=include_integers)
+                _collect_symbolics_denominators!(
+                    denominators,
+                    arg;
+                    include_integers = include_integers,
+                )
             end
             return denominators
         elseif op === (*)
             ok, rat = Symbolics.SymbolicUtils.ratcoeff(expr)
             if ok
-                _push_literal_denominator!(denominators, rat; include_integers=include_integers)
+                _push_literal_denominator!(
+                    denominators,
+                    rat;
+                    include_integers = include_integers,
+                )
             else
                 coeff = try
                     Symbolics.SymbolicUtils.get_mul_coefficient(expr)
                 catch
                     nothing
                 end
-                coeff !== nothing && _push_literal_denominator!(denominators, coeff; include_integers=include_integers)
+                coeff !== nothing && _push_literal_denominator!(
+                    denominators,
+                    coeff;
+                    include_integers = include_integers,
+                )
                 for arg in args
-                    if Symbolics.SymbolicUtils.iscall(arg) && Symbolics.SymbolicUtils.operation(arg) === (/)
+                    if Symbolics.SymbolicUtils.iscall(arg) &&
+                       Symbolics.SymbolicUtils.operation(arg) === (/)
                         _collect_symbolics_division_key_denominators!(denominators, arg)
                     end
                 end
@@ -110,9 +139,13 @@ function _collect_symbolics_denominators!(denominators::Vector{<:Integer}, expr;
     return denominators
 end
 
-function _symbolics_denominators(expr; include_integers=false)
+function _symbolics_denominators(expr; include_integers = false)
     denominators = Integer[]
-    _collect_symbolics_denominators!(denominators, expr; include_integers=include_integers)
+    _collect_symbolics_denominators!(
+        denominators,
+        expr;
+        include_integers = include_integers,
+    )
     return denominators
 end
 
@@ -154,11 +187,16 @@ function _scaled_rational_integer(d, x::Rational)
 end
 
 function _scaled_complex_rational_integer(d, x::Complex)
-    return complex(_scaled_rational_integer(d, real(x)), _scaled_rational_integer(d, imag(x)))
+    return complex(
+        _scaled_rational_integer(d, real(x)),
+        _scaled_rational_integer(d, imag(x)),
+    )
 end
 
 function _contains_symbolics(x)
-    if x isa Symbolics.Num || Symbolics.SymbolicUtils.issym(x) || Symbolics.SymbolicUtils.iscall(x)
+    if x isa Symbolics.Num ||
+       Symbolics.SymbolicUtils.issym(x) ||
+       Symbolics.SymbolicUtils.iscall(x)
         return true
     elseif x isa Complex
         return _contains_symbolics(real(x)) || _contains_symbolics(imag(x))
@@ -222,7 +260,7 @@ function factor_out_denominator(A::AbstractArray)
         return 1, A
     end
 
-    d = reduce(lcm, denominators; init=1)
+    d = reduce(lcm, denominators; init = 1)
     d == 1 && return 1, A
     factored = map(x -> d * x, A)
     if any(_contains_symbolics, factored)
@@ -245,7 +283,7 @@ Factor out the least common multiple of denominators for a rational vector.
 """
 function factor_out_denominator(A::AbstractVector{<:Rational})
     isempty(A) && return 1, A
-    d = reduce(lcm, denominator.(A); init=1)
+    d = reduce(lcm, denominator.(A); init = 1)
     return d, map(x -> _scaled_rational_integer(d, x), A)
 end
 
@@ -256,7 +294,7 @@ Factor out the least common multiple of denominators for a rational matrix.
 """
 function factor_out_denominator(A::AbstractMatrix{<:Rational})
     isempty(A) && return 1, A
-    d = reduce(lcm, denominator.(A); init=1)
+    d = reduce(lcm, denominator.(A); init = 1)
     return d, map(x -> _scaled_rational_integer(d, x), A)
 end
 
@@ -268,7 +306,7 @@ Factor out the least common multiple of denominators for a complex rational vect
 function factor_out_denominator(A::AbstractVector{<:Complex{<:Rational}})
     denominators_real = denominator.(real.(A))
     denominators_imag = denominator.(imag.(A))
-    d = reduce(lcm, vcat(denominators_real, denominators_imag), init=1)
+    d = reduce(lcm, vcat(denominators_real, denominators_imag), init = 1)
     return d, map(x -> _scaled_complex_rational_integer(d, x), A)
 end
 
@@ -280,7 +318,7 @@ Factor out the least common multiple of denominators for a complex rational matr
 function factor_out_denominator(A::AbstractMatrix{<:Complex{<:Rational}})
     denominators_real = denominator.(real.(A))
     denominators_imag = denominator.(imag.(A))
-    d = reduce(lcm, vcat(denominators_real, denominators_imag), init=1)
+    d = reduce(lcm, vcat(denominators_real, denominators_imag), init = 1)
     return d, map(x -> _scaled_complex_rational_integer(d, x), A)
 end
 
@@ -320,7 +358,9 @@ end
 
 Factor denominators while preserving the original reshaped size.
 """
-function factor_out_denominator(A::Base.ReshapedArray{T, 2, Adjoint{T, Vector{T}}, Tuple{}}) where T
+function factor_out_denominator(
+    A::Base.ReshapedArray{T,2,Adjoint{T,Vector{T}},Tuple{}},
+) where {T}
     original_shape = size(A)
     d, A_factored = factor_out_denominator(parent(A))
     reshaped_A_factored = reshape(A_factored, original_shape)

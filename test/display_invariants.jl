@@ -25,7 +25,7 @@
         LAlatex.L_show(LAlatex.lc([1, -2, 0], [x y x + y])),
         LAlatex.L_show(LAlatex.cases([x, 0] => L"x > 0", [0, y] => "otherwise")),
         LAlatex.L_show(LAlatex.aligned(L"Ax" => [x, y], (L"x", L"\in", L"\mathcal{N}(A)"))),
-        LAlatex.L_show([(x + y)^2, exp(-3t)]; symopts=(expand=true,)),
+        LAlatex.L_show([(x + y)^2, exp(-3t)]; symopts = (expand = true,)),
     ]
 
     for rendered in representative_outputs
@@ -33,14 +33,14 @@
         assert_no_matrix_entry_artifacts(rendered)
     end
 
-    unfactored = LAlatex.L_show([1//2 1//3]; factor_out=false)
+    unfactored = LAlatex.L_show([1//2 1//3]; factor_out = false)
     @test occursin("\\frac{1}{2}", unfactored)
     @test occursin("\\frac{1}{3}", unfactored)
     @test !occursin("\\frac{1}{6} \\left", unfactored)
     assert_balanced_math_delimiters(unfactored)
     assert_no_matrix_entry_artifacts(unfactored)
 
-    drop_zero_lc = LAlatex.L_show(LAlatex.lc([0, 1, -2], [x y x + y]; drop_zero=true))
+    drop_zero_lc = LAlatex.L_show(LAlatex.lc([0, 1, -2], [x y x + y]; drop_zero = true))
     @test !occursin("0\\left", drop_zero_lc)
     @test occursin("\\left(\\begin{array}{r}\ny", drop_zero_lc)
     @test occursin("-  2", drop_zero_lc)
@@ -49,8 +49,8 @@
 
     formatted = LAlatex.L_show(
         [1 2; 3 4];
-        number_formatter=n -> "\\mathrm{$n}",
-        per_element_style=(x, i, j, s) -> i == j ? "\\boxed{$s}" : s,
+        number_formatter = n -> "\\mathrm{$n}",
+        per_element_style = (x, i, j, s) -> i == j ? "\\boxed{$s}" : s,
     )
     @test occursin("\\boxed{\\mathrm{1}}", formatted)
     @test occursin("\\boxed{\\mathrm{4}}", formatted)

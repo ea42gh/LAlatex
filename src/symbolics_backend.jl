@@ -5,7 +5,7 @@ using ..Backend: SymbolicsBackend
 
 export syms_symbolics, assume_symbolics!, symbolics_assumptions
 
-const _symbolics_assumptions = IdDict{Any, Dict{Symbol, Any}}()
+const _symbolics_assumptions = IdDict{Any,Dict{Symbol,Any}}()
 
 """
     assume_symbolics!(var; kwargs...) -> var
@@ -15,7 +15,7 @@ Attach assumption metadata to a Symbolics variable for downstream display/format
 function assume_symbolics!(var; kwargs...)
     isempty(kwargs) && return var
     store = get!(_symbolics_assumptions, var) do
-        Dict{Symbol, Any}()
+        Dict{Symbol,Any}()
     end
     for (k, v) in kwargs
         store[k] = v
@@ -29,7 +29,7 @@ end
 Return a copy of the stored Symbolics assumptions for `var`.
 """
 function symbolics_assumptions(var)
-    return copy(get(_symbolics_assumptions, var, Dict{Symbol, Any}()))
+    return copy(get(_symbolics_assumptions, var, Dict{Symbol,Any}()))
 end
 
 """

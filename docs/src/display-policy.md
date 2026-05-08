@@ -5,6 +5,33 @@ helpers do not parse raw LaTeX equations. They render Julia values through the
 same `L_show` machinery used for scalars, vectors, matrices, symbolic
 expressions, strings, and `LaTeXString`s.
 
+## `L_show` and `l_show`
+
+`L_show(args...)` is the string-producing API. It renders each argument,
+joins the rendered fragments with spaces, and returns a complete LaTeX math
+string. By default the result is inline math with dollar delimiters and a
+trailing newline:
+
+```julia
+L_show([1 2; 3 4])
+```
+
+Set `inline=false` when a display-math string is needed:
+
+```julia
+L_show([1 2; 3 4]; inline=false)
+```
+
+`l_show(args...)` is the notebook-display API. It calls `L_show`, removes the
+outer math delimiters, and returns a `LaTeXString`. This lets notebook and rich
+display frontends choose the correct math rendering path for the value. Use
+`L_show` when you need text to paste into Markdown, generated docs, logs, or
+files. Use `l_show` when the result should display directly in a notebook cell.
+
+The two functions intentionally share the same rendering options and object
+support. A rendering difference between them is usually a delimiter/display
+frontend issue, not a matrix or symbolic conversion issue.
+
 ## Text and math cells
 
 Plain Julia strings are rendered as text:
@@ -20,6 +47,11 @@ L_show(L"x \in \mathcal{N}(A)")
 ```
 
 This distinction also applies inside `cases` and `aligned`.
+
+Plain strings are escaped and wrapped as text. `LaTeXString` values are treated
+as already-authored LaTeX and are inserted as math fragments. If a condition,
+label, or aligned cell should render in math mode, pass `L"..."` instead of a
+plain string.
 
 ## Cases
 
@@ -132,6 +164,36 @@ L_show(
 - `factor_out`
 - `symopts`
 - `color`
+
+`set` also propagates these options and additionally uses `setstyle` and
+`separator` for its delimiters and item separator.
+
+Top-level options passed to `L_show` provide defaults for every nested display
+container. Options passed directly to a container override those defaults only
+inside that container:
+
+```julia
+L_show(
+    "S = ",
+    set([1, 2], [3, 4]; arraystyle=:bmatrix, separator=L",\; ");
+    arraystyle=:parray,
+)
+```
+
+In this example the surrounding call defaults arrays to `:parray`, but arrays
+inside the `set` render with `:bmatrix`, and the set uses its local separator.
+
+Unknown container keyword arguments are ignored by the display-option merger.
+Known container-local options are:
+
+- `setstyle`
+- `arraystyle`
+- `color`
+- `separator`
+- `number_formatter`
+- `per_element_style`
+- `factor_out`
+- `symopts`
 
 For example:
 

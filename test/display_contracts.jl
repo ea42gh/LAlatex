@@ -25,8 +25,8 @@
     @testset "public wrappers" begin
         @test occursin("\\left(", assert_lshow_math([1 2; 3 4]))
         @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]))
-        @test occursin("\\left(", assert_lshow_math([1 2; 3 4]; inline=false))
-        @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]; inline=false))
+        @test occursin("\\left(", assert_lshow_math([1 2; 3 4]; inline = false))
+        @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]; inline = false))
     end
 
     @testset "strings and scalars" begin
@@ -71,13 +71,13 @@
         @test occursin(" - ", lc_payload)
 
         cases_payload = assert_lshow_display_math(
-            LAlatex.cases([x, 0] => L"x > 0", ([0, y], "otherwise"))
+            LAlatex.cases([x, 0] => L"x > 0", ([0, y], "otherwise")),
         )
         @test occursin("\\begin{cases}", cases_payload)
         @test occursin("\\text{otherwise}", cases_payload)
 
         aligned_payload = assert_lshow_display_math(
-            LAlatex.aligned(L"Ax" => [x, y], (L"x", L"\in", L"\mathcal{N}(A)"))
+            LAlatex.aligned(L"Ax" => [x, y], (L"x", L"\in", L"\mathcal{N}(A)")),
         )
         @test occursin("\\begin{aligned}", aligned_payload)
         @test occursin("Ax & =", aligned_payload)
@@ -87,17 +87,20 @@
     @testset "option propagation" begin
         @variables x y
 
-        expanded = assert_lshow_math((x + y)^2; symopts=(expand=true,))
+        expanded = assert_lshow_math((x + y)^2; symopts = (expand = true,))
         @test occursin("x^{2}", expanded) || occursin("x^2", expanded)
 
-        unfactored = assert_lshow_math([1//2 1//3]; factor_out=false)
+        unfactored = assert_lshow_math([1//2 1//3]; factor_out = false)
         @test occursin("\\frac{1}{2}", unfactored)
         @test !occursin("\\frac{1}{6} \\left", unfactored)
 
-        formatted = assert_lshow_math(42; number_formatter=n -> "\\textbf{$n}")
+        formatted = assert_lshow_math(42; number_formatter = n -> "\\textbf{$n}")
         @test occursin("\\textbf{42}", formatted)
 
-        styled = assert_lshow_math([1 2; 3 4]; per_element_style=(x, i, j, s) -> i == j ? "\\boxed{$s}" : s)
+        styled = assert_lshow_math(
+            [1 2; 3 4];
+            per_element_style = (x, i, j, s) -> i == j ? "\\boxed{$s}" : s,
+        )
         @test occursin("\\boxed{1}", styled)
         @test occursin("\\boxed{4}", styled)
     end

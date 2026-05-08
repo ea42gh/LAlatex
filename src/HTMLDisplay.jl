@@ -86,8 +86,15 @@ end
 
 Wrap a string in a styled HTML container.
 """
-function to_html(txt; sz=20, color="darkred", justify="left",
-                 height=15, width=100, env="strong")
+function to_html(
+    txt;
+    sz = 20,
+    color = "darkred",
+    justify = "left",
+    height = 15,
+    width = 100,
+    env = "strong",
+)
     env_tag = _sanitize_html_tag(env)
     txt_html = _escape_html_text(txt)
     font_size = _sanitize_px(sz, 20)
@@ -106,8 +113,17 @@ end
 
 Wrap two strings in a styled HTML container with separate font sizes.
 """
-function to_html(txt1, txt2; sz1=20, sz2=20, color="darkred",
-                 justify="left", height=15, width=100, env="strong")
+function to_html(
+    txt1,
+    txt2;
+    sz1 = 20,
+    sz2 = 20,
+    color = "darkred",
+    justify = "left",
+    height = 15,
+    width = 100,
+    env = "strong",
+)
     env_tag = _sanitize_html_tag(env)
     txt1_html = _escape_html_text(txt1)
     txt2_html = _escape_html_text(txt2)
@@ -129,10 +145,26 @@ end
 
 Return HTML output for a single string with styling.
 """
-function show_html(txt; sz=20, color="darkred", justify="left",
-                   height=15, width=100, env="strong")
-    HTMLOut(to_html(txt; sz=sz, color=color, justify=justify,
-                    height=height, width=width, env=env))
+function show_html(
+    txt;
+    sz = 20,
+    color = "darkred",
+    justify = "left",
+    height = 15,
+    width = 100,
+    env = "strong",
+)
+    HTMLOut(
+        to_html(
+            txt;
+            sz = sz,
+            color = color,
+            justify = justify,
+            height = height,
+            width = width,
+            env = env,
+        ),
+    )
 end
 
 """
@@ -140,10 +172,30 @@ end
 
 Return HTML output for two strings with styling.
 """
-function show_html(txt1, txt2; sz1=20, sz2=20, color="darkred",
-                   justify="left", width=100, height=15, env="strong")
-    HTMLOut(to_html(txt1, txt2; sz1=sz1, sz2=sz2, color=color,
-                    justify=justify, height=height, width=width, env=env))
+function show_html(
+    txt1,
+    txt2;
+    sz1 = 20,
+    sz2 = 20,
+    color = "darkred",
+    justify = "left",
+    width = 100,
+    height = 15,
+    env = "strong",
+)
+    HTMLOut(
+        to_html(
+            txt1,
+            txt2;
+            sz1 = sz1,
+            sz2 = sz2,
+            color = color,
+            justify = justify,
+            height = height,
+            width = width,
+            env = env,
+        ),
+    )
 end
 
 """
@@ -151,10 +203,24 @@ end
 
 Convenience wrapper for paragraph-style HTML output.
 """
-function pr(txt; sz=15, color="black", justify="left",
-            height=15, width=100, env="p")
-    show_html(txt; sz=sz, color=color, justify=justify,
-              height=height, width=width, env=env)
+function pr(
+    txt;
+    sz = 15,
+    color = "black",
+    justify = "left",
+    height = 15,
+    width = 100,
+    env = "p",
+)
+    show_html(
+        txt;
+        sz = sz,
+        color = color,
+        justify = justify,
+        height = height,
+        width = width,
+        env = env,
+    )
 end
 
 """
@@ -174,7 +240,7 @@ end
 
 Create HTML that displays captured text outputs side by side.
 """
-function show_side_by_side_html(captured_outputs, titles=nothing)
+function show_side_by_side_html(captured_outputs, titles = nothing)
     html = """
     <div style="display: flex; justify-content: space-between;">
     """

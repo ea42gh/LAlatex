@@ -4,10 +4,28 @@
 Apply optional symbolic transformations for display. Works with Symbolics and SymPy.
 Non-symbolic inputs are returned unchanged.
 """
-function symbolic_transform(x; simplify=:auto, expand=false, factor=false, collect=nothing)
+function symbolic_transform(
+    x;
+    simplify = :auto,
+    expand = false,
+    factor = false,
+    collect = nothing,
+)
     if x isa Complex
-        return symbolic_transform(real(x); simplify=simplify, expand=expand, factor=factor, collect=collect) +
-               im * symbolic_transform(imag(x); simplify=simplify, expand=expand, factor=factor, collect=collect)
+        return symbolic_transform(
+            real(x);
+            simplify = simplify,
+            expand = expand,
+            factor = factor,
+            collect = collect,
+        ) +
+               im * symbolic_transform(
+            imag(x);
+            simplify = simplify,
+            expand = expand,
+            factor = factor,
+            collect = collect,
+        )
     end
 
     if x isa Symbolics.Num
@@ -44,7 +62,13 @@ function symbolic_transform(x; simplify=:auto, expand=false, factor=false, colle
     end
 
     if Symbolics.SymbolicUtils.issym(x) || Symbolics.SymbolicUtils.iscall(x)
-        return symbolic_transform(Symbolics.Num(x); simplify=simplify, expand=expand, factor=factor, collect=collect)
+        return symbolic_transform(
+            Symbolics.Num(x);
+            simplify = simplify,
+            expand = expand,
+            factor = factor,
+            collect = collect,
+        )
     end
 
     if _is_sympy_py(x)
@@ -144,7 +168,8 @@ function symbolic_term_coefficients(expr)
         return coeffs
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) == (+)
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) == (+)
         coeffs = Any[]
         for arg in Symbolics.SymbolicUtils.arguments(expr)
             append!(coeffs, symbolic_term_coefficients(arg))
@@ -161,7 +186,8 @@ function symbolic_term_coefficients(expr)
         coeff !== nothing && return Any[coeff]
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) == (*)
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) == (*)
         coeff = try
             Symbolics.SymbolicUtils.get_mul_coefficient(expr)
         catch
@@ -170,20 +196,26 @@ function symbolic_term_coefficients(expr)
         coeff !== nothing && return Any[coeff]
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) == (-) &&
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) == (-) &&
        length(Symbolics.SymbolicUtils.arguments(expr)) == 1
         coeffs = symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
         return map(-, coeffs)
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) == (-) &&
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) == (-) &&
        length(Symbolics.SymbolicUtils.arguments(expr)) == 2
         coeffs = symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
-        append!(coeffs, map(-, symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[2])))
+        append!(
+            coeffs,
+            map(-, symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[2])),
+        )
         return coeffs
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) && Symbolics.SymbolicUtils.operation(expr) == (/) &&
+    if Symbolics.SymbolicUtils.iscall(expr) &&
+       Symbolics.SymbolicUtils.operation(expr) == (/) &&
        length(Symbolics.SymbolicUtils.arguments(expr)) >= 1
         return symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
     end

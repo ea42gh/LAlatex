@@ -60,7 +60,7 @@ function import_sympy()
                 "       python -m pip install sympy\n" *
                 "  2) Or point PythonCall at a Python that already has sympy by setting:\n" *
                 "       JULIA_PYTHONCALL_EXE=/path/to/python\n\n" *
-                "Original error:\n$err"
+                "Original error:\n$err",
             )
         end
     end
@@ -122,12 +122,17 @@ macro syms_sympy(args...)
             if key isa QuoteNode
                 key = key.value
             end
-            key isa Symbol || throw(ArgumentError("@syms option keys must be Symbols; got: $(key)"))
+            key isa Symbol ||
+                throw(ArgumentError("@syms option keys must be Symbols; got: $(key)"))
 
             push!(opts, Expr(:kw, key, val))
 
         else
-            throw(ArgumentError("@syms expects Symbols and optional `key => value` pairs; got: $(a)"))
+            throw(
+                ArgumentError(
+                    "@syms expects Symbols and optional `key => value` pairs; got: $(a)",
+                ),
+            )
         end
     end
 
@@ -135,10 +140,10 @@ macro syms_sympy(args...)
     for v in vars
         name_str = String(v)
         if isempty(opts)
-            push!(assigns, :( $(esc(v)) = syms_sympy($name_str) ))
+            push!(assigns, :($(esc(v)) = syms_sympy($name_str)))
         else
             kw = Expr(:parameters, opts...)
-            push!(assigns, :( $(esc(v)) = syms_sympy($kw, $name_str) ))
+            push!(assigns, :($(esc(v)) = syms_sympy($kw, $name_str)))
         end
     end
 

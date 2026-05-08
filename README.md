@@ -79,6 +79,15 @@ API cheat sheet:
 - `syms(...)`, `@syms` -> symbols (Symbolics or SymPy)
 - `set_backend!(:symbolics | :sympy)` -> backend switch
 
+Display contract:
+- `L_show(...)` returns a complete LaTeX math string for Markdown, docs, logs, or files.
+- `l_show(...)` returns a `LaTeXString` for rich notebook display.
+- Plain strings render as text; `LaTeXString` values render as authored math fragments.
+- Options passed to `L_show` are inherited by nested `set`, `cases`, and `aligned` containers; container keyword arguments override those defaults locally.
+
+See the Display policy page in the docs for the exact `L_show`/`l_show`
+contract, text-vs-math rules, and option precedence.
+
 Supported inputs:
 - Numbers and rationals
 - Vectors, matrices, and tuples
