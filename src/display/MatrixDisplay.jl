@@ -38,7 +38,10 @@ function format_matrix_row(
                 formatted_x =
                     _to_latex_matrix_entry(x; number_formatter = number_formatter)
                 per_element_style !== nothing ?
-                per_element_style(x, i, j, formatted_x) : formatted_x
+                _validate_latex_fragment_callback_result(
+                    per_element_style(x, i, j, formatted_x),
+                    "per_element_style",
+                ) : formatted_x
             end for j = 1:_matrix_num_cols(A)
         ],
         " & ",

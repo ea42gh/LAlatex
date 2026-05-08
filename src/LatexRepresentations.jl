@@ -183,6 +183,30 @@ function _formatted_number_to_latex(x)
     return nothing
 end
 
+function _validate_number_formatter_result(x)
+    if x isa Number || x isa AbstractString || x isa LaTeXString
+        return x
+    end
+    throw(
+        ArgumentError(
+            "number_formatter must return a Number, String, or LaTeXString; got $(typeof(x)).",
+        ),
+    )
+end
+
+function _validate_latex_fragment_callback_result(x, callback_name::AbstractString)
+    if x isa LaTeXString
+        return strip_math_delims(string(x))
+    elseif x isa AbstractString
+        return String(x)
+    end
+    throw(
+        ArgumentError(
+            "$callback_name must return a String or LaTeXString; got $(typeof(x)).",
+        ),
+    )
+end
+
 function _to_latex_rational(x::Rational)
     n, d = numerator(x), denominator(x)
     if d == 1
@@ -230,7 +254,9 @@ function _to_latex_scalar(x; number_formatter = nothing)
         return _to_latex_complex(x; number_formatter = number_formatter)
     end
 
-    formatted_x = number_formatter !== nothing && x isa Number ? number_formatter(x) : x
+    formatted_x =
+        number_formatter !== nothing && x isa Number ?
+        _validate_number_formatter_result(number_formatter(x)) : x
     formatted_latex = _formatted_number_to_latex(formatted_x)
     formatted_latex !== nothing && return formatted_latex
     if number_formatter === nothing && formatted_x isa Number
@@ -340,7 +366,9 @@ end
     to_latex(x::Float64; number_formatter=nothing) -> String
 """
 function to_latex(x::Float64; number_formatter = nothing)
-    x = number_formatter !== nothing ? number_formatter(x) : x
+    x =
+        number_formatter !== nothing ?
+        _validate_number_formatter_result(number_formatter(x)) : x
     formatted_latex = _formatted_number_to_latex(x)
     formatted_latex !== nothing && return formatted_latex
     x isa AbstractFloat && return _to_latex_float(x)

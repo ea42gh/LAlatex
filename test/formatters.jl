@@ -34,6 +34,27 @@
     bold_float = LAlatex.L_show(4.2; number_formatter = x -> LaTeXString("\\mathbf{$x}"))
     @test bold_float == "\$\\mathbf{4.2}\$\n"
 
+    rounded_number = LAlatex.L_show(4.25; number_formatter = x -> round(x; digits = 1))
+    @test rounded_number == "\$4.2\$\n"
+
+    styled_latexstring = LAlatex.L_show(
+        [1 2; 3 4];
+        per_element_style = (x, i, j, s) -> i == j ? LaTeXString("\\boxed{$s}") : s,
+    )
+    @test occursin("\\boxed{1}", styled_latexstring)
+    @test occursin("\\boxed{4}", styled_latexstring)
+
+    @test_throws ArgumentError LAlatex.L_show(42; number_formatter = x -> nothing)
+    @test_throws ArgumentError LAlatex.L_show(42; number_formatter = x -> [x])
+    @test_throws ArgumentError LAlatex.L_show(
+        [1 2; 3 4];
+        per_element_style = (x, i, j, s) -> nothing,
+    )
+    @test_throws ArgumentError LAlatex.L_show(
+        [1 2; 3 4];
+        per_element_style = (x, i, j, s) -> x,
+    )
+
     @test LAlatex.tril_formatter(1, 2, 1, "x") == "\\textcolor{red}{x}"
     @test LAlatex.block_formatter(1, 2, 2, "x"; r1 = 2, r2 = 3, c1 = 2, c2 = 3) ==
           "\\textcolor{red}{x}"
