@@ -44,6 +44,15 @@ function _validate_factor_out_value(factor_out)
     )
 end
 
+function _validate_callback_value(callback, option_name::AbstractString)
+    (callback === nothing || callback isa Function) && return callback
+    throw(
+        ArgumentError(
+            "$option_name must be a callable function or nothing; got $(repr(callback)) of type $(typeof(callback)).",
+        ),
+    )
+end
+
 function _validate_display_default_values(defaults)
     if haskey(defaults, :setstyle)
         validate_arraystyle_value(defaults.setstyle, "setstyle")
@@ -53,6 +62,12 @@ function _validate_display_default_values(defaults)
     end
     if haskey(defaults, :factor_out)
         _validate_factor_out_value(defaults.factor_out)
+    end
+    if haskey(defaults, :number_formatter)
+        _validate_callback_value(defaults.number_formatter, "number_formatter")
+    end
+    if haskey(defaults, :per_element_style)
+        _validate_callback_value(defaults.per_element_style, "per_element_style")
     end
     if haskey(defaults, :symopts)
         normalize_symopts(defaults.symopts)
@@ -167,8 +182,8 @@ function DisplayOptions(;
         validate_arraystyle_value(arraystyle, "arraystyle"),
         color,
         separator,
-        number_formatter,
-        per_element_style,
+        _validate_callback_value(number_formatter, "number_formatter"),
+        _validate_callback_value(per_element_style, "per_element_style"),
         _validate_factor_out_value(factor_out),
         normalize_symopts(symopts),
     )

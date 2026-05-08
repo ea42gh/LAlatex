@@ -46,6 +46,7 @@
 
     @test_throws ArgumentError LAlatex.L_show(42; number_formatter = x -> nothing)
     @test_throws ArgumentError LAlatex.L_show(42; number_formatter = x -> [x])
+    @test_throws ArgumentError LAlatex.L_show(42; number_formatter = 1)
     @test_throws ArgumentError LAlatex.L_show(
         [1 2; 3 4];
         per_element_style = (x, i, j, s) -> nothing,
@@ -54,6 +55,7 @@
         [1 2; 3 4];
         per_element_style = (x, i, j, s) -> x,
     )
+    @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; per_element_style = 1)
 
     @test LAlatex.tril_formatter(1, 2, 1, "x") == "\\textcolor{red}{x}"
     @test LAlatex.block_formatter(1, 2, 2, "x"; r1 = 2, r2 = 3, c1 = 2, c2 = 3) ==
