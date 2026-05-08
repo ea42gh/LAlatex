@@ -15,6 +15,11 @@
         symbolics_expanded = LAlatex.L_show((sx + sy)^2; symopts = (expand = true,))
         @test occursin("x", symbolics_expanded)
         @test occursin("y", symbolics_expanded)
+        @test isequal(LAlatex.symbolic_transform(sx^2 - sy^2; factor = true), sx^2 - sy^2)
+        @test isequal(
+            LAlatex.symbolic_transform(sx^2 + sx * sy; collect = sx),
+            sx^2 + sx * sy,
+        )
 
         symbolics_factor, symbolics_factored = LAlatex.factor_out_denominator([sx / 2 sx])
         @test symbolics_factor == 2

@@ -4,13 +4,7 @@
     else
         import Aqua
 
-        Aqua.test_all(
-            LAlatex;
-            ambiguities = false,
-            stale_deps = false,
-            deps_compat = false,
-            persistent_tasks = false,
-        )
+        Aqua.test_all(LAlatex; stale_deps = (; ignore = [:PythonCall]))
     end
 
     if Base.find_package("JuliaFormatter") === nothing

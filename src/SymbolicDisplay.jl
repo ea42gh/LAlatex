@@ -4,6 +4,16 @@
 Apply optional symbolic transformations for display. Works with Symbolics and SymPy.
 Non-symbolic inputs are returned unchanged.
 """
+function _symbolics_factor_transform(y::Symbolics.Num)
+    # Symbolics currently exposes no stable algebraic factoring API for Num.
+    return y
+end
+
+function _symbolics_collect_transform(y::Symbolics.Num, _collect)
+    # Symbolics currently exposes no stable collect-by-variable API for Num.
+    return y
+end
+
 function symbolic_transform(
     x;
     simplify = :auto,
@@ -38,11 +48,7 @@ function symbolic_transform(
             end
         end
         if factor
-            y = try
-                isdefined(Symbolics, :factor) ? Symbolics.factor(y) : y
-            catch
-                y
-            end
+            y = _symbolics_factor_transform(y)
         end
         if simplify === true
             y = try
@@ -52,11 +58,7 @@ function symbolic_transform(
             end
         end
         if collect !== nothing
-            y = try
-                Symbolics.collect(y, collect)
-            catch
-                y
-            end
+            y = _symbolics_collect_transform(y, collect)
         end
         return y
     end

@@ -53,8 +53,8 @@ instead of escaped text.
 | --- | --- | --- |
 | `simplify` | `true`/`false` | Apply backend simplification. |
 | `expand` | `true`/`false` | Expand algebraic products. |
-| `factor` | `true`/`false` | Factor algebraic expressions. |
-| `collect` | `Symbolics.Num`/`PythonCall.Py`/`nothing` | Collect terms with respect to a variable. |
+| `factor` | `true`/`false` | Factor algebraic expressions when the active backend exposes a stable factor API. Currently active for SymPy and a no-op for Symbolics. |
+| `collect` | `Symbolics.Num`/`PythonCall.Py`/`nothing` | Collect terms with respect to a variable when the active backend exposes a stable collect API. Currently active for SymPy and a no-op for Symbolics. |
 
 Use `symopts=(; factor=true)` or `symopts=(factor=true,)` to build a `NamedTuple`.
 
