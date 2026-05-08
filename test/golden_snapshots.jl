@@ -4,6 +4,7 @@
 
     @test LAlatex.L_show(3//4) == "\$\\frac{3}{4}\$\n"
     @test LAlatex.L_show(2 + 3im) == "\$2+3\\mathit{i}\$\n"
+    @test LAlatex.L_show(x^2) == "\$x^{2} \$\n"
 
     @test LAlatex.L_show([1, 2, 3]) ==
           "\$\\left(\\begin{array}{r}\n" *
@@ -12,10 +13,22 @@
           "3 \\\\\n" *
           "\\end{array}\\right)\$\n"
 
+    @test LAlatex.L_show([x, y]) ==
+          "\$\\left(\\begin{array}{r}\n" *
+          "x \\\\\n" *
+          "y \\\\\n" *
+          "\\end{array}\\right)\$\n"
+
     @test LAlatex.L_show([1 2; 3 4]) ==
           "\$\\left(\\begin{array}{rr}\n" *
           "1 & 2 \\\\\n" *
           "3 & 4 \\\\\n" *
+          "\\end{array}\\right)\$\n"
+
+    @test LAlatex.L_show([x 0; 0 y]) ==
+          "\$\\left(\\begin{array}{rr}\n" *
+          "x & 0 \\\\\n" *
+          "0 & y \\\\\n" *
           "\\end{array}\\right)\$\n"
 
     @test LAlatex.L_show(BlockArray([1 2; 3 4], [1, 1], [1, 1])) ==
