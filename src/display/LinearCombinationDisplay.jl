@@ -180,13 +180,13 @@ Render a LinearCombination group.
 """
 function L_show_lc(
     lcobj::LinearCombination;
-    setstyle = :parray,
-    arraystyle = :parray,
-    color = nothing,
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
-    symopts = NamedTuple(),
+    setstyle = DISPLAY_OPTION_UNSET,
+    arraystyle = DISPLAY_OPTION_UNSET,
+    color = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
+    symopts = DISPLAY_OPTION_UNSET,
 )
     return L_show_lc(
         lcobj,

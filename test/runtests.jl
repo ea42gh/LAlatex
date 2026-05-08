@@ -35,6 +35,7 @@ ok, sympy, pyexe = RUN_SYMPY_TESTS ? _sympy_available() : (false, nothing, nothi
     include("public_exports.jl")
     include("display_contracts.jl")
     include("display_options.jl")
+    include("display_defaults.jl")
     include("backends.jl")
     include("html_helpers.jl")
     include("latex_helpers.jl")

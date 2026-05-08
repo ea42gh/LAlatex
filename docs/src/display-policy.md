@@ -176,6 +176,13 @@ L_show(
 `set` also propagates these options and additionally uses `setstyle` and
 `separator` for its delimiters and item separator.
 
+Display option precedence is:
+
+1. explicit keywords on the current call or container
+2. scoped defaults from `with_display_defaults(...) do ... end`
+3. process-wide defaults from `set_display_defaults!(...)`
+4. library defaults
+
 Top-level options passed to `L_show` provide defaults for every nested display
 container. Options passed directly to a container override those defaults only
 inside that container:
@@ -190,6 +197,23 @@ L_show(
 
 In this example the surrounding call defaults arrays to `:parray`, but arrays
 inside the `set` render with `:bmatrix`, and the set uses its local separator.
+
+Use process-wide defaults when a notebook should keep the same display style
+across many cells:
+
+```julia
+set_display_defaults!(arraystyle=:bmatrix, separator=L";", symopts=(expand=true,))
+L_show([1 2; 3 4])
+reset_display_defaults!()
+```
+
+Use scoped defaults for a temporary style:
+
+```julia
+with_display_defaults(arraystyle=:vmatrix) do
+    l_show("A = ", [1 2; 3 4])
+end
+```
 
 Unknown container keyword arguments are ignored by the display-option merger.
 Known container-local options are:

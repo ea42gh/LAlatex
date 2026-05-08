@@ -65,14 +65,14 @@ Render a `Group` with delimiters and separators.
 """
 function L_show_set(
     obj_group;
-    setstyle = :Barray,
-    arraystyle = :parray,
-    color = nothing,
-    separator = ", ",
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
-    symopts = NamedTuple(),
+    setstyle = DISPLAY_OPTION_UNSET,
+    arraystyle = DISPLAY_OPTION_UNSET,
+    color = DISPLAY_OPTION_UNSET,
+    separator = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
+    symopts = DISPLAY_OPTION_UNSET,
 )
     if !(obj_group isa Group)
         error("L_show_set expected a Group, got: $(typeof(obj_group))")
@@ -131,12 +131,12 @@ Render a `Cases` group as a LaTeX `cases` environment.
 """
 function L_show_cases(
     case_group::Cases;
-    arraystyle = :parray,
-    color = nothing,
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
-    symopts = NamedTuple(),
+    arraystyle = DISPLAY_OPTION_UNSET,
+    color = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
+    symopts = DISPLAY_OPTION_UNSET,
 )
     base_options = DisplayOptions(;
         arraystyle = arraystyle,
@@ -185,12 +185,12 @@ Render an `Aligned` group as a LaTeX `aligned` environment.
 """
 function L_show_aligned(
     aligned_group::Aligned;
-    arraystyle = :parray,
-    color = nothing,
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
-    symopts = NamedTuple(),
+    arraystyle = DISPLAY_OPTION_UNSET,
+    color = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
+    symopts = DISPLAY_OPTION_UNSET,
 )
     base_options = DisplayOptions(;
         arraystyle = arraystyle,

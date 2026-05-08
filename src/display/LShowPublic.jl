@@ -5,15 +5,15 @@ Render objects into a LaTeX string with optional inline delimiters.
 """
 function L_show(
     objs...;
-    setstyle = :Barray,
-    arraystyle = :parray,
-    separator = ", ",
-    color = nothing,
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
+    setstyle = DISPLAY_OPTION_UNSET,
+    arraystyle = DISPLAY_OPTION_UNSET,
+    separator = DISPLAY_OPTION_UNSET,
+    color = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
     inline = true,
-    symopts = NamedTuple(),
+    symopts = DISPLAY_OPTION_UNSET,
 )
     options = DisplayOptions(;
         setstyle = setstyle,

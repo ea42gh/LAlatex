@@ -79,6 +79,8 @@ export @syms, syms, syms_sympy, @syms_sympy, import_sympy, assume!, assumptions
 export symbolic_transform, symbolic_term_coefficients
 
 export to_latex, L_show, l_show, L_interp
+export set_display_defaults!,
+    reset_display_defaults!, display_defaults, with_display_defaults
 export to_html,
     show_html, pr, capture_output, show_side_by_side_html, show_side_by_side, RawHTML
 

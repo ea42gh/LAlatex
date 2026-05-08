@@ -83,6 +83,8 @@ L_show((x + y)^2; symopts=(expand=true, simplify=true))
 
 - `L_show`
 - `l_show`
+- `set_display_defaults!`, `reset_display_defaults!`, `display_defaults`,
+  `with_display_defaults`
 - `set`, `lc`, `cases`, `aligned`
 - `L_interp`
 - `apply_function`, `round_value`, `round_matrices`
@@ -114,6 +116,12 @@ apply their own keyword arguments as local overrides. Known display options are
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
 `per_element_style`, `factor_out`, and `symopts`. Container-local overrides
 apply only to that container's rendered cells.
+
+Notebook-wide style can be configured with `set_display_defaults!(...)` and
+cleared with `reset_display_defaults!()`. For temporary styles, use
+`with_display_defaults(...) do ... end`. Explicit keywords override scoped
+defaults, scoped defaults override process-wide defaults, and process-wide
+defaults override the library defaults.
 
 See the Display policy page for examples and the exact row policies for
 `cases` and `aligned`.

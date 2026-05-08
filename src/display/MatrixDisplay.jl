@@ -105,13 +105,13 @@ Render a matrix-like object as LaTeX.
 """
 function L_show_matrix(
     A;
-    arraystyle = :parray,
+    arraystyle = DISPLAY_OPTION_UNSET,
     is_block_array = false,
-    color = nothing,
-    number_formatter = nothing,
-    per_element_style = nothing,
-    factor_out = true,
-    symopts = NamedTuple(),
+    color = DISPLAY_OPTION_UNSET,
+    number_formatter = DISPLAY_OPTION_UNSET,
+    per_element_style = DISPLAY_OPTION_UNSET,
+    factor_out = DISPLAY_OPTION_UNSET,
+    symopts = DISPLAY_OPTION_UNSET,
 )
     return L_show_matrix(
         A,
