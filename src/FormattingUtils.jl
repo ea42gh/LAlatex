@@ -6,7 +6,15 @@ using LaTeXStrings: LaTeXString
 Strip outer dollar delimiters and surrounding whitespace from a LaTeX fragment.
 """
 function strip_math_delims(s::AbstractString)
-    return strip(String(s), ['$', '\n', ' '])
+    stripped = strip(String(s))
+    if startswith(stripped, "\$\$") && endswith(stripped, "\$\$")
+        return strip(stripped[3:(end-2)])
+    elseif startswith(stripped, "\$") && endswith(stripped, "\$")
+        return strip(stripped[2:(end-1)])
+    elseif startswith(stripped, "\\[") && endswith(stripped, "\\]")
+        return strip(stripped[3:(end-2)])
+    end
+    return stripped
 end
 
 """

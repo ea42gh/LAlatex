@@ -7,8 +7,10 @@
         rendered = LAlatex.L_show(obj; kwargs...)
         @test rendered isa String
         @test endswith(rendered, "\n")
-        @test startswith(rendered, get(kwargs, :inline, true) ? "\$" : "\\[")
-        @test endswith(chomp(rendered), get(kwargs, :inline, true) ? "\$" : "\\]")
+        @test startswith(rendered, get(kwargs, :inline, true) ? "\$" : "\$\$")
+        @test endswith(chomp(rendered), get(kwargs, :inline, true) ? "\$" : "\$\$")
+        @test !startswith(rendered, "\\[")
+        @test !endswith(chomp(rendered), "\\]")
         return rendered
     end
 
@@ -19,6 +21,10 @@
         @test !isempty(payload)
         @test startswith(payload, "\$")
         @test endswith(payload, "\$")
+        @test !startswith(strip(payload, '$'), "\$\$")
+        @test !endswith(strip(payload, '$'), "\$\$")
+        @test !startswith(strip(payload, '$'), "\\[")
+        @test !endswith(strip(payload, '$'), "\\]")
         return payload
     end
 

@@ -130,6 +130,7 @@ function L_show_core(obj, options::DisplayOptions)
             :number_formatter,
             :per_element_style,
             :factor_out,
+            :symopts,
         ]
         formatting_options =
             (; (k => v for (k, v) in pairs(obj) if k in formatting_keys)...)

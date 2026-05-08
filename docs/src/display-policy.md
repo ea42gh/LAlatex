@@ -16,11 +16,15 @@ trailing newline:
 L_show([1 2; 3 4])
 ```
 
-Set `inline=false` when a display-math string is needed:
+Set `inline=false` when a Jupyter-Markdown-compatible display-math string is
+needed:
 
 ```julia
 L_show([1 2; 3 4]; inline=false)
 ```
+
+This returns a `$$...$$` block, not `\[...\]`, because the string-producing API
+is intended to be pasteable into Markdown cells.
 
 `l_show(args...)` is the notebook-display API. It calls `L_show`, removes the
 outer math delimiters, and returns a `LaTeXString`. This lets notebook and rich

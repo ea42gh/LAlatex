@@ -85,7 +85,7 @@ Use `symopts=(; factor=true)` or `symopts=(factor=true,)` to build a `NamedTuple
 `L_show(args...)` returns a `String` containing a complete LaTeX math fragment.
 With the default `inline=true`, the returned string is wrapped in dollar
 delimiters and ends with a newline. With `inline=false`, the returned string is
-wrapped in display-math delimiters.
+wrapped in Jupyter-Markdown-compatible `$$...$$` display-math delimiters.
 
 `l_show(args...)` calls `L_show(args...)`, strips the outer math delimiters,
 and returns a `LaTeXString` for notebook/rich-display output. Use `L_show`

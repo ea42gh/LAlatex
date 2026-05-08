@@ -28,7 +28,7 @@ function L_show(
     formatted_objs = [L_show_core(obj, options) for obj in objs]
 
     styled_content = join(formatted_objs, " ")
-    return inline ? "\$" * styled_content * "\$\n" : "\\[" * styled_content * "\\]\n"
+    return inline ? "\$" * styled_content * "\$\n" : "\$\$\n" * styled_content * "\n\$\$\n"
 end
 
 """

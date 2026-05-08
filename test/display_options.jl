@@ -118,6 +118,14 @@
         )
         @test occursin("\\begin{bmatrix}", local_named_tuple)
 
+        local_symopts = LAlatex.L_show(
+            (value = (x + y)^2, symopts = (expand = true,));
+            symopts = NamedTuple(),
+        )
+        @test occursin("x^{2}", local_symopts) || occursin("x^2", local_symopts)
+        @test !occursin(",true", local_symopts)
+        @test !occursin("expand", local_symopts)
+
         core_fragment = LAlatex.L_show_core((1, 2); separator = L";")
         @test core_fragment == "1;2"
     end
