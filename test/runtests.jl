@@ -34,6 +34,7 @@ ok, sympy, pyexe = _sympy_available()
     include("latex_helpers.jl")
     include("symbolic_display.jl")
     include("golden_snapshots.jl")
+    include("display_invariants.jl")
     include("formatters.jl")
     include("l_show_helpers.jl")
 end
