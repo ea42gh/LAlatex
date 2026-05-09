@@ -1,5 +1,6 @@
 @testset "Performance guardrails" begin
     LAlatex.set_backend!(:symbolics)
+    LAlatex.reset_display_defaults!()
     @variables x y
 
     guardrails = (
@@ -24,12 +25,23 @@
             limit = 500_000,
             render = () -> LAlatex.L_show((x + y)^2; symopts = (expand = true,)),
         ),
+        (
+            name = "scoped display defaults render",
+            limit = 140_000,
+            render = () -> LAlatex.with_display_defaults(arraystyle = :bmatrix) do
+                LAlatex.L_show([1 2 3; 4 5 6])
+            end,
+        ),
     )
 
     for case in guardrails
-        case.render()
-        case.render()
-        allocated = @allocated case.render()
-        @test allocated <= case.limit
+        @testset "$(case.name)" begin
+            case.render()
+            case.render()
+            allocated = @allocated case.render()
+            @test allocated <= case.limit
+        end
     end
+
+    LAlatex.reset_display_defaults!()
 end
