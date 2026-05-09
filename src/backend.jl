@@ -1,5 +1,5 @@
 """
-Use eithe Symbolics.jl (default) or SymPy
+Use either Symbolics.jl (default) or SymPy.
 """
 module Backend
 
