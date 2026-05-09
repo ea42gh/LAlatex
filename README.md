@@ -275,6 +275,25 @@ end
 - Docs publish from `main` after the matching changes are green in CI.
 - Release steps and verification commands live in [RELEASING.md](RELEASING.md).
 
+## Testing from source
+
+From a checkout, run the runtime test suite with the package project:
+
+```bash
+julia --project=. test/runtests.jl
+```
+
+That path exercises the package behavior available in the active project. The
+test-only quality tools (`Aqua`, `JET`, and `JuliaFormatter`) are loaded by
+Julia's package-test environment:
+
+```bash
+julia --project=. -e 'using Pkg; Pkg.test()'
+```
+
+Use `LALATEX_TEST_SUITE=core` with `LALATEX_DISABLE_PYTHONCALL=1` when checking
+the non-SymPy suite without initializing Python.
+
 ## Benchmarking
 
 Run the lightweight benchmark script from the package root:
