@@ -9,6 +9,8 @@
         :import_sympy,
         :get_backend,
         :set_backend!,
+        :assume!,
+        :assumptions,
         :symbolic_transform,
         :symbolic_term_coefficients,
         :to_latex,
@@ -30,7 +32,9 @@
         :scientific_formatter,
         :tril_formatter,
     ]
-    @test all(name -> name in exported, expected_exports)
+    for name in expected_exports
+        @test name in exported
+    end
     @test :syms_symbolics ∉ exported
     @test :assume_symbolics! ∉ exported
     @test :symbolics_assumptions ∉ exported
