@@ -128,6 +128,12 @@ cleared with `reset_display_defaults!()`. For temporary styles, use
 defaults, scoped defaults override process-wide defaults, and process-wide
 defaults override the library defaults.
 
+Defaults cover `setstyle`, `arraystyle`, `color`, `separator`,
+`number_formatter`, `per_element_style`, `factor_out`, and `symopts`. They do
+not cover `inline` or `lc` construction options such as `sign_policy`,
+`drop_zero`, `omit_one`, `parens_coeff`, `plus`, `pos`, and `neg`; pass those
+explicitly at the call site.
+
 See the Display policy page for examples and the exact row policies for
 `cases` and `aligned`.
 

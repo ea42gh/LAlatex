@@ -215,6 +215,19 @@ with_display_defaults(arraystyle=:vmatrix) do
 end
 ```
 
+Display defaults cover the shared rendering options that naturally propagate
+through `L_show`, `l_show`, `set`, `cases`, `aligned`, and matrix entries:
+`setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
+`per_element_style`, `factor_out`, and `symopts`.
+
+Display defaults intentionally do not include `inline`, because `L_show`
+string output and `l_show` notebook-display output have different delimiter
+contracts. Pass `inline=false` at the call site when a pasteable display-math
+string is needed. Defaults also do not include `lc`-specific construction
+options such as `sign_policy`, `drop_zero`, `omit_one`, `parens_coeff`, `plus`,
+`pos`, or `neg`; set those on the `lc(...)` call so the linear-combination
+policy remains visible where the expression is constructed.
+
 Unknown container keyword arguments are ignored by the display-option merger.
 Known container-local options are:
 
