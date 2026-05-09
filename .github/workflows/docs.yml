@@ -7,6 +7,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  # Keep only the newest docs run per ref so stale deploy/check runs do not pile up.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
