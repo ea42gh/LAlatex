@@ -18,6 +18,9 @@ FORBIDDEN_SNIPPETS = [
     "1.0.0-DEV",
     "inline=false` for `\\\\[...\\\\]`",
     "Expected `\\\\[",
+    "Unknown container keyword arguments are ignored",
+    "ignored unknown option keys",
+    "They do not cover `inline` or `lc` construction options",
 ]
 
 
