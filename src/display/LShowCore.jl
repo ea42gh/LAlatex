@@ -222,5 +222,5 @@ function L_show_core(obj, options::DisplayOptions)
         throw(ArgumentError("Unsupported Python object type for L_show: $(typeof(obj))"))
     end
 
-    error("Unsupported argument type: $(typeof(obj))")
+    throw(ArgumentError("Unsupported argument type for L_show: $(typeof(obj))"))
 end

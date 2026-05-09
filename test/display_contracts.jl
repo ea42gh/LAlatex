@@ -48,6 +48,16 @@ using LinearAlgebra
         end
         @test err isa ArgumentError
         @test occursin("inline must be a Bool", sprint(showerror, err))
+        unsupported_err = try
+            LAlatex.L_show(Ref(1))
+        catch e
+            e
+        end
+        @test unsupported_err isa ArgumentError
+        @test occursin(
+            "Unsupported argument type for L_show",
+            sprint(showerror, unsupported_err),
+        )
     end
 
     @testset "strings and scalars" begin
