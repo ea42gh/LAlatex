@@ -24,6 +24,7 @@ function L_show(
     inline = true,
     symopts = DISPLAY_OPTION_UNSET,
 )
+    inline = _validate_inline_value(inline)
     options = DisplayOptions(;
         setstyle = setstyle,
         arraystyle = arraystyle,
@@ -37,7 +38,6 @@ function L_show(
     formatted_objs = [L_show_core(obj, options) for obj in objs]
 
     styled_content = join(formatted_objs, " ")
-    inline = _validate_inline_value(inline)
     return inline ? "\$" * styled_content * "\$\n" : "\$\$\n" * styled_content * "\n\$\$\n"
 end
 

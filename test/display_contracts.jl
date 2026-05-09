@@ -41,6 +41,13 @@ using LinearAlgebra
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = 1)
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = "false")
         @test_throws ArgumentError LAlatex.l_show([1 2; 3 4]; inline = nothing)
+        err = try
+            LAlatex.L_show([1 2; 3 4]; inline = 1, color = "red}{\\bad")
+        catch e
+            e
+        end
+        @test err isa ArgumentError
+        @test occursin("inline must be a Bool", sprint(showerror, err))
     end
 
     @testset "strings and scalars" begin
