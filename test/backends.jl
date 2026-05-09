@@ -22,6 +22,13 @@
     xr = LAlatex.syms(:xr; real = true, positive = true)
     @test LAlatex.assumptions(xr)[:real] == true
     @test LAlatex.assumptions(xr)[:positive] == true
+    stored_assumptions = LAlatex.assumptions(xr)
+    stored_assumptions[:real] = false
+    @test LAlatex.assumptions(xr)[:real] == true
+    @test LAlatex.assume!(xr; integer = true) === xr
+    @test LAlatex.assumptions(xr)[:integer] == true
+    @test LAlatex.assumptions(1) == Dict{Symbol,Any}()
+    @test_throws ArgumentError LAlatex.assume!(1; real = true)
 
     LAlatex.@syms q :real => true
     @test LAlatex.assumptions(q)[:real] == true
