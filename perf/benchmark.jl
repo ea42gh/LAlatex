@@ -25,6 +25,19 @@ bench(() -> L_show("A = ", A), "steady L_show matrix")
 bench(() -> l_show("A = ", A), "first l_show matrix")
 bench(() -> l_show("A = ", A), "steady l_show matrix")
 
+bench(
+    () -> with_display_defaults(arraystyle = :bmatrix) do
+        L_show("A = ", A)
+    end,
+    "scoped defaults",
+)
+bench(
+    () -> with_display_defaults(arraystyle = :bmatrix) do
+        L_show("A = ", A)
+    end,
+    "steady scoped defaults",
+)
+
 bench(() -> L_show("x = ", lc([2, -1, 3], [A[:, 1], A[:, 2], b])), "linear combination")
 bench(() -> L_show("x = ", lc([2, -1, 3], [A[:, 1], A[:, 2], b])), "steady lc")
 
