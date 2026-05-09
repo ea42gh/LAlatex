@@ -8,6 +8,23 @@ struct Cases
     options::NamedTuple
 end
 
+const SET_OPTION_KEYS = DISPLAY_OPTION_KEYS
+const CELL_CONTAINER_OPTION_KEYS =
+    (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :symopts)
+
+function _validate_container_option_keys(
+    options,
+    allowed_keys,
+    container_name::AbstractString,
+)
+    for key in keys(options)
+        if !(key in allowed_keys)
+            throw(ArgumentError("Unsupported $container_name option: $(repr(key))."))
+        end
+    end
+    return options
+end
+
 """
     cases(entries...; kwargs...) -> Cases
 
@@ -15,7 +32,9 @@ Create a piecewise/cases display. Each entry may be a two-tuple
 `(value, condition)` or a pair `value => condition`.
 """
 function cases(entries...; kwargs...)
-    return Cases(entries, (; kwargs...))
+    options =
+        _validate_container_option_keys((; kwargs...), CELL_CONTAINER_OPTION_KEYS, "cases")
+    return Cases(entries, options)
 end
 
 """
@@ -36,7 +55,12 @@ provide row cells; `aligned` inserts LaTeX alignment markers between cells.
 Pairs render as `left &= right`.
 """
 function aligned(rows...; kwargs...)
-    return Aligned(rows, (; kwargs...))
+    options = _validate_container_option_keys(
+        (; kwargs...),
+        CELL_CONTAINER_OPTION_KEYS,
+        "aligned",
+    )
+    return Aligned(rows, options)
 end
 
 """
@@ -55,7 +79,8 @@ end
 Create a grouped collection of entries for `L_show`.
 """
 function set(entries...; kwargs...)
-    return Group(entries, (; kwargs...))
+    options = _validate_container_option_keys((; kwargs...), SET_OPTION_KEYS, "set")
+    return Group(entries, options)
 end
 
 """

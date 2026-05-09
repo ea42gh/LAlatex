@@ -123,7 +123,8 @@ apply their own keyword arguments as local overrides. Known display options are
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
 `per_element_style`, `factor_out`, and `symopts`. Container-local overrides
 apply only to that container's rendered cells. `lc(...)` also accepts these
-display options locally for its coefficients and vectors.
+display options locally for its coefficients and vectors. Unknown container
+option names throw `ArgumentError`.
 
 `color` accepts a LaTeX/xcolor color name or expression as a `String` or
 `Symbol`, such as `"red"` or `"red!50!black"`. Braces, backslashes, control

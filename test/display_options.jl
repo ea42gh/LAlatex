@@ -88,8 +88,9 @@
     end
 
     @testset "container option merge compatibility" begin
-        unknown_option = LAlatex.L_show(LAlatex.set(1; not_an_option = true))
-        @test occursin("1", unknown_option)
+        @test_throws ArgumentError LAlatex.set(1; not_an_option = true)
+        @test_throws ArgumentError LAlatex.cases(1 => 2; separator = L";")
+        @test_throws ArgumentError LAlatex.aligned(1 => 2; setstyle = :parray)
 
         local_separator =
             LAlatex.L_show(LAlatex.set(1, 2; separator = L";"); separator = L",")

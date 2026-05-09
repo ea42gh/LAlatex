@@ -229,13 +229,23 @@ options such as `sign_policy`, `drop_zero`, `omit_one`, `parens_coeff`, `plus`,
 policy remains visible where the expression is constructed. `lc(...)` rejects
 unknown option names with `ArgumentError`.
 
-Unknown container keyword arguments are ignored by the display-option merger.
-Known container-local options are:
+Unknown container keyword arguments throw `ArgumentError`.
+
+Known `set`-local options are:
 
 - `setstyle`
 - `arraystyle`
 - `color`
 - `separator`
+- `number_formatter`
+- `per_element_style`
+- `factor_out`
+- `symopts`
+
+Known `cases`-local and `aligned`-local options are:
+
+- `arraystyle`
+- `color`
 - `number_formatter`
 - `per_element_style`
 - `factor_out`
