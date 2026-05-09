@@ -59,3 +59,34 @@ For a non-SymPy check that avoids Python initialization:
 ```bash
 LALATEX_DISABLE_PYTHONCALL=1 LALATEX_TEST_SUITE=core julia --project=. test/runtests.jl
 ```
+
+## Toolchain troubleshooting
+
+`Pkg.test()` creates an isolated package-test environment and may initialize
+PythonCall when SymPy integration tests are available. If that environment
+cannot provision Python packages, or if an unrelated default Julia environment
+has a broken `PyCall`/`SymPy` precompile, use the direct project test path to
+separate package behavior from local toolchain setup:
+
+```bash
+julia --project=. test/runtests.jl
+```
+
+For non-SymPy checks, disable PythonCall explicitly:
+
+```bash
+LALATEX_DISABLE_PYTHONCALL=1 LALATEX_TEST_SUITE=core julia --project=. test/runtests.jl
+```
+
+For SymPy checks, prefer a system Python with SymPy installed and point
+PythonCall at that interpreter:
+
+```bash
+export JULIA_CONDAPKG_BACKEND=Null
+export JULIA_PYTHONCALL_EXE=/path/to/python
+```
+
+When installing development tools such as `JuliaFormatter` into another Julia
+environment, a failure from that environment's `PyCall` or `SymPy` precompile is
+not evidence that LAlatex's package tests failed. Re-run the LAlatex commands
+above from the package project to verify the repository itself.

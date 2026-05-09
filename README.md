@@ -294,6 +294,12 @@ julia --project=. -e 'using Pkg; Pkg.test()'
 Use `LALATEX_TEST_SUITE=core` with `LALATEX_DISABLE_PYTHONCALL=1` when checking
 the non-SymPy suite without initializing Python.
 
+If `Pkg.test()` fails while provisioning Python packages, or a separate Julia
+environment fails while precompiling `PyCall`/`SymPy`, run the direct project
+suite above to separate LAlatex behavior from local toolchain setup. For SymPy
+coverage, set `JULIA_CONDAPKG_BACKEND=Null` and `JULIA_PYTHONCALL_EXE` to a
+Python interpreter that already has `sympy` installed.
+
 ## Benchmarking
 
 Run the lightweight benchmark script from the package root:
