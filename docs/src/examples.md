@@ -281,6 +281,10 @@ Use `arraystyle` to select the LaTeX environment and delimiters:
 
 ## Utility helpers
 
+`print_np_array_def` accepts numeric vectors and matrices and returns a
+copy/paste-friendly NumPy literal. Unsupported element types throw
+`ArgumentError`.
+
 ```julia
 tpl = L_interp(LaTeXString("\\mathbb{R}^{\\$(n)}"), Dict("n" => 3))
 print_np_array_def([1, 2, 3]; nm="v")
