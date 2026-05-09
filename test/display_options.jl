@@ -132,6 +132,14 @@
         @test !occursin(",true", local_symopts)
         @test !occursin("expand", local_symopts)
 
+        local_color_payload = LAlatex.L_show((value = 42, color = "red"))
+        @test occursin("\\textcolor{red}{42}", local_color_payload)
+        @test !occursin("\\text{red}", local_color_payload)
+
+        literal_option_name = LAlatex.L_show((label = "color", value = "red"))
+        @test occursin("\\text{color}", literal_option_name)
+        @test occursin("\\text{red}", literal_option_name)
+
         core_fragment = LAlatex.L_show_core((1, 2); separator = L";")
         @test core_fragment == "1;2"
     end

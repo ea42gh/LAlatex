@@ -240,6 +240,20 @@ Known container-local options are:
 - `factor_out`
 - `symopts`
 
+`NamedTuple` display entries use those same names as local formatting
+metadata. Matching key/value pairs are consumed as display options and are not
+rendered as content. Put payload values under non-option keys such as `value`,
+`label`, or `data`:
+
+```julia
+L_show((value=1//3, color="green"))
+L_show((label="color", value="red"))
+```
+
+The first call renders the scalar with a local color option. The second call
+renders the words `color` and `red` as content because neither `label` nor
+`value` is a display-option key.
+
 `color` accepts a LaTeX/xcolor color name or expression as a `String` or
 `Symbol`, such as `"red"` or `"red!50!black"`. It rejects braces,
 backslashes, control characters, and LaTeX special characters so the value

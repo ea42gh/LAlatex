@@ -188,6 +188,20 @@ with_display_defaults(arraystyle=:vmatrix, color=:blue) do
 end
 ```
 
+Use a `NamedTuple` to apply local display options to one payload value:
+
+```julia
+L_show((value=1//3, color="green"))
+L_show((value=(x + y)^2, symopts=(expand=true,)))
+```
+
+Display-option keys inside a `NamedTuple` are metadata and are not rendered as
+content. Use non-option keys when the values are literal content:
+
+```julia
+L_show((label="color", value="red"))
+```
+
 Rendered output (LaTeX strings from `LAlatex_examples.ipynb`):
 
 ```text
