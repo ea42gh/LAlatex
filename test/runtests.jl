@@ -46,4 +46,5 @@ ok, sympy, pyexe = RUN_SYMPY_TESTS ? _sympy_available() : (false, nothing, nothi
     include("l_show_helpers.jl")
     include("performance_guardrails.jl")
     include("quality_checks.jl")
+    include("jet_checks.jl")
 end

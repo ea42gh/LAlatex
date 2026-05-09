@@ -6,7 +6,7 @@
 
         Aqua.test_all(
             LAlatex;
-            stale_deps = (; ignore = [:PythonCall, :Aqua, :JuliaFormatter]),
+            stale_deps = (; ignore = [:PythonCall, :Aqua, :JET, :JuliaFormatter]),
         )
     end
 
