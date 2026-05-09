@@ -34,6 +34,22 @@
             factor_out = true,
         )
         assert_no_jet_reports("display option construction", options_report)
+
+        lc_option_keys_report =
+            JET.@report_call LAlatex._validate_lc_option_keys((
+                sign_policy = :signed,
+                arraystyle = :bmatrix,
+                symopts = NamedTuple(),
+            ))
+        assert_no_jet_reports("lc option-key validation", lc_option_keys_report)
+
+        container_option_keys_report =
+            JET.@report_call LAlatex._validate_container_option_keys(
+                (arraystyle = :bmatrix, symopts = NamedTuple()),
+                LAlatex.CELL_CONTAINER_OPTION_KEYS,
+                "cases",
+            )
+        assert_no_jet_reports("container option-key validation", container_option_keys_report)
         """,
         )
     end
