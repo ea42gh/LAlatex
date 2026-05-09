@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parent
 NOTEBOOK_DIR = ROOT / "src" / "notebooks"
 EXPECTED_NOTEBOOKS = [
     "LAlatex_basics.ipynb",
@@ -13,8 +14,8 @@ EXPECTED_NOTEBOOKS = [
     "LAlatex_from_Python.ipynb",
     "LAlatex_examples.ipynb",
 ]
-FORBIDDEN_SNIPPETS = [
-    "backend_available",
+TEXT_SOURCES = [REPO_ROOT / "README.md", *(ROOT / "src").glob("*.md")]
+SOURCE_FORBIDDEN_SNIPPETS = [
     "1.0.0-DEV",
     "inline=false` for `\\\\[...\\\\]`",
     "Expected `\\\\[",
@@ -22,12 +23,31 @@ FORBIDDEN_SNIPPETS = [
     "ignored unknown option keys",
     "They do not cover `inline` or `lc` construction options",
 ]
+NOTEBOOK_FORBIDDEN_SNIPPETS = ["backend_available", *SOURCE_FORBIDDEN_SNIPPETS]
+
+
+def normalized(text: str) -> str:
+    return " ".join(text.split())
+
+
+def check_forbidden_snippets(name: str, text: str, forbidden_snippets: list[str]) -> None:
+    normalized_text = normalized(text)
+    for snippet in forbidden_snippets:
+        if normalized(snippet) in normalized_text:
+            raise SystemExit(f"{name}: forbidden snippet found: {snippet}")
 
 
 def main() -> None:
     missing = [name for name in EXPECTED_NOTEBOOKS if not (NOTEBOOK_DIR / name).is_file()]
     if missing:
         raise SystemExit(f"Missing documentation notebooks: {', '.join(missing)}")
+
+    for path in TEXT_SOURCES:
+        check_forbidden_snippets(
+            str(path.relative_to(REPO_ROOT)),
+            path.read_text(encoding="utf-8"),
+            SOURCE_FORBIDDEN_SNIPPETS,
+        )
 
     for name in EXPECTED_NOTEBOOKS:
         path = NOTEBOOK_DIR / name
@@ -42,11 +62,9 @@ def main() -> None:
             raise SystemExit(f"{name}: expected at least one code cell")
 
         text = json.dumps(notebook, ensure_ascii=False)
-        for snippet in FORBIDDEN_SNIPPETS:
-            if snippet in text:
-                raise SystemExit(f"{name}: forbidden snippet found: {snippet}")
+        check_forbidden_snippets(name, text, NOTEBOOK_FORBIDDEN_SNIPPETS)
 
-    print("Notebook smoke checks passed.")
+    print("Documentation smoke checks passed.")
 
 
 if __name__ == "__main__":
