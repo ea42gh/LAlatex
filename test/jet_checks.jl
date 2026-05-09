@@ -1,12 +1,12 @@
-const HAS_JET = Base.find_package("JET") !== nothing
-
 @testset "Targeted JET checks" begin
-    if !HAS_JET
-        @info "JET is not available in the active project; run `Pkg.test()` to execute targeted JET checks."
+    if !optional_test_dependency("JET", "targeted JET checks")
+        nothing
     elseif VERSION.prerelease !== ()
         @info "Skipping targeted JET checks on prerelease Julia builds."
     else
         @eval import JET
+        # Parse JET macros only after JET is available, so direct test runs from
+        # the project environment can skip these test-only extras cleanly.
         include_string(
             @__MODULE__,
             raw"""

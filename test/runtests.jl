@@ -5,6 +5,8 @@ using BlockArrays
 using LAlatex
 using Symbolics
 
+include("test_helpers.jl")
+
 const TEST_SUITE = get(ENV, "LALATEX_TEST_SUITE", "all")
 if !(TEST_SUITE in ("all", "core"))
     throw(ArgumentError("LALATEX_TEST_SUITE must be `all` or `core`; got `$TEST_SUITE`"))

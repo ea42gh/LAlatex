@@ -1,15 +1,11 @@
 @testset "Static quality checks" begin
-    if Base.find_package("Aqua") === nothing
-        @info "Aqua is not available in the active project; run `Pkg.test()` to execute static quality checks."
-    else
+    if optional_test_dependency("Aqua", "static quality checks")
         import Aqua
 
         Aqua.test_all(LAlatex; stale_deps = (; ignore = [:PythonCall]))
     end
 
-    if Base.find_package("JuliaFormatter") === nothing
-        @info "JuliaFormatter is not available in the active project; run `Pkg.test()` to execute formatter checks."
-    else
+    if optional_test_dependency("JuliaFormatter", "formatter checks")
         import JuliaFormatter
 
         package_root = pkgdir(LAlatex)
