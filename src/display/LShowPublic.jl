@@ -3,6 +3,15 @@
 
 Render objects into a LaTeX string with optional inline delimiters.
 """
+function _validate_inline_value(inline)
+    inline isa Bool && return inline
+    throw(
+        ArgumentError(
+            "inline must be a Bool; got $(repr(inline)) of type $(typeof(inline)).",
+        ),
+    )
+end
+
 function L_show(
     objs...;
     setstyle = DISPLAY_OPTION_UNSET,
@@ -28,6 +37,7 @@ function L_show(
     formatted_objs = [L_show_core(obj, options) for obj in objs]
 
     styled_content = join(formatted_objs, " ")
+    inline = _validate_inline_value(inline)
     return inline ? "\$" * styled_content * "\$\n" : "\$\$\n" * styled_content * "\n\$\$\n"
 end
 

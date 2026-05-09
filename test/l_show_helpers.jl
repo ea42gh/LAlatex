@@ -90,4 +90,20 @@
     @test_throws ArgumentError LAlatex.L_show(
         LAlatex.lc([1, -2], [x y]; sign_policy = "signed"),
     )
+    custom_plus =
+        LAlatex.L_show(LAlatex.lc([1, 2], [x y]; sign_policy = :plus, plus = L" \\oplus "))
+    @test occursin("\\oplus", custom_plus)
+
+    no_omit_one = LAlatex.L_show(LAlatex.lc([1], [x]; omit_one = false))
+    @test occursin("1x", replace(no_omit_one, r"\s" => ""))
+
+    keep_zero = LAlatex.L_show(LAlatex.lc([0, 1], [x y]; drop_zero = false))
+    @test occursin("0", keep_zero)
+
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; drop_zero = 1))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; omit_one = "true"))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; parens_coeff = nothing))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; plus = 1))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; pos = :plus))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([-1], [x]; neg = false))
 end

@@ -1,9 +1,15 @@
-import JET
+const HAS_JET = Base.find_package("JET") !== nothing
 
 @testset "Targeted JET checks" begin
-    if VERSION.prerelease !== ()
+    if !HAS_JET
+        @info "JET is not available in the active project; run `Pkg.test()` to execute targeted JET checks."
+    elseif VERSION.prerelease !== ()
         @info "Skipping targeted JET checks on prerelease Julia builds."
     else
+        @eval import JET
+        include_string(
+            @__MODULE__,
+            raw"""
         function assert_no_jet_reports(label, report)
             reports = JET.get_reports(report)
             @test isempty(reports)
@@ -28,5 +34,7 @@ import JET
             factor_out = true,
         )
         assert_no_jet_reports("display option construction", options_report)
+        """,
+        )
     end
 end

@@ -33,8 +33,14 @@ using LinearAlgebra
     @testset "public wrappers" begin
         @test occursin("\\left(", assert_lshow_math([1 2; 3 4]))
         @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]))
-        @test occursin("\\left(", assert_lshow_math([1 2; 3 4]; inline = false))
+        block_payload = assert_lshow_math([1 2; 3 4]; inline = false)
+        @test startswith(block_payload, "\$\$\n")
+        @test endswith(block_payload, "\n\$\$\n")
+        @test occursin("\\left(", block_payload)
         @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]; inline = false))
+        @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = 1)
+        @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = "false")
+        @test_throws ArgumentError LAlatex.l_show([1 2; 3 4]; inline = nothing)
     end
 
     @testset "strings and scalars" begin

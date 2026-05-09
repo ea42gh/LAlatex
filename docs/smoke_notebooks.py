@@ -11,8 +11,14 @@ EXPECTED_NOTEBOOKS = [
     "LAlatex_aligned_Guide.ipynb",
     "LAlatex_HTML_Utilities.ipynb",
     "LAlatex_from_Python.ipynb",
+    "LAlatex_examples.ipynb",
 ]
-FORBIDDEN_SNIPPETS = ["backend_available", "1.0.0-DEV"]
+FORBIDDEN_SNIPPETS = [
+    "backend_available",
+    "1.0.0-DEV",
+    "inline=false` for `\\\\[...\\\\]`",
+    "Expected `\\\\[",
+]
 
 
 def main() -> None:

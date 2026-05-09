@@ -173,6 +173,24 @@ function _validate_lc_sign_policy(sign_policy)
     )
 end
 
+function _validate_lc_bool_option(value, option_name::AbstractString)
+    value isa Bool && return value
+    throw(
+        ArgumentError(
+            "lc $option_name must be a Bool; got $(repr(value)) of type $(typeof(value)).",
+        ),
+    )
+end
+
+function _validate_lc_latex_fragment(value, option_name::AbstractString)
+    (value isa AbstractString || value isa LaTeXString) && return value
+    throw(
+        ArgumentError(
+            "lc $option_name must be a String or LaTeXString; got $(repr(value)) of type $(typeof(value)).",
+        ),
+    )
+end
+
 """
     L_show_lc(lcobj; kwargs...) -> String
 
@@ -219,6 +237,12 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
         Dict(pairs(lcobj.options)),
     )
     sign_policy = _validate_lc_sign_policy(opts[:sign_policy])
+    plus = _validate_lc_latex_fragment(opts[:plus], "plus")
+    pos = _validate_lc_latex_fragment(opts[:pos], "pos")
+    neg = _validate_lc_latex_fragment(opts[:neg], "neg")
+    parens_coeff = _validate_lc_bool_option(opts[:parens_coeff], "parens_coeff")
+    omit_one = _validate_lc_bool_option(opts[:omit_one], "omit_one")
+    drop_zero = _validate_lc_bool_option(opts[:drop_zero], "drop_zero")
     effective_factor_out = get(opts, :factor_out, options.factor_out)
 
     inner_options = DisplayOptions(;
@@ -271,13 +295,12 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
         terms =
             map(1:n) do i
                 c = strip(inner(s[i]))
-                if opts[:drop_zero] && _lc_is_zero_coeff(s[i], c)
+                if drop_zero && _lc_is_zero_coeff(s[i], c)
                     return nothing
                 end
                 c =
-                    (opts[:omit_one] && c == "1") ? "" :
-                    (opts[:parens_coeff] && needs_parens(s[i])) ?
-                    "\\left(" * c * "\\right)" : c
+                    (omit_one && c == "1") ? "" :
+                    (parens_coeff && needs_parens(s[i])) ? "\\left(" * c * "\\right)" : c
                 v = inner(getvec(i))
                 (a = LaTeXString(c), b = LaTeXString(v), separator = "")
             end |> x -> filter(!isnothing, x)
@@ -298,33 +321,33 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
             color = options.color,
             number_formatter = options.number_formatter,
             per_element_style = options.per_element_style,
-            separator = opts[:plus],
+            separator = plus,
         )
     end
 
     pieces = Any[]
     for i = 1:n
         raw = String(strip(inner(s[i])))
-        if opts[:drop_zero] && _lc_is_zero_coeff(s[i], raw)
+        if drop_zero && _lc_is_zero_coeff(s[i], raw)
             continue
         end
         isneg, absraw, factorizable = _lc_split_sign(s[i], raw, inner)
         base = factorizable ? absraw : raw
 
         showtxt =
-            (opts[:omit_one] && base == "1") ? "" :
-            (opts[:parens_coeff] && needs_parens(factorizable ? absraw : raw)) ?
+            (omit_one && base == "1") ? "" :
+            (parens_coeff && needs_parens(factorizable ? absraw : raw)) ?
             "\\left(" * base * "\\right)" : base
 
         term = (a = LaTeXString(showtxt), b = LaTeXString(inner(getvec(i))), separator = "")
 
         if isempty(pieces)
             if isneg && factorizable
-                push!(pieces, opts[:neg])
+                push!(pieces, neg)
             end
             push!(pieces, term)
         else
-            push!(pieces, (isneg && factorizable) ? opts[:neg] : opts[:pos])
+            push!(pieces, (isneg && factorizable) ? neg : pos)
             push!(pieces, term)
         end
     end
