@@ -168,6 +168,26 @@ L_show(1, " = ", [1 2; 3 4])
 display(l_show(1, " = ", [1 2; 3 4]))
 ```
 
+Set notebook-wide display defaults when many cells should share the same style.
+Explicit keywords still win over scoped defaults, and scoped defaults still win
+over process-wide defaults:
+
+```julia
+set_display_defaults!(arraystyle=:bmatrix, separator=L";", symopts=(expand=true,))
+L_show([1 2; 3 4])
+L_show((x + y)^2)
+L_show([1 2; 3 4]; arraystyle=:pmatrix)
+reset_display_defaults!()
+```
+
+Use `with_display_defaults` for temporary defaults that restore automatically:
+
+```julia
+with_display_defaults(arraystyle=:vmatrix, color=:blue) do
+    l_show("A = ", [1 2; 3 4])
+end
+```
+
 Rendered output (LaTeX strings from `LAlatex_examples.ipynb`):
 
 ```text
