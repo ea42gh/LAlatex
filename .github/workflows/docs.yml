@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -47,11 +48,12 @@ jobs:
       - name: Cache Julia artifacts
         uses: julia-actions/cache@v3
 
-      - name: Build and deploy docs
+      - name: Build docs
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LALATEX_DOCS_DEPLOY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         # docs/make.jl refreshes the dev path, resolves, instantiates, runs doctests,
-        # and then calls deploydocs.
+        # and deploys only when LALATEX_DOCS_DEPLOY is true.
         run: julia --project=docs docs/make.jl

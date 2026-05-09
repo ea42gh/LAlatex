@@ -33,7 +33,9 @@ makedocs(;
     ],
 )
 
-deploydocs(;
-    repo="github.com/ea42gh/LAlatex",
-    devbranch="main",
-)
+if get(ENV, "LALATEX_DOCS_DEPLOY", "false") == "true"
+    deploydocs(;
+        repo="github.com/ea42gh/LAlatex",
+        devbranch="main",
+    )
+end
