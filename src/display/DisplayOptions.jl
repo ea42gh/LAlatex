@@ -25,45 +25,13 @@ struct DisplayOptions
     symopts::NamedTuple
 end
 
-struct DisplayDefaults
-    setstyle::Any
-    has_setstyle::Bool
-    arraystyle::Any
-    has_arraystyle::Bool
-    color::Any
-    has_color::Bool
-    separator::Any
-    has_separator::Bool
-    number_formatter::Any
-    has_number_formatter::Bool
-    per_element_style::Any
-    has_per_element_style::Bool
-    factor_out::Any
-    has_factor_out::Bool
-    symopts::Any
-    has_symopts::Bool
+struct DisplayDefaults{T<:NamedTuple}
+    values::T
 end
 
-DisplayDefaults() = DisplayDefaults(
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-    DISPLAY_OPTION_UNSET,
-    false,
-)
+DisplayDefaults() = DisplayDefaults(NamedTuple())
 
-const GLOBAL_DISPLAY_DEFAULTS = Ref(DisplayDefaults())
+const GLOBAL_DISPLAY_DEFAULTS = Ref{DisplayDefaults}(DisplayDefaults())
 
 function _validate_display_default_keys(defaults)
     for key in keys(defaults)
@@ -123,39 +91,31 @@ function _validate_display_defaults(defaults)
 end
 
 function _display_default_value(defaults::DisplayDefaults, key::Symbol)
-    has_key = getfield(defaults, Symbol(:has_, key))
-    return has_key ? getfield(defaults, key) : DISPLAY_OPTION_UNSET
+    return get(defaults.values, key, DISPLAY_OPTION_UNSET)
 end
 
 function _display_defaults_to_named_tuple(defaults::DisplayDefaults)
+    return defaults.values
+end
+
+function _canonical_display_defaults(defaults)
+    defaults = _validate_display_defaults(defaults)
     pairs = Pair{Symbol,Any}[]
     for key in DISPLAY_OPTION_KEYS
-        value = _display_default_value(defaults, key)
-        value === DISPLAY_OPTION_UNSET || push!(pairs, key => value)
+        haskey(defaults, key) && push!(pairs, key => defaults[key])
     end
     return (; pairs...)
 end
 
 function _merge_display_defaults(defaults::DisplayDefaults, overrides)
-    overrides = _validate_display_defaults(overrides)
-    return DisplayDefaults(
-        get(overrides, :setstyle, defaults.setstyle),
-        haskey(overrides, :setstyle) || defaults.has_setstyle,
-        get(overrides, :arraystyle, defaults.arraystyle),
-        haskey(overrides, :arraystyle) || defaults.has_arraystyle,
-        get(overrides, :color, defaults.color),
-        haskey(overrides, :color) || defaults.has_color,
-        get(overrides, :separator, defaults.separator),
-        haskey(overrides, :separator) || defaults.has_separator,
-        get(overrides, :number_formatter, defaults.number_formatter),
-        haskey(overrides, :number_formatter) || defaults.has_number_formatter,
-        get(overrides, :per_element_style, defaults.per_element_style),
-        haskey(overrides, :per_element_style) || defaults.has_per_element_style,
-        get(overrides, :factor_out, defaults.factor_out),
-        haskey(overrides, :factor_out) || defaults.has_factor_out,
-        get(overrides, :symopts, defaults.symopts),
-        haskey(overrides, :symopts) || defaults.has_symopts,
-    )
+    overrides = _canonical_display_defaults(overrides)
+    pairs = Pair{Symbol,Any}[]
+    for key in DISPLAY_OPTION_KEYS
+        value =
+            haskey(overrides, key) ? overrides[key] : _display_default_value(defaults, key)
+        value === DISPLAY_OPTION_UNSET || push!(pairs, key => value)
+    end
+    return DisplayDefaults((; pairs...))
 end
 
 function _scoped_display_defaults()

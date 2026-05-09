@@ -4,6 +4,8 @@
 
     LAlatex.reset_display_defaults!()
     try
+        @test fieldnames(typeof(LAlatex.DisplayDefaults())) == (:values,)
+        @test LAlatex.DisplayDefaults().values == NamedTuple()
         @test LAlatex.display_defaults() == NamedTuple()
 
         global_defaults = LAlatex.set_display_defaults!(
