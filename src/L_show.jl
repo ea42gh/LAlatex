@@ -86,7 +86,9 @@ function print_np_array_def(A; nm = "A")
         elseif x isa Integer
             return string(x)
         else
-            error("Unsupported type for printing as NumPy array: $(typeof(x))")
+            throw(
+                ArgumentError("Unsupported type for printing as NumPy array: $(typeof(x))"),
+            )
         end
     end
     if ndims(A) == 1

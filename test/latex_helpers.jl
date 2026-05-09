@@ -15,6 +15,8 @@
     @test LAlatex.to_latex([1, 2, 3]) == ["1", "2", "3"]
     @test LAlatex.to_latex([1 2; 3 4]) == ["1" "2"; "3" "4"]
     @test LAlatex.to_latex([[[1 2]], [[3 4]]]) == [[["1" "2"]], [["3" "4"]]]
+    @test LAlatex.print_np_array_def([1, 2]; nm = "v") == "v = np.array([1, 2])"
+    @test_throws ArgumentError LAlatex.print_np_array_def(["x"])
 
     LAlatex.@syms z
     latex_z = LAlatex.to_latex(z)
