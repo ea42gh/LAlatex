@@ -305,3 +305,8 @@ julia --project=. perf/benchmark.jl
 It measures representative first-call paths for matrix rendering, `lc(...)`,
 Symbolics rendering, and the first SymPy render when the SymPy backend is usable.
 Each line reports elapsed time and allocated bytes.
+
+The test suite includes warmed allocation guardrails with broad hard limits that
+should be stable across supported Julia/toolchain combinations. Set
+`LALATEX_STRICT_PERF_GUARDRAILS=true` to also enforce the tighter advisory
+limits used for local regression checks.

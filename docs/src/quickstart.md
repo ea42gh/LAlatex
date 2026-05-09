@@ -64,3 +64,7 @@ julia --project=. perf/benchmark.jl
 This gives a lightweight view of first-call rendering cost for the main display
 paths, reports allocated bytes, and reports whether the SymPy-backed render path
 was exercised or skipped.
+
+The test suite also checks warmed allocations with broad hard limits. Set
+`LALATEX_STRICT_PERF_GUARDRAILS=true` when you want tests to enforce the tighter
+advisory limits used for local regression checks.
