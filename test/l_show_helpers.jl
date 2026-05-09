@@ -29,6 +29,7 @@
     empty_group = LAlatex.L_show(LAlatex.set())
     @test occursin("\\left\\{", empty_group)
     @test occursin("\\right\\}", empty_group)
+    @test_throws ArgumentError LAlatex.L_show_set(1)
 
     unfactored_group = LAlatex.L_show(LAlatex.set([1//2 1//3]; factor_out = false))
     @test occursin("\\frac{1}{2}", unfactored_group)

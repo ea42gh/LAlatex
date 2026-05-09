@@ -75,7 +75,7 @@ function L_show_set(
     symopts = DISPLAY_OPTION_UNSET,
 )
     if !(obj_group isa Group)
-        error("L_show_set expected a Group, got: $(typeof(obj_group))")
+        throw(ArgumentError("L_show_set expected a Group, got: $(typeof(obj_group))"))
     end
 
     base_options = DisplayOptions(;
