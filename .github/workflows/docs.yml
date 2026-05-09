@@ -13,10 +13,10 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  docs:
+  docs-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,7 +60,44 @@ jobs:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LALATEX_DOCS_DEPLOY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          LALATEX_DOCS_DEPLOY: "false"
         # docs/make.jl refreshes the dev path, resolves, instantiates, runs doctests,
-        # and deploys only when LALATEX_DOCS_DEPLOY is true.
+        # and deploys only from the deploy-docs job.
+        run: julia --project=docs docs/make.jl
+
+  deploy-docs:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: docs-check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        id: setup-python
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: |
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip sympy
+          "${{ steps.setup-python.outputs.python-path }}" -c "import sys, sympy; print(sys.executable); print(sympy.__version__)"
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v3
+        with:
+          version: "1.10"
+
+      - name: Cache Julia artifacts
+        uses: julia-actions/cache@v3
+
+      - name: Deploy docs
+        env:
+          JULIA_CONDAPKG_BACKEND: Null
+          JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LALATEX_DOCS_DEPLOY: "true"
         run: julia --project=docs docs/make.jl
