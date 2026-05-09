@@ -91,6 +91,8 @@
     @test_throws ArgumentError LAlatex.L_show(
         LAlatex.lc([1, -2], [x y]; sign_policy = "signed"),
     )
+    @test_throws ArgumentError LAlatex.lc([1], [x]; sign_polciy = :signed)
+
     custom_plus =
         LAlatex.L_show(LAlatex.lc([1, 2], [x y]; sign_policy = :plus, plus = L" \\oplus "))
     @test occursin("\\oplus", custom_plus)
@@ -100,6 +102,19 @@
 
     keep_zero = LAlatex.L_show(LAlatex.lc([0, 1], [x y]; drop_zero = false))
     @test occursin("0", keep_zero)
+
+    local_lc_symopts = LAlatex.L_show(
+        LAlatex.lc([(x + y)^2], [x]; symopts = (expand = true,));
+        symopts = NamedTuple(),
+    )
+    @test occursin("x^{2}", local_lc_symopts) || occursin("x^2", local_lc_symopts)
+    @test !occursin("\\left(y + x\\right)^{2}", local_lc_symopts)
+
+    local_lc_arraystyle = LAlatex.L_show(
+        LAlatex.lc([1], [[1, 2]]; arraystyle = :bmatrix);
+        arraystyle = :parray,
+    )
+    @test occursin("\\begin{bmatrix}", local_lc_arraystyle)
 
     @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; drop_zero = 1))
     @test_throws ArgumentError LAlatex.L_show(LAlatex.lc([1], [x]; omit_one = "true"))

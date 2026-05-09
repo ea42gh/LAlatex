@@ -9,11 +9,24 @@ struct LinearCombination
     options::NamedTuple
 end
 
+const LC_CONSTRUCTION_OPTION_KEYS =
+    (:sign_policy, :plus, :pos, :neg, :parens_coeff, :omit_one, :drop_zero)
+const LC_OPTION_KEYS = (LC_CONSTRUCTION_OPTION_KEYS..., DISPLAY_OPTION_KEYS...)
+
 """
     lc(s, X; kwargs...) -> LinearCombination
 
 Create a linear-combination group that `l_show` can render.
 """
+function _validate_lc_option_keys(options)
+    for key in keys(options)
+        if !(key in LC_OPTION_KEYS)
+            throw(ArgumentError("Unsupported lc option: $(repr(key))."))
+        end
+    end
+    return options
+end
+
 function _pyconvert_vector_or_nothing(x)
     pc = _ensure_pythoncall()
     (pc === nothing || !_is_pythoncall_py(x)) && return nothing
@@ -55,11 +68,12 @@ function _pyconvert_lc_vectors(X)
 end
 
 function lc(s, X; kwargs...)
+    options = _validate_lc_option_keys((; kwargs...))
     if _is_pythoncall_py(s) || _is_pythoncall_py(X)
         s = _pyconvert_lc_coefficients(s)
         X = _pyconvert_lc_vectors(X)
     end
-    return LinearCombination(s, X, (; kwargs...))
+    return LinearCombination(s, X, options)
 end
 
 function _lc_literal_number(x)
@@ -221,6 +235,10 @@ function L_show_lc(
 end
 
 function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
+    display_overrides =
+        (; (k => v for (k, v) in pairs(lcobj.options) if k in DISPLAY_OPTION_KEYS)...)
+    options = merge_display_options(options, display_overrides)
+
     local s = lcobj.s
     local X = lcobj.X
 
@@ -243,20 +261,8 @@ function L_show_lc(lcobj::LinearCombination, options::DisplayOptions)
     parens_coeff = _validate_lc_bool_option(opts[:parens_coeff], "parens_coeff")
     omit_one = _validate_lc_bool_option(opts[:omit_one], "omit_one")
     drop_zero = _validate_lc_bool_option(opts[:drop_zero], "drop_zero")
-    effective_factor_out = get(opts, :factor_out, options.factor_out)
 
-    inner_options = DisplayOptions(;
-        setstyle = options.setstyle,
-        arraystyle = options.arraystyle,
-        color = options.color,
-        separator = options.separator,
-        number_formatter = options.number_formatter,
-        per_element_style = options.per_element_style,
-        factor_out = effective_factor_out,
-        symopts = options.symopts,
-    )
-
-    inner = x -> L_show_core(x, inner_options)
+    inner = x -> L_show_core(x, options)
 
     needs_parens = x -> begin
         t = replace(inner(x), r"\s" => "")

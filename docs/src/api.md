@@ -122,7 +122,8 @@ Display containers inherit options from the surrounding `L_show` call, then
 apply their own keyword arguments as local overrides. Known display options are
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
 `per_element_style`, `factor_out`, and `symopts`. Container-local overrides
-apply only to that container's rendered cells.
+apply only to that container's rendered cells. `lc(...)` also accepts these
+display options locally for its coefficients and vectors.
 
 `color` accepts a LaTeX/xcolor color name or expression as a `String` or
 `Symbol`, such as `"red"` or `"red!50!black"`. Braces, backslashes, control
@@ -139,7 +140,7 @@ Defaults cover `setstyle`, `arraystyle`, `color`, `separator`,
 `number_formatter`, `per_element_style`, `factor_out`, and `symopts`. They do
 not cover `inline` or `lc` construction options such as `sign_policy`,
 `drop_zero`, `omit_one`, `parens_coeff`, `plus`, `pos`, and `neg`; pass those
-explicitly at the call site.
+explicitly at the call site. Unknown `lc` option names throw `ArgumentError`.
 
 See the Display policy page for examples and the exact row policies for
 `cases` and `aligned`.

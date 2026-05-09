@@ -216,7 +216,7 @@ end
 ```
 
 Display defaults cover the shared rendering options that naturally propagate
-through `L_show`, `l_show`, `set`, `cases`, `aligned`, and matrix entries:
+through `L_show`, `l_show`, `set`, `cases`, `aligned`, `lc`, and matrix entries:
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
 `per_element_style`, `factor_out`, and `symopts`.
 
@@ -226,7 +226,8 @@ contracts. Pass `inline=false` at the call site when a pasteable display-math
 string is needed. Defaults also do not include `lc`-specific construction
 options such as `sign_policy`, `drop_zero`, `omit_one`, `parens_coeff`, `plus`,
 `pos`, or `neg`; set those on the `lc(...)` call so the linear-combination
-policy remains visible where the expression is constructed.
+policy remains visible where the expression is constructed. `lc(...)` rejects
+unknown option names with `ArgumentError`.
 
 Unknown container keyword arguments are ignored by the display-option merger.
 Known container-local options are:

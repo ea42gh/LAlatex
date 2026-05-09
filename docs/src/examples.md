@@ -117,6 +117,7 @@ coeffs = [-(x + y), x - y, 1]
 vectors = [x y x + y]
 
 l_show(lc(coeffs, vectors; sign_policy=:signed))
+l_show(lc([(x + y)^2], [x]; symopts=(expand=true,)))
 ```
 
 ## Cases and piecewise displays
