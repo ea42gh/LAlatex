@@ -28,6 +28,12 @@ message for import failures.
 - `assume!`
 - `assumptions`
 
+`assume!(x; key=value)` attaches LAlatex metadata to Symbolics variables and
+returns the same variable for fluent setup. SymPy assumptions should be passed
+when creating SymPy symbols with `syms(...; backend=:sympy)` or `syms_sympy`.
+`assumptions(x)` returns a copy of stored Symbolics metadata, or an empty
+dictionary for values without stored assumptions.
+
 ## HTML helpers
 
 - `to_html`, `show_html`, `pr`
