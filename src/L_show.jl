@@ -25,22 +25,37 @@ function apply_function(f, matrices)
 end
 
 """
-    round_value(x, digits::Int=0)
+    round_value(x::Number, digits::Integer=0)
 
 Round a numeric value, returning `Int` when `digits == 0`.
 """
-function round_value(x, digits::Int = 0)
+function round_value(x::Number, digits::Integer = 0)
     v = round(x, digits = digits)
     return digits == 0 ? Int(v) : v
 end
 
 """
-    round_value(x::Complex, digits::Int=0) -> Complex
+    round_value(x::Complex, digits::Integer=0) -> Complex
 
 Round complex values elementwise.
 """
-function round_value(x::Complex, digits::Int = 0)
+function round_value(x::Complex, digits::Integer = 0)
     return Complex(round_value(real(x), digits), round_value(imag(x), digits))
+end
+
+round_value(x; digits = 0) = round_value(x, digits)
+
+function round_value(x, digits)
+    if !(digits isa Integer)
+        throw(
+            ArgumentError(
+                "round_value digits must be an Integer; got $(repr(digits)) of type $(typeof(digits)).",
+            ),
+        )
+    end
+    throw(
+        ArgumentError("round_value expects a Number; got $(repr(x)) of type $(typeof(x))."),
+    )
 end
 
 """

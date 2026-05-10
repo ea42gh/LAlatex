@@ -93,7 +93,9 @@ L_show((x + y)^2; symopts=(expand=true, simplify=true))
   `with_display_defaults`
 - `set`, `lc`, `cases`, `aligned`
 - `L_interp`
-- `apply_function`, `round_value`, `round_matrices`
+- `apply_function`, `round_value`, `round_matrices` for elementwise numeric
+  transformations; non-numeric values and non-integer `digits` throw
+  `ArgumentError`
 - `print_np_array_def` for numeric arrays that should be copied as NumPy
   literals; unsupported element types and invalid Python destination names
   throw `ArgumentError`

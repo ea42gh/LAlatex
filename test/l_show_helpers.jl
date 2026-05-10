@@ -19,6 +19,11 @@
     rounded = LAlatex.round_matrices(mats; digits = 0)
     @test rounded[1][1] == [1 3; 2 4]
     @test rounded[1][2] === nothing
+    @test LAlatex.round_value(1.234; digits = 2) == 1.23
+    @test LAlatex.round_value(1.2 + 2.8im) == 1 + 3im
+    @test_throws ArgumentError LAlatex.round_value("1.2")
+    @test_throws ArgumentError LAlatex.round_value(1.2, "2")
+    @test_throws ArgumentError LAlatex.round_matrices([[["x"]]])
 
     np = LAlatex.print_np_array_def([1, 2, 3]; nm = "v")
     @test occursin("np.array([1, 2, 3])", np)
