@@ -21,12 +21,18 @@ using LinearAlgebra
         @test rendered isa LaTeXString
         payload = latex_payload(rendered)
         @test !isempty(payload)
-        @test startswith(payload, "\$")
-        @test endswith(payload, "\$")
-        @test !startswith(strip(payload, '$'), "\$\$")
-        @test !endswith(strip(payload, '$'), "\$\$")
-        @test !startswith(strip(payload, '$'), "\\[")
-        @test !endswith(strip(payload, '$'), "\\]")
+        if get(kwargs, :inline, true)
+            @test startswith(payload, "\$")
+            @test endswith(payload, "\$")
+            @test !startswith(strip(payload, '$'), "\$\$")
+            @test !endswith(strip(payload, '$'), "\$\$")
+        else
+            @test startswith(payload, "\$\$\n")
+            @test endswith(payload, "\n\$\$")
+        end
+        delimited_payload = strip(payload, ['$', '\n'])
+        @test !startswith(delimited_payload, "\\[")
+        @test !endswith(delimited_payload, "\\]")
         return payload
     end
 
@@ -37,7 +43,10 @@ using LinearAlgebra
         @test startswith(block_payload, "\$\$\n")
         @test endswith(block_payload, "\n\$\$\n")
         @test occursin("\\left(", block_payload)
-        @test occursin("\\left(", assert_lshow_display_math([1 2; 3 4]; inline = false))
+        block_display_payload = assert_lshow_display_math([1 2; 3 4]; inline = false)
+        @test occursin("\\left(", block_display_payload)
+        @test startswith(block_display_payload, "\$\$\n")
+        @test endswith(block_display_payload, "\n\$\$")
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = 1)
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; inline = "false")
         @test_throws ArgumentError LAlatex.l_show([1 2; 3 4]; inline = nothing)
@@ -65,11 +74,22 @@ using LinearAlgebra
         @test occursin("\\alpha", assert_lshow_math(L"\\alpha"))
         @test occursin("\\frac{3}{4}", assert_lshow_math(3//4))
         @test occursin("\\mathit{i}", assert_lshow_math(2 + 3im))
+        @test LAlatex.strip_math_delims("\$π\$") == "π"
+        @test LAlatex.strip_math_delims("\$\$π\$\$") == "π"
+        @test LAlatex.strip_math_delims("\\[π\\]") == "π"
 
         @test occursin("\\text{plain text}", assert_lshow_display_math("plain text"))
         @test occursin("\\alpha", assert_lshow_display_math(L"\\alpha"))
         @test occursin("\\frac{3}{4}", assert_lshow_display_math(3//4))
         @test occursin("\\mathit{i}", assert_lshow_display_math(2 + 3im))
+
+        mixed_tuple = (π, :beta, :my_var, 2.71, 2//3, 4im//5)
+        mixed_payload = latex_payload(
+            LAlatex.l_show("Change the separator: ", mixed_tuple; separator = "; "),
+        )
+        @test occursin("π", mixed_payload)
+        @test occursin(";\\beta", mixed_payload)
+        @test occursin("\\frac{2}{3}", mixed_payload)
     end
 
     @testset "uniform scaling" begin

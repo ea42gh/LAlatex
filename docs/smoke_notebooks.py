@@ -22,6 +22,7 @@ SOURCE_FORBIDDEN_SNIPPETS = [
     "Unknown container keyword arguments are ignored",
     "ignored unknown option keys",
     "They do not cover `inline` or `lc` construction options",
+    "\\mathrm{;\\quad }",
     "SymPy.jl",
     "arrytype",
 ]

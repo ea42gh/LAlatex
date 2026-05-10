@@ -62,5 +62,8 @@ Return a LaTeXString for display in notebook environments.
 """
 function l_show(args...; kwargs...)
     rendered = L_show(args...; kwargs...)
+    if startswith(strip(rendered), "\$\$")
+        return LaTeXString(strip(rendered))
+    end
     return latexstring(strip_math_delims(rendered))
 end

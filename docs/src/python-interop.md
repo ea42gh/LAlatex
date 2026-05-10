@@ -38,11 +38,58 @@ convenience layer. `LAlatex` itself exposes Julia functions such as
 `L_show(...)` and `l_show(...)`, but it does not install Python globals named
 `l_show` or `L`.
 
-In that environment, the Python-side helper usage is:
+In that environment, the Python-side helper must convert raw-LaTeX marker
+strings to Julia `LaTeXString` values before calling `L_show`:
 
 ```python
 from juliacall import Main as jl
-jl.seval("using LAlatex")
+from IPython.display import Latex, display
+from numbers import Number
+
+jl.seval("using LAlatex, LaTeXStrings")
+
+class RawLatex(str):
+    """Marker for strings that should be passed to Julia as LaTeXString."""
+
+def L(value):
+    """Wrap a Python string as raw LaTeX for the l_show helper."""
+    return RawLatex(value)
+
+def _convert_arg(value):
+    if isinstance(value, RawLatex):
+        return jl.LaTeXString(str(value))
+    if _is_2d_list(value):
+        return _list_to_julia_matrix(value)
+    return value
+
+def l_show(*args, **kwargs):
+    latex = jl.LAlatex.L_show(*(_convert_arg(arg) for arg in args), **kwargs)
+    display(Latex(str(latex)))
+
+def _is_2d_list(value):
+    return (
+        isinstance(value, (list, tuple))
+        and bool(value)
+        and all(isinstance(row, (list, tuple)) for row in value)
+        and len({len(row) for row in value}) == 1
+        and all(isinstance(item, Number) for row in value for item in row)
+    )
+
+def _list_to_julia_matrix(value):
+    rows = [" ".join(_format_julia_number(item) for item in row) for row in value]
+    return jl.seval("[" + "; ".join(rows) + "]")
+
+def _format_julia_number(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        return repr(value)
+    if isinstance(value, complex):
+        sign = "+" if value.imag >= 0 else "-"
+        return f"{_format_julia_number(value.real)} {sign} {_format_julia_number(abs(value.imag))}*im"
+    return str(value)
 
 A = [[1, 2, 4], [3, 4, 1]]
 l_show("A = ", A)

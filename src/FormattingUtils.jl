@@ -8,13 +8,25 @@ Strip outer dollar delimiters and surrounding whitespace from a LaTeX fragment.
 function strip_math_delims(s::AbstractString)
     stripped = strip(String(s))
     if startswith(stripped, "\$\$") && endswith(stripped, "\$\$")
-        return strip(stripped[3:(end-2)])
+        return strip(_strip_outer_chars(stripped, 2, 2))
     elseif startswith(stripped, "\$") && endswith(stripped, "\$")
-        return strip(stripped[2:(end-1)])
+        return strip(_strip_outer_chars(stripped, 1, 1))
     elseif startswith(stripped, "\\[") && endswith(stripped, "\\]")
-        return strip(stripped[3:(end-2)])
+        return strip(_strip_outer_chars(stripped, 2, 2))
     end
     return stripped
+end
+
+function _strip_outer_chars(s::AbstractString, left_count::Integer, right_count::Integer)
+    first = firstindex(s)
+    last = lastindex(s)
+    for _ = 1:left_count
+        first = nextind(s, first)
+    end
+    for _ = 1:right_count
+        last = prevind(s, last)
+    end
+    return first > last ? "" : String(s[first:last])
 end
 
 """

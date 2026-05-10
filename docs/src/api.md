@@ -110,10 +110,13 @@ With the default `inline=true`, the returned string is wrapped in dollar
 delimiters and ends with a newline. With `inline=false`, the returned string is
 wrapped in Jupyter-Markdown-compatible `$$...$$` display-math delimiters.
 
-`l_show(args...)` calls `L_show(args...)`, strips the outer math delimiters,
-and returns a `LaTeXString` for notebook/rich-display output. Use `L_show`
-when you need the literal LaTeX string, and use `l_show` when the value should
-render directly in a display frontend.
+`l_show(args...)` calls `L_show(args...)` and returns a `LaTeXString` for
+notebook/rich-display output. With the default `inline=true`, it strips the
+outer inline math delimiters before constructing the display value. With
+`inline=false`, it preserves the `$$...$$` display block so notebook frontends
+receive display math rather than inline math. Use `L_show` when you need the
+literal LaTeX string, and use `l_show` when the value should render directly in
+a display frontend.
 
 Plain `String` values are rendered as text. `LaTeXString` values are treated
 as already-authored LaTeX math fragments. The same distinction applies to

@@ -26,11 +26,13 @@ L_show([1 2; 3 4]; inline=false)
 This returns a `$$...$$` block, not `\[...\]`, because the string-producing API
 is intended to be pasteable into Markdown cells.
 
-`l_show(args...)` is the notebook-display API. It calls `L_show`, removes the
-outer math delimiters, and returns a `LaTeXString`. This lets notebook and rich
-display frontends choose the correct math rendering path for the value. Use
-`L_show` when you need text to paste into Markdown, generated docs, logs, or
-files. Use `l_show` when the result should display directly in a notebook cell.
+`l_show(args...)` is the notebook-display API. It calls `L_show` and returns a
+`LaTeXString`. With the default `inline=true`, it removes the outer inline math
+delimiters before constructing the display value. With `inline=false`, it
+preserves the `$$...$$` display block so notebook frontends receive display
+math rather than inline math. Use `L_show` when you need text to paste into
+Markdown, generated docs, logs, or files. Use `l_show` when the result should
+display directly in a notebook cell.
 
 The two functions intentionally share the same rendering options and object
 support. A rendering difference between them is usually a delimiter/display
@@ -227,9 +229,10 @@ through `L_show`, `l_show`, `set`, `cases`, `aligned`, `lc`, and matrix entries:
 `per_element_style`, `factor_out`, and `symopts`.
 
 Display defaults intentionally do not include `inline`, because `L_show`
-string output and `l_show` notebook-display output have different delimiter
+string output and `l_show` notebook-display output have delimiter-sensitive
 contracts. Pass `inline=false` at the call site when a pasteable display-math
-string is needed. Defaults also do not include `lc`-specific construction
+string or display-math notebook payload is needed. Defaults also do not include
+`lc`-specific construction
 options such as `sign_policy`, `drop_zero`, `omit_one`, `parens_coeff`, `plus`,
 `pos`, or `neg`; set those on the `lc(...)` call so the linear-combination
 policy remains visible where the expression is constructed. `lc(...)` rejects
