@@ -62,9 +62,11 @@ def _convert_arg(value):
         return _list_to_julia_matrix(value)
     return value
 
+def L_show(*args, **kwargs):
+    return str(jl.LAlatex.L_show(*(_convert_arg(arg) for arg in args), **kwargs))
+
 def l_show(*args, **kwargs):
-    latex = jl.LAlatex.L_show(*(_convert_arg(arg) for arg in args), **kwargs)
-    display(Latex(str(latex)))
+    display(Latex(L_show(*args, **kwargs)))
 
 def _is_2d_list(value):
     return (
