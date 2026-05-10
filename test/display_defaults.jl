@@ -7,6 +7,7 @@
         @test fieldnames(typeof(LAlatex.DisplayDefaults())) == (:values,)
         @test LAlatex.DisplayDefaults().values == NamedTuple()
         @test LAlatex.display_defaults() == NamedTuple()
+        @test LAlatex.GLOBAL_DISPLAY_DEFAULTS_LOCK isa ReentrantLock
 
         global_defaults = LAlatex.set_display_defaults!(
             arraystyle = :bmatrix,
@@ -85,6 +86,18 @@
             per_element_style = 1,
         )
         @test_throws ArgumentError LAlatex.L_show([1 2; 3 4]; arraystyle = :not_a_style)
+
+        task_local_result = Channel{String}(1)
+        @sync begin
+            @async begin
+                scoped = LAlatex.with_display_defaults(arraystyle = :vmatrix) do
+                    LAlatex.L_show([1 2; 3 4])
+                end
+                put!(task_local_result, scoped)
+            end
+        end
+        @test occursin("\\begin{vmatrix}", take!(task_local_result))
+        @test occursin("\\begin{bmatrix}", LAlatex.L_show([1 2; 3 4]))
     finally
         LAlatex.reset_display_defaults!()
     end

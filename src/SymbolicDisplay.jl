@@ -46,31 +46,29 @@ function _symbolics_collect_transform(y::Symbolics.Num, collect_var)
 end
 
 function _symbolics_is_call(expr, op)
-    return Symbolics.SymbolicUtils.iscall(expr) &&
-           Symbolics.SymbolicUtils.operation(expr) == op
+    return _symbolics_iscall(expr) && _symbolics_operation(expr) == op
 end
 
 function _symbolics_add_terms(expr)
-    if Symbolics.SymbolicUtils.isadd(expr) || _symbolics_is_call(expr, +)
-        return collect(Symbolics.SymbolicUtils.arguments(expr))
-    elseif _symbolics_is_call(expr, -) &&
-           length(Symbolics.SymbolicUtils.arguments(expr)) == 2
-        args = Symbolics.SymbolicUtils.arguments(expr)
+    if _symbolics_isadd(expr) || _symbolics_is_call(expr, +)
+        return collect(_symbolics_arguments(expr))
+    elseif _symbolics_is_call(expr, -) && length(_symbolics_arguments(expr)) == 2
+        args = _symbolics_arguments(expr)
         return Any[args[1], -Symbolics.Num(args[2])]
     end
     return Any[expr]
 end
 
 function _symbolics_mul_factors(expr)
-    if Symbolics.SymbolicUtils.ismul(expr) || _symbolics_is_call(expr, *)
-        return collect(Symbolics.SymbolicUtils.arguments(expr))
+    if _symbolics_ismul(expr) || _symbolics_is_call(expr, *)
+        return collect(_symbolics_arguments(expr))
     end
     return Any[expr]
 end
 
 function _symbolics_integer_power(expr)
     if _symbolics_is_call(expr, ^)
-        args = Symbolics.SymbolicUtils.arguments(expr)
+        args = _symbolics_arguments(expr)
         if length(args) == 2
             exponent = _symbolics_literal_number(args[2])
             exponent isa Integer && exponent > 0 && return args[1], exponent
@@ -83,8 +81,8 @@ function _symbolics_literal_number(expr)
     if expr isa Symbolics.Num
         expr = Symbolics.unwrap(expr)
     end
-    if Symbolics.SymbolicUtils.is_literal_number(expr)
-        return Symbolics.SymbolicUtils.unwrap_const(expr)
+    if _symbolics_is_literal_number(expr)
+        return _symbolics_unwrap_const(expr)
     end
     return expr isa Number ? expr : nothing
 end
@@ -186,7 +184,7 @@ function symbolic_transform(
         y = x
         if expand
             y = try
-                Symbolics.Num(Symbolics.SymbolicUtils.expand(Symbolics.unwrap(y)))
+                Symbolics.Num(_symbolics_expand_expr(Symbolics.unwrap(y)))
             catch
                 y
             end
@@ -207,7 +205,7 @@ function symbolic_transform(
         return y
     end
 
-    if Symbolics.SymbolicUtils.issym(x) || Symbolics.SymbolicUtils.iscall(x)
+    if _symbolics_issym(x) || _symbolics_iscall(x)
         return symbolic_transform(
             Symbolics.Num(x);
             simplify = simplify,
@@ -244,8 +242,8 @@ function _contains_symbolic_value(x)
     end
     return x isa Symbolics.Num ||
            _is_sympy_py(x) ||
-           Symbolics.SymbolicUtils.issym(x) ||
-           Symbolics.SymbolicUtils.iscall(x)
+           _symbolics_issym(x) ||
+           _symbolics_iscall(x)
 end
 
 """
@@ -288,82 +286,66 @@ end
 function symbolic_term_coefficients(expr)
     expr = _symbolics_unwrap_num(expr)
 
-    if Symbolics.SymbolicUtils.is_literal_number(expr)
-        return Any[Symbolics.SymbolicUtils.unwrap_const(expr)]
+    if _symbolics_is_literal_number(expr)
+        return Any[_symbolics_unwrap_const(expr)]
     end
 
     if expr isa Number
         return Any[expr]
     end
 
-    if Symbolics.SymbolicUtils.ismul(expr)
-        coeff = try
-            Symbolics.SymbolicUtils.get_mul_coefficient(expr)
-        catch
-            nothing
-        end
+    if _symbolics_ismul(expr)
+        coeff = _symbolics_mul_coefficient(expr)
         coeff !== nothing && return Any[coeff]
     end
 
     # Prefer the public TermInterface argument view over direct storage access.
-    if Symbolics.SymbolicUtils.isadd(expr)
+    if _symbolics_isadd(expr)
         coeffs = Any[]
-        for arg in Symbolics.SymbolicUtils.arguments(expr)
+        for arg in _symbolics_arguments(expr)
             append!(coeffs, symbolic_term_coefficients(arg))
         end
         return coeffs
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) == (+)
+    if _symbolics_iscall(expr) && _symbolics_operation(expr) == (+)
         coeffs = Any[]
-        for arg in Symbolics.SymbolicUtils.arguments(expr)
+        for arg in _symbolics_arguments(expr)
             append!(coeffs, symbolic_term_coefficients(arg))
         end
         return coeffs
     end
 
-    if Symbolics.SymbolicUtils.ismul(expr)
-        coeff = try
-            Symbolics.SymbolicUtils.get_mul_coefficient(expr)
-        catch
-            nothing
-        end
+    if _symbolics_ismul(expr)
+        coeff = _symbolics_mul_coefficient(expr)
         coeff !== nothing && return Any[coeff]
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) == (*)
-        coeff = try
-            Symbolics.SymbolicUtils.get_mul_coefficient(expr)
-        catch
-            nothing
-        end
+    if _symbolics_iscall(expr) && _symbolics_operation(expr) == (*)
+        coeff = _symbolics_mul_coefficient(expr)
         coeff !== nothing && return Any[coeff]
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) == (-) &&
-       length(Symbolics.SymbolicUtils.arguments(expr)) == 1
-        coeffs = symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
+    if _symbolics_iscall(expr) &&
+       _symbolics_operation(expr) == (-) &&
+       length(_symbolics_arguments(expr)) == 1
+        coeffs = symbolic_term_coefficients(_symbolics_arguments(expr)[1])
         return map(-, coeffs)
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) == (-) &&
-       length(Symbolics.SymbolicUtils.arguments(expr)) == 2
-        coeffs = symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
-        append!(
-            coeffs,
-            map(-, symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[2])),
-        )
+    if _symbolics_iscall(expr) &&
+       _symbolics_operation(expr) == (-) &&
+       length(_symbolics_arguments(expr)) == 2
+        args = _symbolics_arguments(expr)
+        coeffs = symbolic_term_coefficients(args[1])
+        append!(coeffs, map(-, symbolic_term_coefficients(args[2])))
         return coeffs
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) == (/) &&
-       length(Symbolics.SymbolicUtils.arguments(expr)) >= 1
-        return symbolic_term_coefficients(Symbolics.SymbolicUtils.arguments(expr)[1])
+    if _symbolics_iscall(expr) &&
+       _symbolics_operation(expr) == (/) &&
+       length(_symbolics_arguments(expr)) >= 1
+        return symbolic_term_coefficients(_symbolics_arguments(expr)[1])
     end
 
     return Any[1]

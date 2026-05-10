@@ -207,6 +207,12 @@ L_show([1 2; 3 4])
 reset_display_defaults!()
 ```
 
+Process-wide defaults are protected by an internal lock, so reads and updates
+are atomic with respect to other display-default operations. They are still
+shared process state. In concurrent code, prefer `with_display_defaults(...) do
+... end`, which uses task-local defaults and restores the previous task-local
+settings after the block exits.
+
 Use scoped defaults for a temporary style:
 
 ```julia

@@ -83,8 +83,8 @@ function _lc_literal_number(x)
     if x isa Number
         return x
     end
-    if Symbolics.SymbolicUtils.is_literal_number(x)
-        return Symbolics.SymbolicUtils.unwrap_const(x)
+    if _symbolics_is_literal_number(x)
+        return _symbolics_unwrap_const(x)
     end
     return nothing
 end
@@ -99,9 +99,7 @@ function _lc_is_zero_coeff(x, raw::AbstractString)
     if val isa Number
         return iszero(val)
     end
-    if x isa Symbolics.Num ||
-       Symbolics.SymbolicUtils.issym(x) ||
-       Symbolics.SymbolicUtils.iscall(x)
+    if x isa Symbolics.Num || _symbolics_issym(x) || _symbolics_iscall(x)
         return try
             iszero(Symbolics.simplify(x))
         catch
@@ -120,11 +118,7 @@ function _lc_is_zero_coeff(x, raw::AbstractString)
 end
 
 function _lc_symbolics_extract_negative(x)
-    if !(
-        x isa Symbolics.Num ||
-        Symbolics.SymbolicUtils.issym(x) ||
-        Symbolics.SymbolicUtils.iscall(x)
-    )
+    if !(x isa Symbolics.Num || _symbolics_issym(x) || _symbolics_iscall(x))
         return nothing
     end
     coeffs = symbolic_term_coefficients(x)

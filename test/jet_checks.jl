@@ -50,6 +50,13 @@
                 "cases",
             )
         assert_no_jet_reports("container option-key validation", container_option_keys_report)
+
+        symbolics_adapter_literal_report =
+            JET.@report_call LAlatex._symbolics_literal_number(Symbolics.unwrap(Num(3//4)))
+        assert_no_jet_reports("Symbolics adapter literal handling", symbolics_adapter_literal_report)
+
+        symopts_report = JET.@report_call LAlatex.normalize_symopts((expand = true,))
+        assert_no_jet_reports("symbolic option normalization", symopts_report)
         """,
         )
     end

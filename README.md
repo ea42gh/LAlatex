@@ -310,7 +310,8 @@ julia --project=. perf/benchmark.jl
 
 It measures representative first-call paths for matrix rendering, `lc(...)`,
 Symbolics rendering, and the first SymPy render when the SymPy backend is usable.
-Each line reports elapsed time and allocated bytes.
+The output includes timestamp, Julia version, thread count, active project, and
+per-case elapsed time and allocated bytes so release-prep runs can be compared.
 
 The test suite includes warmed allocation guardrails with broad hard limits that
 should be stable across supported Julia/toolchain combinations. Set

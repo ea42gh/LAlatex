@@ -82,17 +82,17 @@ function _symbolics_to_latex(x)
         return "\\pi"
     end
 
-    if Symbolics.SymbolicUtils.issym(x)
+    if _symbolics_issym(x)
         return sx == "π" ? "\\pi" : sx
     end
 
-    if Symbolics.SymbolicUtils.is_literal_number(x)
-        return _symbolics_to_latex(Symbolics.SymbolicUtils.unwrap_const(x))
+    if _symbolics_is_literal_number(x)
+        return _symbolics_to_latex(_symbolics_unwrap_const(x))
     end
 
-    if Symbolics.SymbolicUtils.iscall(x)
-        op = Symbolics.SymbolicUtils.operation(x)
-        args = Symbolics.SymbolicUtils.arguments(x)
+    if _symbolics_iscall(x)
+        op = _symbolics_operation(x)
+        args = _symbolics_arguments(x)
 
         if op === (/)
             return "\\frac{$(_symbolics_to_latex(args[1]))}{$(_symbolics_to_latex(args[2]))}"
@@ -100,8 +100,8 @@ function _symbolics_to_latex(x)
             pieces = String[]
             sign_prefix = ""
             for arg in args
-                if Symbolics.SymbolicUtils.is_literal_number(arg)
-                    val = Symbolics.SymbolicUtils.unwrap_const(arg)
+                if _symbolics_is_literal_number(arg)
+                    val = _symbolics_unwrap_const(arg)
                     if length(args) > 1 && val == 1
                         continue
                     elseif length(args) > 1 && val == -1
@@ -110,8 +110,8 @@ function _symbolics_to_latex(x)
                     end
                 end
                 part = _symbolics_to_latex(arg)
-                if Symbolics.SymbolicUtils.iscall(arg)
-                    argop = Symbolics.SymbolicUtils.operation(arg)
+                if _symbolics_iscall(arg)
+                    argop = _symbolics_operation(arg)
                     if argop === (+) || argop === (-)
                         part = "\\left(" * part * "\\right)"
                     end
@@ -140,7 +140,7 @@ function _symbolics_to_latex(x)
         elseif op === (^)
             base = _symbolics_to_latex(args[1])
             expo = _symbolics_to_latex(args[2])
-            if Symbolics.SymbolicUtils.iscall(args[1]) || startswith(base, "\\frac")
+            if _symbolics_iscall(args[1]) || startswith(base, "\\frac")
                 base = "\\left(" * base * "\\right)"
             end
             return base * "^{" * expo * "}"

@@ -18,6 +18,12 @@ permissions:
 jobs:
   docs-check:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version:
+          - "1.10"
+          - "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -40,7 +46,7 @@ jobs:
       - name: Set up Julia
         uses: julia-actions/setup-julia@v3
         with:
-          version: "1.10"
+          version: ${{ matrix.julia-version }}
 
       - name: Execute representative notebook smoke test
         env:

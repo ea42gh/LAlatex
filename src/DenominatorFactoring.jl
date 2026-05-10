@@ -14,8 +14,8 @@ function _symbolics_unwrap_literal(val)
     if val isa Symbolics.Num
         val = Symbolics.unwrap(val)
     end
-    if Symbolics.SymbolicUtils.is_literal_number(val)
-        return Symbolics.SymbolicUtils.unwrap_const(val)
+    if _symbolics_is_literal_number(val)
+        return _symbolics_unwrap_const(val)
     end
     return val
 end
@@ -53,9 +53,8 @@ function _collect_symbolics_division_key_denominators!(
     expr,
 )
     expr = _symbolics_unwrap_num(expr)
-    if Symbolics.SymbolicUtils.iscall(expr) &&
-       Symbolics.SymbolicUtils.operation(expr) === (/)
-        args = Symbolics.SymbolicUtils.arguments(expr)
+    if _symbolics_iscall(expr) && _symbolics_operation(expr) === (/)
+        args = _symbolics_arguments(expr)
         length(args) >= 2 && _push_divisor_denominator!(denominators, args[2])
         _collect_symbolics_denominators!(denominators, args[1])
     end
@@ -69,7 +68,7 @@ function _collect_symbolics_denominators!(
 )
     expr = _symbolics_unwrap_num(expr)
 
-    if Symbolics.SymbolicUtils.is_literal_number(expr)
+    if _symbolics_is_literal_number(expr)
         return _push_literal_denominator!(
             denominators,
             expr;
@@ -91,9 +90,9 @@ function _collect_symbolics_denominators!(
         return denominators
     end
 
-    if Symbolics.SymbolicUtils.iscall(expr)
-        op = Symbolics.SymbolicUtils.operation(expr)
-        args = Symbolics.SymbolicUtils.arguments(expr)
+    if _symbolics_iscall(expr)
+        op = _symbolics_operation(expr)
+        args = _symbolics_arguments(expr)
         if op === (/) && length(args) >= 2
             _collect_symbolics_denominators!(denominators, args[1])
             _push_divisor_denominator!(denominators, args[2])
@@ -108,7 +107,7 @@ function _collect_symbolics_denominators!(
             end
             return denominators
         elseif op === (*)
-            ok, rat = Symbolics.SymbolicUtils.ratcoeff(expr)
+            ok, rat = _symbolics_rat_coefficient(expr)
             if ok
                 _push_literal_denominator!(
                     denominators,
@@ -116,19 +115,14 @@ function _collect_symbolics_denominators!(
                     include_integers = include_integers,
                 )
             else
-                coeff = try
-                    Symbolics.SymbolicUtils.get_mul_coefficient(expr)
-                catch
-                    nothing
-                end
+                coeff = _symbolics_mul_coefficient(expr)
                 coeff !== nothing && _push_literal_denominator!(
                     denominators,
                     coeff;
                     include_integers = include_integers,
                 )
                 for arg in args
-                    if Symbolics.SymbolicUtils.iscall(arg) &&
-                       Symbolics.SymbolicUtils.operation(arg) === (/)
+                    if _symbolics_iscall(arg) && _symbolics_operation(arg) === (/)
                         _collect_symbolics_division_key_denominators!(denominators, arg)
                     end
                 end
@@ -194,9 +188,7 @@ function _scaled_complex_rational_integer(d, x::Complex)
 end
 
 function _contains_symbolics(x)
-    if x isa Symbolics.Num ||
-       Symbolics.SymbolicUtils.issym(x) ||
-       Symbolics.SymbolicUtils.iscall(x)
+    if x isa Symbolics.Num || _symbolics_issym(x) || _symbolics_iscall(x)
         return true
     elseif x isa Complex
         return _contains_symbolics(real(x)) || _contains_symbolics(imag(x))

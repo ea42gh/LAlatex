@@ -33,6 +33,21 @@
         assert_no_matrix_entry_artifacts(rendered)
     end
 
+    for arraystyle in (:parray, :bmatrix, :Bmatrix, :vmatrix, :Vmatrix, :array)
+        rendered = LAlatex.L_show([1 2; 3 4]; arraystyle = arraystyle)
+        assert_balanced_math_delimiters(rendered)
+        assert_no_matrix_entry_artifacts(rendered)
+        @test !occursin("\\[", rendered)
+        @test !occursin("\\]", rendered)
+    end
+
+    for symopts in ((expand = true,), (factor = true,), (collect = x,))
+        rendered = LAlatex.L_show(x^2 + x * y + x; symopts = symopts)
+        assert_balanced_math_delimiters(rendered)
+        assert_no_matrix_entry_artifacts(rendered)
+        @test occursin("x", rendered)
+    end
+
     unfactored = LAlatex.L_show([1//2 1//3]; factor_out = false)
     @test occursin("\\frac{1}{2}", unfactored)
     @test occursin("\\frac{1}{3}", unfactored)

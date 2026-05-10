@@ -11,6 +11,13 @@
         @test LAlatex._to_latex_matrix_entry(sx) == LAlatex.to_latex(sx)
         @test occursin("x", symbolics_matrix)
         @test occursin("y", symbolics_matrix)
+        @test LAlatex._symbolics_issym(Symbolics.unwrap(sx))
+        @test LAlatex._symbolics_iscall(Symbolics.unwrap(sx + sy))
+        @test LAlatex._symbolics_operation(Symbolics.unwrap(sx + sy)) == (+)
+        @test length(LAlatex._symbolics_arguments(Symbolics.unwrap(sx + sy))) == 2
+        @test LAlatex._symbolics_is_literal_number(Symbolics.unwrap(Num(3//4)))
+        @test LAlatex._symbolics_unwrap_const(Symbolics.unwrap(Num(3//4))) == 3//4
+        @test LAlatex._symbolics_mul_coefficient(Symbolics.unwrap(2sx)) !== nothing
 
         symbolics_expanded = LAlatex.L_show((sx + sy)^2; symopts = (expand = true,))
         @test occursin("x", symbolics_expanded)

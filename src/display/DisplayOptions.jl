@@ -32,6 +32,7 @@ end
 DisplayDefaults() = DisplayDefaults(NamedTuple())
 
 const GLOBAL_DISPLAY_DEFAULTS = Ref{DisplayDefaults}(DisplayDefaults())
+const GLOBAL_DISPLAY_DEFAULTS_LOCK = ReentrantLock()
 
 function _validate_display_default_keys(defaults)
     for key in keys(defaults)
@@ -122,6 +123,15 @@ function _scoped_display_defaults()
     return get(task_local_storage(), DISPLAY_DEFAULTS_TASK_KEY, DisplayDefaults())
 end
 
+function _global_display_defaults()
+    lock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    try
+        return GLOBAL_DISPLAY_DEFAULTS[]
+    finally
+        unlock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    end
+end
+
 function _hardcoded_display_defaults()
     return (
         setstyle = :Barray,
@@ -137,7 +147,7 @@ end
 
 function _effective_display_defaults()
     hardcoded = _hardcoded_display_defaults()
-    global_defaults = GLOBAL_DISPLAY_DEFAULTS[]
+    global_defaults = _global_display_defaults()
     scoped_defaults = _scoped_display_defaults()
     return (;
         (
@@ -163,12 +173,18 @@ end
     set_display_defaults!(; kwargs...) -> NamedTuple
 
 Set process-wide display defaults used by `L_show`, `l_show`, and nested display
-containers. Explicit call-site keywords still take precedence.
+containers. Updates are lock-protected. Explicit call-site keywords still take
+precedence.
 """
 function set_display_defaults!(; kwargs...)
-    GLOBAL_DISPLAY_DEFAULTS[] =
-        _merge_display_defaults(GLOBAL_DISPLAY_DEFAULTS[], (; kwargs...))
-    return display_defaults()
+    lock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    try
+        GLOBAL_DISPLAY_DEFAULTS[] =
+            _merge_display_defaults(GLOBAL_DISPLAY_DEFAULTS[], (; kwargs...))
+        return _display_defaults_to_named_tuple(GLOBAL_DISPLAY_DEFAULTS[])
+    finally
+        unlock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    end
 end
 
 """
@@ -177,8 +193,13 @@ end
 Clear process-wide display defaults.
 """
 function reset_display_defaults!()
-    GLOBAL_DISPLAY_DEFAULTS[] = DisplayDefaults()
-    return display_defaults()
+    lock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    try
+        GLOBAL_DISPLAY_DEFAULTS[] = DisplayDefaults()
+        return _display_defaults_to_named_tuple(GLOBAL_DISPLAY_DEFAULTS[])
+    finally
+        unlock(GLOBAL_DISPLAY_DEFAULTS_LOCK)
+    end
 end
 
 """
@@ -186,13 +207,13 @@ end
 
 Return the currently configured process-wide display defaults.
 """
-display_defaults() = _display_defaults_to_named_tuple(GLOBAL_DISPLAY_DEFAULTS[])
+display_defaults() = _display_defaults_to_named_tuple(_global_display_defaults())
 
 """
     with_display_defaults(f; kwargs...)
 
 Run `f` with task-local display defaults. Scoped defaults override process-wide
-defaults, and explicit display keywords override both.
+defaults for the current task, and explicit display keywords override both.
 """
 function with_display_defaults(f; kwargs...)
     previous = _scoped_display_defaults()

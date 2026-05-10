@@ -68,6 +68,7 @@ include("import_sympy.jl")
 include("FormattingUtils.jl")
 include("Formatters.jl")
 include("MatrixUtils.jl")
+include("SymbolicsAdapter.jl")
 include("SymbolicDisplay.jl")
 include("DenominatorFactoring.jl")
 

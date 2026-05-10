@@ -54,6 +54,10 @@ in the active project. Run the package-test path to include `Aqua`, targeted
 julia --project=. -e 'using Pkg; Pkg.test()'
 ```
 
+The documentation workflow builds on both the minimum supported Julia version
+and the latest stable Julia release. The package CI also checks current stable,
+pre-release Julia, and Windows.
+
 For a non-SymPy check that avoids Python initialization:
 
 ```bash
