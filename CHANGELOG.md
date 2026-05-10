@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-05-10
+
+- Added configurable display defaults with `set_display_defaults!`,
+  `reset_display_defaults!`, `display_defaults`, and `with_display_defaults`.
+- Added strict public option validation for display containers, `lc`,
+  callbacks, `factor_out`, colors, array styles, and helper inputs.
+- Added Jupyter-Markdown-compatible `$$...$$` block output for
+  `L_show(...; inline=false)` while preserving notebook-safe `l_show` display.
+- Added Symbolics `factor` and `collect` support for display-time `symopts`.
+- Added exact public export contract tests and API documentation coverage for
+  all exported names.
+- Added targeted JET checks, Aqua checks, JuliaFormatter checks, and warmed
+  allocation guardrails.
+- Added docs drift smoke checks across Markdown and notebooks, including
+  stale delimiter, option, backend, and wording guards.
+- Added CI/docs workflow concurrency controls and split docs checks from
+  deployment permissions.
+- Added Python/SymPy toolchain troubleshooting documentation for package-test
+  and local precompile failures.
+- Hardened `print_np_array_def` by validating NumPy destination names.
+- Clarified helper behavior for `round_value`, `round_matrices`, and
+  `L_interp`; `L_interp` now accepts `AbstractDict`.
 - Added Windows and macOS CI coverage alongside the Ubuntu matrix.
 - Added structural and executed notebook smoke checks to the docs workflow.
 - Documented 1.0 migration, release policy, and release checklist expectations.
