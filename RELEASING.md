@@ -13,6 +13,8 @@ Run:
 ```powershell
 julia --project=. -e 'using Pkg; Pkg.test()'
 julia --project=docs docs/make.jl
+python docs/smoke_notebooks.py
+julia --project=. perf/benchmark.jl
 ```
 
 Confirm:
@@ -22,7 +24,11 @@ Confirm:
 - The docs workflow uses the exact `actions/setup-python` interpreter path for
   `JULIA_PYTHONCALL_EXE`.
 - Notebook smoke checks pass.
+- The benchmark script runs and prints timestamp, Julia version, thread count,
+  active project, elapsed time, and allocated bytes.
 - The secondary CI OS lanes are green.
+- The Docs workflow is green on both the minimum-supported Julia version and
+  latest stable Julia.
 - Branch protection on `main` requires the CI and Docs checks before merge.
 
 ## Backend note
