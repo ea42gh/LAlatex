@@ -61,3 +61,10 @@
     @test :assume_symbolics! ∉ exported
     @test :symbolics_assumptions ∉ exported
 end
+
+@testset "API docs mention public exports" begin
+    api_docs = read(joinpath(@__DIR__, "..", "docs", "src", "api.md"), String)
+    for name in names(LAlatex)
+        @test occursin(String(name), api_docs)
+    end
+end
