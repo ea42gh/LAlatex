@@ -2,6 +2,25 @@
 
 Work through these items one step at a time. Keep changes scoped, add focused tests for each step, and run `julia --project=. -e "using Pkg; Pkg.test()"` before committing.
 
+## Current Release-Prep Status - 2026-05-10
+
+- Target release: `1.1.0`.
+- `Project.toml` version is `1.1.0`.
+- Registration workflow default version is `1.1.0`.
+- Release notes for `1.1.0` are present in `CHANGELOG.md`.
+- Latest pushed release-prep commits:
+  - `1c334df Harden pre-release review items`
+  - `60a0ca6 Update 1.1 release checklist`
+  - `aa68ee6 Update registration workflow version`
+- Latest local verification before these documentation/workflow-only follow-ups:
+  - `julia --project=. test\runtests.jl` passed with `1003 / 1003`.
+  - `julia --project=. -e "using Pkg; Pkg.test()"` passed with `1022 / 1022`.
+  - `python docs\smoke_notebooks.py` passed.
+  - `julia --project=docs docs\make.jl` passed.
+  - `julia --project=. perf\benchmark.jl` passed.
+- Remaining release action: wait for GitHub Actions CI and Docs to pass on the
+  current `main`, then tag `v1.1.0` and create the GitHub Release.
+
 ## Industry-Standard Enhancement Plan - 2026-05-07
 
 Goal: improve the codebase quality score from about 3.6/5 to 4.3/5 or better while preserving all current public capabilities and adding tests for every behavior-preserving refactor.
