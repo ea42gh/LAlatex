@@ -1,6 +1,8 @@
 @testset "Targeted JET checks" begin
     if !optional_test_dependency("JET", "targeted JET checks")
         nothing
+    elseif VERSION < v"1.12"
+        @info "Skipping targeted JET checks on Julia versions older than 1.12."
     elseif VERSION.prerelease !== ()
         @info "Skipping targeted JET checks on prerelease Julia builds."
     else
