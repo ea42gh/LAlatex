@@ -3,6 +3,8 @@
     template = LaTeXString("\\mathbb{R}^{" * "\$(n)" * "}")
     tpl = LAlatex.L_interp(template, Dict("n" => 3))
     @test occursin("\\mathbb{R}^{3}", string(tpl))
+    tpl_abstract_dict = LAlatex.L_interp(template, IdDict("n" => 4))
+    @test occursin("\\mathbb{R}^{4}", string(tpl_abstract_dict))
 
     @variables x y
     @test LAlatex.L_show_core(x) == "x "

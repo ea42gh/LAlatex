@@ -3,11 +3,11 @@ using LaTeXStrings: LaTeXString, latexstring
 using LinearAlgebra: Adjoint, Diagonal, Transpose
 using SparseArrays: SparseMatrixCSC
 raw"""
-    L_interp(template::LaTeXString, substitutions::Dict) -> LaTeXString
+    L_interp(template::LaTeXString, substitutions::AbstractDict) -> LaTeXString
 
 Interpolate values into a LaTeXString template using `$(key)` placeholders.
 """
-function L_interp(template::LaTeXString, substitutions::Dict)
+function L_interp(template::LaTeXString, substitutions::AbstractDict)
     str = String(template)
     for (key, value) in substitutions
         str = replace(str, "\$($key)" => string(value))
