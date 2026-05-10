@@ -43,7 +43,7 @@ function round_value(x::Complex, digits::Integer = 0)
     return Complex(round_value(real(x), digits), round_value(imag(x), digits))
 end
 
-round_value(x; digits = 0) = round_value(x, digits)
+round_value(x) = round_value(x, 0)
 
 function round_value(x, digits)
     if !(digits isa Integer)

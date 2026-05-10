@@ -19,8 +19,10 @@
     rounded = LAlatex.round_matrices(mats; digits = 0)
     @test rounded[1][1] == [1 3; 2 4]
     @test rounded[1][2] === nothing
-    @test LAlatex.round_value(1.234; digits = 2) == 1.23
+    @test LAlatex.round_value(1.2) == LAlatex.round_value(1.2, 0)
+    @test LAlatex.round_value(1.234, 2) == 1.23
     @test LAlatex.round_value(1.2 + 2.8im) == 1 + 3im
+    @test_throws MethodError LAlatex.round_value(1.234; digits = 2)
     @test_throws ArgumentError LAlatex.round_value("1.2")
     @test_throws ArgumentError LAlatex.round_value(1.2, "2")
     @test_throws ArgumentError LAlatex.round_matrices([[["x"]]])
