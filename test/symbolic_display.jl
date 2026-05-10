@@ -18,6 +18,14 @@
         @test LAlatex._symbolics_is_literal_number(Symbolics.unwrap(Num(3//4)))
         @test LAlatex._symbolics_unwrap_const(Symbolics.unwrap(Num(3//4))) == 3//4
         @test LAlatex._symbolics_mul_coefficient(Symbolics.unwrap(2sx)) !== nothing
+        @test LAlatex._symbolics_isadd(Symbolics.unwrap(sx + sy))
+        @test LAlatex._symbolics_ismul(Symbolics.unwrap(2sx))
+        @test LAlatex._symbolics_expand_expr(Symbolics.unwrap((sx + sy)^2)) !==
+              Symbolics.unwrap((sx + sy)^2)
+        ok_rat, rat_coeff =
+            LAlatex._symbolics_rat_coefficient(Symbolics.unwrap((3//4) * sx))
+        @test ok_rat
+        @test rat_coeff == 3//4
 
         symbolics_expanded = LAlatex.L_show((sx + sy)^2; symopts = (expand = true,))
         @test occursin("x", symbolics_expanded)
