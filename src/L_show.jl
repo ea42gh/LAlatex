@@ -65,8 +65,25 @@ end
     print_np_array_def(A; nm="A") -> String
 
 Return a NumPy array definition string for display or copy/paste.
+
+`nm` must be a Python identifier.
 """
 function print_np_array_def(A; nm = "A")
+    if nm isa Symbol
+        name = String(nm)
+    elseif nm isa AbstractString
+        name = String(nm)
+    else
+        throw(
+            ArgumentError(
+                "nm must be a String or Symbol Python identifier; got $(repr(nm)).",
+            ),
+        )
+    end
+    if !occursin(r"^[A-Za-z_][A-Za-z0-9_]*$", name)
+        throw(ArgumentError("nm must be a Python identifier; got $(repr(nm))."))
+    end
+
     function format_element(x)
         if x isa Rational
             return string(numerator(x)) * "//" * string(denominator(x))
@@ -92,11 +109,11 @@ function print_np_array_def(A; nm = "A")
         end
     end
     if ndims(A) == 1
-        return nm * " = np.array([" * join(format_element.(A), ", ") * "])"
+        return name * " = np.array([" * join(format_element.(A), ", ") * "])"
     else
         M, N = size(A)
         rows = ["[" * join(format_element.(A[i, :]), ", ") * "]" for i = 1:M]
-        return nm * " = np.array([\n" * join(rows, ",\n") * "\n])"
+        return name * " = np.array([\n" * join(rows, ",\n") * "\n])"
     end
 end
 """
