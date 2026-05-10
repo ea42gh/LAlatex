@@ -68,12 +68,20 @@ function round_matrices(matrices; digits = 0)
 end
 
 """
-    round_matrices(matrices, digits::Int) -> Vector
+    round_matrices(matrices, digits::Integer) -> Vector
 
 Positional `digits` overload for rounding nested matrix collections.
 """
-function round_matrices(matrices, digits::Int)
+function round_matrices(matrices, digits::Integer)
     return round_matrices(matrices; digits = digits)
+end
+
+function round_matrices(matrices, digits)
+    throw(
+        ArgumentError(
+            "round_matrices digits must be an Integer; got $(repr(digits)) of type $(typeof(digits)).",
+        ),
+    )
 end
 
 """
