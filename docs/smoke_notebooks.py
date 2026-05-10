@@ -22,6 +22,8 @@ SOURCE_FORBIDDEN_SNIPPETS = [
     "Unknown container keyword arguments are ignored",
     "ignored unknown option keys",
     "They do not cover `inline` or `lc` construction options",
+    "SymPy.jl",
+    "arrytype",
 ]
 NOTEBOOK_FORBIDDEN_SNIPPETS = ["backend_available", *SOURCE_FORBIDDEN_SNIPPETS]
 
