@@ -59,6 +59,31 @@
 
         symopts_report = JET.@report_call LAlatex.normalize_symopts((expand = true,))
         assert_no_jet_reports("symbolic option normalization", symopts_report)
+
+        annotated_lshow_report = JET.@report_call LAlatex.L_show(
+            LaTeXString("x = y");
+            inline = false,
+            tag = "1",
+            label = "eq:jet",
+        )
+        assert_no_jet_reports("annotated display L_show", annotated_lshow_report)
+
+        tag_validation_report = JET.@report_call LAlatex._validate_equation_tag("A_1")
+        assert_no_jet_reports("equation tag validation", tag_validation_report)
+
+        label_validation_report =
+            JET.@report_call LAlatex._validate_equation_label("eq:jet")
+        assert_no_jet_reports("equation label validation", label_validation_report)
+
+        set_builder_report = JET.@report_call LAlatex.set(
+            LaTeXString("x");
+            such_that = LaTeXString("x > 0"),
+        )
+        assert_no_jet_reports("set-builder construction", set_builder_report)
+
+        set_separator_report =
+            JET.@report_call LAlatex._validate_set_separator_value(LaTeXString(":"), "such_that_separator")
+        assert_no_jet_reports("set-builder separator validation", set_separator_report)
         """,
         )
     end

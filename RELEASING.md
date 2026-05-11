@@ -29,6 +29,8 @@ Confirm:
 - The secondary CI OS lanes are green.
 - The Docs workflow is green on both the minimum-supported Julia version and
   latest stable Julia.
+- Every documentation notebook executes successfully, not only the representative
+  notebooks executed by the regular Docs workflow.
 - Branch protection on `main` requires the CI and Docs checks before merge.
 
 ## Backend note
