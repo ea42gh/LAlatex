@@ -69,19 +69,26 @@ end
     end
 end
 
+function _public_doc_text(name::Symbol)
+    binding = Docs.Binding(LAlatex, name)
+    docs = get(Docs.meta(LAlatex), binding, nothing)
+    @test docs !== nothing
+    return sprint(show, MIME("text/plain"), docs)
+end
+
 @testset "Public docstrings mention new set options" begin
-    set_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.set))
+    set_docs = _public_doc_text(:set)
     @test occursin("such_that", set_docs)
     @test occursin("such_that_separator", set_docs)
 end
 
 @testset "Public docstrings mention equation annotations" begin
-    lshow_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.L_show))
+    lshow_docs = _public_doc_text(:L_show)
     @test occursin("inline=false", lshow_docs)
     @test occursin("tag", lshow_docs)
     @test occursin("label", lshow_docs)
 
-    notebook_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.l_show))
+    notebook_docs = _public_doc_text(:l_show)
     @test occursin("inline=false", notebook_docs)
     @test occursin("tag", notebook_docs)
     @test occursin("label", notebook_docs)

@@ -82,7 +82,7 @@ function _validate_set_separator_value(value, option_name::AbstractString)
     )
 end
 
-raw"""
+@doc raw"""
     set(entries...; such_that=nothing, such_that_separator=L"\mid", kwargs...) -> Group
 
 Create a grouped collection of entries for `L_show`.
@@ -102,14 +102,14 @@ separated by `separator`. `such_that_separator` separates the leading entry from
 the conditions and must be a `String` or `LaTeXString`. Existing per-entry
 `NamedTuple` display options may be used on the leading entry and on each
 condition.
-"""
-function set(
+""" function set(
     entries...;
     such_that = DISPLAY_OPTION_UNSET,
     such_that_separator = DISPLAY_OPTION_UNSET,
     kwargs...,
 )
-    if such_that === DISPLAY_OPTION_UNSET && such_that_separator !== DISPLAY_OPTION_UNSET
+    if (such_that === DISPLAY_OPTION_UNSET || such_that === nothing) &&
+       such_that_separator !== DISPLAY_OPTION_UNSET
         throw(ArgumentError("set such_that_separator requires such_that."))
     end
     if such_that_separator !== DISPLAY_OPTION_UNSET
@@ -127,9 +127,20 @@ end
 function _set_such_that_entries(value)
     if value isa Tuple || value isa AbstractVector
         isempty(value) && throw(ArgumentError("set such_that entries must not be empty."))
-        return Tuple(value)
+        entries = Tuple(value)
+        any(_is_empty_such_that_entry, entries) &&
+            throw(ArgumentError("set such_that entries must not be empty."))
+        return entries
     end
+    _is_empty_such_that_entry(value) &&
+        throw(ArgumentError("set such_that entries must not be empty."))
     return (value,)
+end
+
+function _is_empty_such_that_entry(value)
+    value isa AbstractString && return isempty(strip(String(value)))
+    value isa LaTeXString && return isempty(strip(strip_math_delims(value.s)))
+    return false
 end
 
 function _set_builder_parts(obj_group::Group)
@@ -142,12 +153,12 @@ function _set_builder_parts(obj_group::Group)
         ),
     )
     conditions = _set_such_that_entries(such_that)
-    such_that_separator = get(
-        obj_group.options,
-        :such_that_separator,
-        LaTeXString("\\mid"),
+    such_that_separator = get(obj_group.options, :such_that_separator, LaTeXString("\\mid"))
+    return (
+        first_entry = obj_group.entries[1],
+        conditions = conditions,
+        separator = such_that_separator,
     )
-    return (first_entry = obj_group.entries[1], conditions = conditions, separator = such_that_separator)
 end
 
 """

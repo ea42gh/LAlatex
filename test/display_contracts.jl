@@ -101,7 +101,12 @@ using LinearAlgebra
         @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, tag = "")
         @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "")
         @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "bad label")
-        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "bad{label}")
+        @test_throws ArgumentError LAlatex.L_show(
+            L"x";
+            inline = false,
+            label = "bad{label}",
+        )
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, tag = true)
         @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, tag = [])
         @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = [])
     end

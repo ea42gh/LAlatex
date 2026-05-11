@@ -48,17 +48,15 @@
         compact_latex_fragment(builder_group),
     )
 
-    multi_condition_group = LAlatex.L_show(
-        LAlatex.set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"),
-    )
+    multi_condition_group =
+        LAlatex.L_show(LAlatex.set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"))
     @test occursin(
         "\\left\\{ x \\mid x > 0 ,\\; x < 1 \\right\\}",
         compact_latex_fragment(multi_condition_group),
     )
 
-    colon_builder_group = LAlatex.L_show(
-        LAlatex.set(x; such_that = L"x \ne 0", such_that_separator = L":"),
-    )
+    colon_builder_group =
+        LAlatex.L_show(LAlatex.set(x; such_that = L"x \ne 0", such_that_separator = L":"))
     @test occursin(
         "\\left\\{ x : x \\ne 0 \\right\\}",
         compact_latex_fragment(colon_builder_group),
@@ -85,8 +83,15 @@
     @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x, y; such_that = x > 0))
     @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = ()))
     @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = []))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = ""))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = ("",)))
     @test_throws ArgumentError LAlatex.set(x; such_that = x > 0, such_that_separator = 1)
     @test_throws ArgumentError LAlatex.set(x; such_that_separator = L":")
+    @test_throws ArgumentError LAlatex.set(
+        x;
+        such_that = nothing,
+        such_that_separator = L":",
+    )
     @test !haskey(LAlatex.set(x).options, :such_that_separator)
 
     unfactored_group = LAlatex.L_show(LAlatex.set([1//2 1//3]; factor_out = false))

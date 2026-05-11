@@ -9,6 +9,11 @@ end
 
 function _validate_equation_tag(tag)
     tag === nothing && return nothing
+    tag isa Bool && throw(
+        ArgumentError(
+            "tag must be nothing, an integer, a string, a symbol, or a LaTeXString; got $(repr(tag)) of type $(typeof(tag)).",
+        ),
+    )
     tag isa Integer && return string(tag)
     if tag isa LaTeXString
         tag_value = to_latex(tag)
