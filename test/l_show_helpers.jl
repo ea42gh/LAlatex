@@ -42,6 +42,44 @@
     @test occursin("\\right\\}", empty_group)
     @test_throws ArgumentError LAlatex.L_show_set(1)
 
+    builder_group = LAlatex.L_show(LAlatex.set(x; such_that = L"x > 0"))
+    @test occursin("\\left\\{ x", builder_group)
+    @test occursin("\\mid x > 0", builder_group)
+
+    multi_condition_group = LAlatex.L_show(
+        LAlatex.set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"),
+    )
+    @test occursin("\\mid x > 0 ,\\; x < 1", multi_condition_group)
+
+    colon_builder_group = LAlatex.L_show(
+        LAlatex.set(x; such_that = L"x \ne 0", such_that_separator = L":"),
+    )
+    @test occursin("\\left\\{ x", colon_builder_group)
+    @test occursin(": x \\ne 0", colon_builder_group)
+
+    locally_styled_builder = LAlatex.L_show(
+        LAlatex.set(
+            (value = x, color = :blue);
+            such_that = ((value = L"x > 0", color = :red),),
+        ),
+    )
+    @test occursin("\\textcolor{blue}{x", locally_styled_builder)
+    @test occursin("\\textcolor{red}{x > 0}", locally_styled_builder)
+
+    tagged_builder = LAlatex.L_show(
+        LAlatex.set(x; such_that = x > 0);
+        inline = false,
+        tag = "S",
+        label = "eq:set-builder",
+    )
+    @test occursin("\\tag{S} \\label{eq:set-builder}", tagged_builder)
+
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(; such_that = x > 0))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x, y; such_that = x > 0))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = ()))
+    @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = []))
+    @test_throws ArgumentError LAlatex.set(x; such_that = x > 0, such_that_separator = 1)
+
     unfactored_group = LAlatex.L_show(LAlatex.set([1//2 1//3]; factor_out = false))
     @test occursin("\\frac{1}{2}", unfactored_group)
     @test !occursin("\\frac{1}{6} \\left", unfactored_group)

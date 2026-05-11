@@ -136,6 +136,23 @@ top-level arguments and to cells inside `set`, `cases`, and `aligned`.
 `LinearAlgebra.UniformScaling` values such as `I`, `0I`, and `2I` render as
 math identity fragments rather than plain text.
 
+`set(first; such_that=conditions, such_that_separator=L"\mid")` renders
+set-builder notation. A tuple or vector of `such_that` entries is rendered as
+multiple conditions separated by the ordinary `separator` option, without extra
+condition delimiters.
+
+Set-builder displays can be equation-tagged by applying `tag` and `label` at
+the outer `L_show`/`l_show` call:
+
+```julia
+L_show(
+    set(x; such_that=(L"x > 0", L"x < 1"));
+    inline=false,
+    tag="S",
+    label="eq:set-builder",
+)
+```
+
 Display containers inherit options from the surrounding `L_show` call, then
 apply their own keyword arguments as local overrides. Known display options are
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,

@@ -4,6 +4,8 @@
 
 - Added display-math equation annotations with `L_show`/`l_show`
   `tag` and `label` keywords.
+- Added set-builder notation through `set(...; such_that=...,
+  such_that_separator=...)`.
 
 ## 1.1.1 - 2026-05-10
 

@@ -204,6 +204,20 @@ content. Use non-option keys when the values are literal content:
 L_show((label="color", value="red"))
 ```
 
+Use `such_that` for set-builder notation. Multiple conditions are separated by
+the normal set `separator`, while `such_that_separator` separates the displayed
+entry from the conditions:
+
+```julia
+set(x; such_that=(L"x > 0", L"x < 1"))
+set(x; such_that=L"x > 0", such_that_separator=L":")
+set(
+    (value=x, color=:blue);
+    such_that=((value=L"x > 0", color=:red),),
+)
+L_show(set(x; such_that=L"x > 0"); inline=false, tag="S", label="eq:set-builder")
+```
+
 Rendered output (LaTeX strings from `LAlatex_examples.ipynb`):
 
 ```text

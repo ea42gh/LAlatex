@@ -213,6 +213,34 @@ L_show(
 In this example the surrounding call defaults arrays to `:parray`, but arrays
 inside the `set` render with `:bmatrix`, and the set uses its local separator.
 
+Set-builder notation is modeled as a `set` display where the first entry has a
+separator distinct from the remaining entries. Use `such_that` for one or more
+conditions and `such_that_separator` for the separator between the leading
+entry and the conditions. Multiple conditions are rendered without their own
+enclosing delimiters and are separated by the ordinary `separator` option:
+
+```julia
+set(x; such_that=(L"x > 0", L"x < 1"))
+set(x; such_that=L"x > 0", such_that_separator=L":")
+```
+
+The `such_that` form requires exactly one leading set entry. Per-entry
+`NamedTuple` display options work for both the leading entry and each condition:
+
+```julia
+set(
+    (value=x, color=:blue);
+    such_that=((value=L"x > 0", color=:red),),
+)
+```
+
+Tags and labels remain equation-level annotations on `L_show`/`l_show`, so a
+set-builder display is tagged at the outer call:
+
+```julia
+L_show(set(x; such_that=L"x > 0"); inline=false, tag="S", label="eq:set-builder")
+```
+
 Use process-wide defaults when a notebook should keep the same display style
 across many cells:
 
@@ -265,6 +293,8 @@ Known `set`-local options are:
 - `per_element_style`
 - `factor_out`
 - `symopts`
+- `such_that`
+- `such_that_separator`
 
 Known `cases`-local and `aligned`-local options are:
 

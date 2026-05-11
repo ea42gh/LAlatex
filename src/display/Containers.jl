@@ -8,7 +8,7 @@ struct Cases
     options::NamedTuple
 end
 
-const SET_OPTION_KEYS = DISPLAY_OPTION_KEYS
+const SET_OPTION_KEYS = (DISPLAY_OPTION_KEYS..., :such_that, :such_that_separator)
 const CELL_CONTAINER_OPTION_KEYS =
     (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :symopts)
 
@@ -73,14 +73,76 @@ struct Group
     options::NamedTuple
 end
 
-"""
-    set(entries...; kwargs...) -> Group
+raw"""
+    set(entries...; such_that=nothing, such_that_separator=L"\mid", kwargs...) -> Group
 
 Create a grouped collection of entries for `L_show`.
+
+With the default `such_that=nothing`, `set(a, b, c)` renders a finite set. Pass
+`such_that` to render set-builder notation:
+
+```julia
+set(x; such_that=L"x > 0")
+set(x; such_that=(L"x > 0", L"x < 1"), separator=L",\;")
+set(x; such_that=L"x > 0", such_that_separator=L":")
+```
+
+`such_that` mode requires exactly one leading entry. A tuple or vector of
+conditions is rendered without extra enclosing delimiters; conditions are
+separated by `separator`. `such_that_separator` separates the leading entry from
+the conditions. Existing per-entry `NamedTuple` display options may be used on
+the leading entry and on each condition.
 """
-function set(entries...; kwargs...)
-    options = _validate_container_option_keys((; kwargs...), SET_OPTION_KEYS, "set")
+function _validate_set_separator_value(value, option_name::AbstractString)
+    (value isa AbstractString || value isa LaTeXString) && return value
+    throw(
+        ArgumentError(
+            "$option_name must be a String or LaTeXString; got $(repr(value)) of type $(typeof(value)).",
+        ),
+    )
+end
+
+function set(
+    entries...;
+    such_that = DISPLAY_OPTION_UNSET,
+    such_that_separator = LaTeXString("\\mid"),
+    kwargs...,
+)
+    such_that_separator =
+        _validate_set_separator_value(such_that_separator, "such_that_separator")
+    option_pairs = Pair{Symbol,Any}[
+        :such_that_separator => such_that_separator,
+        pairs((; kwargs...))...,
+    ]
+    such_that === DISPLAY_OPTION_UNSET || push!(option_pairs, :such_that => such_that)
+    options = _validate_container_option_keys((; option_pairs...), SET_OPTION_KEYS, "set")
     return Group(entries, options)
+end
+
+function _set_such_that_entries(value)
+    if value isa Tuple || value isa AbstractVector
+        isempty(value) && throw(ArgumentError("set such_that entries must not be empty."))
+        return Tuple(value)
+    end
+    return (value,)
+end
+
+function _set_builder_parts(obj_group::Group)
+    haskey(obj_group.options, :such_that) || return nothing
+    such_that = obj_group.options.such_that
+    such_that === nothing && return nothing
+    length(obj_group.entries) == 1 || throw(
+        ArgumentError(
+            "set with such_that requires exactly one leading entry; got $(length(obj_group.entries)).",
+        ),
+    )
+    conditions = _set_such_that_entries(such_that)
+    such_that_separator = get(
+        obj_group.options,
+        :such_that_separator,
+        LaTeXString("\\mid"),
+    )
+    return (first_entry = obj_group.entries[1], conditions = conditions, separator = such_that_separator)
 end
 
 """
@@ -118,9 +180,18 @@ function L_show_set(
     clean_separator = normalize_separator(combined_options.separator)
     _, _, left_delim, right_delim = parse_arraystyle(combined_options.setstyle)
 
-    obj_latex = map(obj -> L_show_core(obj, combined_options), obj_group.entries)
-
-    joined_latex = join(obj_latex, " " * clean_separator * " ")
+    builder_parts = _set_builder_parts(obj_group)
+    if builder_parts === nothing
+        obj_latex = map(obj -> L_show_core(obj, combined_options), obj_group.entries)
+        joined_latex = join(obj_latex, " " * clean_separator * " ")
+    else
+        first_latex = L_show_core(builder_parts.first_entry, combined_options)
+        condition_latex =
+            map(obj -> L_show_core(obj, combined_options), builder_parts.conditions)
+        condition_join = join(condition_latex, " " * clean_separator * " ")
+        such_that_separator = normalize_separator(builder_parts.separator)
+        joined_latex = first_latex * " " * such_that_separator * " " * condition_join
+    end
 
     formatted_group = LaTeXString("$(left_delim) " * joined_latex * " $(right_delim)")
     return style_wrapper(formatted_group, combined_options.color)
