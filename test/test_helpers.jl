@@ -7,3 +7,7 @@ function optional_test_dependency(name::AbstractString, purpose::AbstractString)
     )
     return false
 end
+
+function compact_latex_fragment(s::AbstractString)
+    return replace(String(s), r"\s+" => " ")
+end

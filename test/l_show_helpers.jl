@@ -43,19 +43,26 @@
     @test_throws ArgumentError LAlatex.L_show_set(1)
 
     builder_group = LAlatex.L_show(LAlatex.set(x; such_that = L"x > 0"))
-    @test occursin("\\left\\{ x", builder_group)
-    @test occursin("\\mid x > 0", builder_group)
+    @test occursin(
+        "\\left\\{ x \\mid x > 0 \\right\\}",
+        compact_latex_fragment(builder_group),
+    )
 
     multi_condition_group = LAlatex.L_show(
         LAlatex.set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"),
     )
-    @test occursin("\\mid x > 0 ,\\; x < 1", multi_condition_group)
+    @test occursin(
+        "\\left\\{ x \\mid x > 0 ,\\; x < 1 \\right\\}",
+        compact_latex_fragment(multi_condition_group),
+    )
 
     colon_builder_group = LAlatex.L_show(
         LAlatex.set(x; such_that = L"x \ne 0", such_that_separator = L":"),
     )
-    @test occursin("\\left\\{ x", colon_builder_group)
-    @test occursin(": x \\ne 0", colon_builder_group)
+    @test occursin(
+        "\\left\\{ x : x \\ne 0 \\right\\}",
+        compact_latex_fragment(colon_builder_group),
+    )
 
     locally_styled_builder = LAlatex.L_show(
         LAlatex.set(
@@ -63,7 +70,7 @@
             such_that = ((value = L"x > 0", color = :red),),
         ),
     )
-    @test occursin("\\textcolor{blue}{x", locally_styled_builder)
+    @test occursin("\\textcolor{blue}{x }", locally_styled_builder)
     @test occursin("\\textcolor{red}{x > 0}", locally_styled_builder)
 
     tagged_builder = LAlatex.L_show(
