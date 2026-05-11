@@ -122,19 +122,9 @@ function L_show_core(obj, options::DisplayOptions)
     end
 
     if obj isa NamedTuple
-        formatting_keys = [
-            :setstyle,
-            :arraystyle,
-            :color,
-            :separator,
-            :number_formatter,
-            :per_element_style,
-            :factor_out,
-            :symopts,
-        ]
         formatting_options =
-            (; (k => v for (k, v) in pairs(obj) if k in formatting_keys)...)
-        content_values = Tuple(v for (k, v) in pairs(obj) if !(k in formatting_keys))
+            (; (k => v for (k, v) in pairs(obj) if k in DISPLAY_OPTION_KEYS)...)
+        content_values = Tuple(v for (k, v) in pairs(obj) if !(k in DISPLAY_OPTION_KEYS))
 
         combined_options = merge_display_options(options, formatting_options)
         formatted_entries =
