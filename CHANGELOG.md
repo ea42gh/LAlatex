@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-05-10
+
+- Broadened IOCapture compatibility to allow IOCapture 1.x, avoiding
+  unnecessary downgrades in environments that already use IOCapture 1.0.
+
 ## 1.1.0 - 2026-05-10
 
 - Added configurable display defaults with `set_display_defaults!`,
