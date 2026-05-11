@@ -73,6 +73,15 @@ struct Group
     options::NamedTuple
 end
 
+function _validate_set_separator_value(value, option_name::AbstractString)
+    (value isa AbstractString || value isa LaTeXString) && return value
+    throw(
+        ArgumentError(
+            "$option_name must be a String or LaTeXString; got $(repr(value)) of type $(typeof(value)).",
+        ),
+    )
+end
+
 raw"""
     set(entries...; such_that=nothing, such_that_separator=L"\mid", kwargs...) -> Group
 
@@ -93,15 +102,6 @@ separated by `separator`. `such_that_separator` separates the leading entry from
 the conditions. Existing per-entry `NamedTuple` display options may be used on
 the leading entry and on each condition.
 """
-function _validate_set_separator_value(value, option_name::AbstractString)
-    (value isa AbstractString || value isa LaTeXString) && return value
-    throw(
-        ArgumentError(
-            "$option_name must be a String or LaTeXString; got $(repr(value)) of type $(typeof(value)).",
-        ),
-    )
-end
-
 function set(
     entries...;
     such_that = DISPLAY_OPTION_UNSET,

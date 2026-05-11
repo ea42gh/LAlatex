@@ -68,3 +68,9 @@ end
         @test occursin(String(name), api_docs)
     end
 end
+
+@testset "Public docstrings mention new set options" begin
+    set_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.set))
+    @test occursin("such_that", set_docs)
+    @test occursin("such_that_separator", set_docs)
+end
