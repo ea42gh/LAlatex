@@ -74,3 +74,15 @@ end
     @test occursin("such_that", set_docs)
     @test occursin("such_that_separator", set_docs)
 end
+
+@testset "Public docstrings mention equation annotations" begin
+    lshow_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.L_show))
+    @test occursin("inline=false", lshow_docs)
+    @test occursin("tag", lshow_docs)
+    @test occursin("label", lshow_docs)
+
+    notebook_docs = sprint(show, MIME("text/plain"), Docs.doc(LAlatex.l_show))
+    @test occursin("inline=false", notebook_docs)
+    @test occursin("tag", notebook_docs)
+    @test occursin("label", notebook_docs)
+end

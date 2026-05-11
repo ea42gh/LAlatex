@@ -1,8 +1,3 @@
-"""
-    L_show(objs...; inline=true, tag=nothing, label=nothing, kwargs...) -> String
-
-Render objects into a LaTeX string with optional inline delimiters.
-"""
 function _validate_inline_value(inline)
     inline isa Bool && return inline
     throw(
@@ -116,11 +111,6 @@ Allow SubString inputs in L_show_core.
 """
 L_show_core(obj::SubString{String}; kwargs...) = L_show_core(String(obj); kwargs...)
 
-"""
-    l_show(args...; kwargs...) -> LaTeXString
-
-Return a LaTeXString for display in notebook environments.
-"""
 function l_show(args...; kwargs...)
     rendered = L_show(args...; kwargs...)
     if startswith(strip(rendered), "\$\$")
@@ -128,3 +118,35 @@ function l_show(args...; kwargs...)
     end
     return latexstring(strip_math_delims(rendered))
 end
+
+@doc raw"""
+    L_show(objs...; inline=true, tag=nothing, label=nothing, kwargs...) -> String
+
+Render objects into a complete LaTeX math string.
+
+With the default `inline=true`, the result is wrapped in `$...$` and ends with
+a newline. With `inline=false`, the result is wrapped in Jupyter-Markdown-
+compatible `$$...$$` display-math delimiters.
+
+Equation annotations are available for display-math output:
+
+```julia
+L_show(expr; inline=false, tag="2.1", label="eq:main")
+```
+
+`tag` and `label` require `inline=false`. Plain string and symbol tags are
+escaped as text; pass a `LaTeXString` tag for raw LaTeX inside `\tag{...}`.
+Labels must be nonempty label keys containing letters, digits, `:`, `_`, `.`,
+`/`, or `-`.
+""" L_show
+
+@doc raw"""
+    l_show(args...; inline=true, tag=nothing, label=nothing, kwargs...) -> LaTeXString
+
+Return a LaTeXString for display in notebook environments.
+
+`l_show` calls `L_show`. With `inline=true`, it strips the outer inline math
+delimiters before constructing the display value. With `inline=false`, it
+preserves the `$$...$$` display block. Equation `tag` and `label` options are
+accepted when `inline=false`.
+""" l_show
