@@ -139,7 +139,8 @@ math identity fragments rather than plain text.
 `set(first; such_that=conditions, such_that_separator=L"\mid")` renders
 set-builder notation. A tuple or vector of `such_that` entries is rendered as
 multiple conditions separated by the ordinary `separator` option, without extra
-condition delimiters.
+condition delimiters. `such_that_separator` must be a `String` or
+`LaTeXString`.
 
 Set-builder displays can be equation-tagged by applying `tag` and `label` at
 the outer `L_show`/`l_show` call:

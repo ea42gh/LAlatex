@@ -217,7 +217,8 @@ Set-builder notation is modeled as a `set` display where the first entry has a
 separator distinct from the remaining entries. Use `such_that` for one or more
 conditions and `such_that_separator` for the separator between the leading
 entry and the conditions. Multiple conditions are rendered without their own
-enclosing delimiters and are separated by the ordinary `separator` option:
+enclosing delimiters and are separated by the ordinary `separator` option.
+`such_that_separator` must be a `String` or `LaTeXString`:
 
 ```julia
 set(x; such_that=(L"x > 0", L"x < 1"))

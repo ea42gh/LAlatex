@@ -206,7 +206,8 @@ L_show((label="color", value="red"))
 
 Use `such_that` for set-builder notation. Multiple conditions are separated by
 the normal set `separator`, while `such_that_separator` separates the displayed
-entry from the conditions:
+entry from the conditions. Pass `such_that_separator` as a `String` or
+`LaTeXString`:
 
 ```julia
 set(x; such_that=(L"x > 0", L"x < 1"))

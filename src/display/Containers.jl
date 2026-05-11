@@ -99,8 +99,9 @@ set(x; such_that=L"x > 0", such_that_separator=L":")
 `such_that` mode requires exactly one leading entry. A tuple or vector of
 conditions is rendered without extra enclosing delimiters; conditions are
 separated by `separator`. `such_that_separator` separates the leading entry from
-the conditions. Existing per-entry `NamedTuple` display options may be used on
-the leading entry and on each condition.
+the conditions and must be a `String` or `LaTeXString`. Existing per-entry
+`NamedTuple` display options may be used on the leading entry and on each
+condition.
 """
 function set(
     entries...;
