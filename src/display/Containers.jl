@@ -105,16 +105,20 @@ the leading entry and on each condition.
 function set(
     entries...;
     such_that = DISPLAY_OPTION_UNSET,
-    such_that_separator = LaTeXString("\\mid"),
+    such_that_separator = DISPLAY_OPTION_UNSET,
     kwargs...,
 )
-    such_that_separator =
-        _validate_set_separator_value(such_that_separator, "such_that_separator")
-    option_pairs = Pair{Symbol,Any}[
-        :such_that_separator => such_that_separator,
-        pairs((; kwargs...))...,
-    ]
+    if such_that === DISPLAY_OPTION_UNSET && such_that_separator !== DISPLAY_OPTION_UNSET
+        throw(ArgumentError("set such_that_separator requires such_that."))
+    end
+    if such_that_separator !== DISPLAY_OPTION_UNSET
+        such_that_separator =
+            _validate_set_separator_value(such_that_separator, "such_that_separator")
+    end
+    option_pairs = Pair{Symbol,Any}[pairs((; kwargs...))...]
     such_that === DISPLAY_OPTION_UNSET || push!(option_pairs, :such_that => such_that)
+    such_that_separator === DISPLAY_OPTION_UNSET ||
+        push!(option_pairs, :such_that_separator => such_that_separator)
     options = _validate_container_option_keys((; option_pairs...), SET_OPTION_KEYS, "set")
     return Group(entries, options)
 end

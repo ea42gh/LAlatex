@@ -79,6 +79,8 @@
     @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = ()))
     @test_throws ArgumentError LAlatex.L_show(LAlatex.set(x; such_that = []))
     @test_throws ArgumentError LAlatex.set(x; such_that = x > 0, such_that_separator = 1)
+    @test_throws ArgumentError LAlatex.set(x; such_that_separator = L":")
+    @test !haskey(LAlatex.set(x).options, :such_that_separator)
 
     unfactored_group = LAlatex.L_show(LAlatex.set([1//2 1//3]; factor_out = false))
     @test occursin("\\frac{1}{2}", unfactored_group)
