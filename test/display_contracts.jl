@@ -69,6 +69,43 @@ using LinearAlgebra
         )
     end
 
+    @testset "equation tags and labels" begin
+        tagged = LAlatex.L_show(L"x = y"; inline = false, tag = "1")
+        @test startswith(tagged, "\$\$\n")
+        @test occursin("\\tag{1}", tagged)
+        @test endswith(tagged, "\n\$\$\n")
+
+        labeled = LAlatex.L_show(L"A x = b"; inline = false, label = "eq:linear-system")
+        @test occursin("\\label{eq:linear-system}", labeled)
+
+        annotated = LAlatex.L_show(
+            L"A^T A x = A^T b";
+            inline = false,
+            tag = L"\ast",
+            label = :eq_normal,
+        )
+        @test occursin("\\tag{\\ast} \\label{eq_normal}", annotated)
+
+        escaped_tag = LAlatex.L_show(L"x"; inline = false, tag = "A_1")
+        @test occursin("\\tag{A\\_1}", escaped_tag)
+
+        display_payload = latex_payload(
+            LAlatex.l_show(L"x = y"; inline = false, tag = 2, label = "eq:two"),
+        )
+        @test startswith(display_payload, "\$\$\n")
+        @test occursin("\\tag{2} \\label{eq:two}", display_payload)
+        @test endswith(display_payload, "\n\$\$")
+
+        @test_throws ArgumentError LAlatex.L_show(L"x"; tag = "1")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; label = "eq:x")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, tag = "")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "bad label")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = "bad{label}")
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, tag = [])
+        @test_throws ArgumentError LAlatex.L_show(L"x"; inline = false, label = [])
+    end
+
     @testset "strings and scalars" begin
         @test occursin("\\text{plain text}", assert_lshow_math("plain text"))
         @test occursin("\\alpha", assert_lshow_math(L"\\alpha"))

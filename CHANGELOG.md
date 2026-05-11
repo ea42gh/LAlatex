@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added display-math equation annotations with `L_show`/`l_show`
+  `tag` and `label` keywords.
+
 ## 1.1.1 - 2026-05-10
 
 - Broadened IOCapture compatibility to allow IOCapture 1.x, avoiding

@@ -167,6 +167,7 @@ formatted = rowechelon_formatter(1, 2, 4, "x"; pivots=[1, 3])
 ```julia
 L_show(1, " = ", [1 2; 3 4])
 display(l_show(1, " = ", [1 2; 3 4]))
+L_show(L"A x = b"; inline=false, tag="2.1", label="eq:linear-system")
 ```
 
 Set notebook-wide display defaults when many cells should share the same style.

@@ -26,6 +26,19 @@ L_show([1 2; 3 4]; inline=false)
 This returns a `$$...$$` block, not `\[...\]`, because the string-producing API
 is intended to be pasteable into Markdown cells.
 
+Equation-level annotations are display-math-only. Pass `inline=false` with
+`tag` and/or `label` to append `\tag{...}` and `\label{...}` before the closing
+display delimiter:
+
+```julia
+L_show(L"A x = b"; inline=false, tag="2.1", label="eq:linear-system")
+```
+
+Plain string and symbol tags are escaped as text. Use a `LaTeXString` tag, for
+example `L"\ast"`, when the tag itself should contain raw LaTeX. Labels are
+validated as nonempty LaTeX label keys and may contain letters, digits, `:`,
+`_`, `.`, `/`, and `-`.
+
 `l_show(args...)` is the notebook-display API. It calls `L_show` and returns a
 `LaTeXString`. With the default `inline=true`, it removes the outer inline math
 delimiters before constructing the display value. With `inline=false`, it
@@ -232,7 +245,9 @@ Display defaults intentionally do not include `inline`, because `L_show`
 string output and `l_show` notebook-display output have delimiter-sensitive
 contracts. Pass `inline=false` at the call site when a pasteable display-math
 string or display-math notebook payload is needed. Defaults also do not include
-`lc`-specific construction
+equation-level `tag` and `label` annotations, because those are part of one
+specific equation block rather than nested display rendering. Defaults also do
+not include `lc`-specific construction
 options such as `sign_policy`, `drop_zero`, `omit_one`, `parens_coeff`, `plus`,
 `pos`, or `neg`; set those on the `lc(...)` call so the linear-combination
 policy remains visible where the expression is constructed. `lc(...)` rejects

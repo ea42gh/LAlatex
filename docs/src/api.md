@@ -118,6 +118,18 @@ receive display math rather than inline math. Use `L_show` when you need the
 literal LaTeX string, and use `l_show` when the value should render directly in
 a display frontend.
 
+Equation annotations are available for display-math output:
+
+```julia
+L_show(L"A x = b"; inline=false, tag="2.1", label="eq:linear-system")
+```
+
+`tag` and `label` require `inline=false` because `\tag{...}` and
+`\label{...}` are equation-level annotations. Plain string and symbol tags are
+escaped as text; use a `LaTeXString` tag such as `L"\ast"` for raw LaTeX
+inside `\tag{...}`. Labels accept nonempty keys made from letters, digits,
+`:`, `_`, `.`, `/`, and `-`.
+
 Plain `String` values are rendered as text. `LaTeXString` values are treated
 as already-authored LaTeX math fragments. The same distinction applies to
 top-level arguments and to cells inside `set`, `cases`, and `aligned`.
@@ -145,9 +157,10 @@ defaults override the library defaults.
 
 Defaults cover `setstyle`, `arraystyle`, `color`, `separator`,
 `number_formatter`, `per_element_style`, `factor_out`, and `symopts`. Configure
-`inline` and `lc` construction options such as `sign_policy`, `drop_zero`,
-`omit_one`, `parens_coeff`, `plus`, `pos`, and `neg` explicitly at the call
-site. Unknown `lc` option names throw `ArgumentError`.
+`inline`, equation annotations such as `tag` and `label`, and `lc`
+construction options such as `sign_policy`, `drop_zero`, `omit_one`,
+`parens_coeff`, `plus`, `pos`, and `neg` explicitly at the call site. Unknown
+`lc` option names throw `ArgumentError`.
 
 See the Display policy page for examples and the exact row policies for
 `cases` and `aligned`.
