@@ -11,11 +11,11 @@
 Run:
 
 ```powershell
-julia --project=. -e 'using Pkg; Pkg.test()'
-julia --project=docs docs/make.jl
-python docs/smoke_notebooks.py
-julia --project=. perf/benchmark.jl
+julia --project=. scripts/release_check.jl
 ```
+
+Use `julia --project=. scripts/release_check.jl --dry-run` to inspect the
+exact commands without running them.
 
 Confirm:
 
@@ -29,9 +29,26 @@ Confirm:
 - The secondary CI OS lanes are green.
 - The Docs workflow is green on both the minimum-supported Julia version and
   latest stable Julia.
-- Every documentation notebook executes successfully, not only the representative
-  notebooks executed by the regular Docs workflow.
+- Every documentation notebook executes successfully through
+  `python docs/execute_all_notebooks.py`, not only the representative notebooks
+  executed by the regular Docs workflow.
 - Branch protection on `main` requires the CI and Docs checks before merge.
+
+## CI status checks
+
+From the release commit, use the GitHub web UI or GitHub CLI to confirm the
+exact commit has passing CI and Docs runs:
+
+```powershell
+git rev-parse HEAD
+gh run list --branch main --limit 10
+gh run view --log-failed
+```
+
+If a secondary OS lane is queued for an unusually long time, confirm whether
+GitHub Actions has a runner capacity issue before retriggering the workflow.
+Do not tag or register from a commit whose required checks are still queued,
+failing, or attached to an older commit.
 
 ## Backend note
 

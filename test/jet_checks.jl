@@ -84,6 +84,32 @@
         set_separator_report =
             JET.@report_call LAlatex._validate_set_separator_value(LaTeXString(":"), "such_that_separator")
         assert_no_jet_reports("set-builder separator validation", set_separator_report)
+
+        inline_validation_report = JET.@report_call LAlatex._validate_inline_value(false)
+        assert_no_jet_reports("inline option validation", inline_validation_report)
+
+        annotation_context_report =
+            JET.@report_call LAlatex._validate_equation_annotation_context(false, "S", "eq:set")
+        assert_no_jet_reports("equation annotation context validation", annotation_context_report)
+
+        display_defaults_report = JET.@report_call LAlatex._validate_display_defaults((
+            color = "red!50!black",
+            factor_out = false,
+            symopts = (expand = true,),
+        ))
+        assert_no_jet_reports("display-default validation", display_defaults_report)
+
+        option_merge_report = JET.@report_call LAlatex.merge_display_options(
+            LAlatex.DisplayOptions(),
+            (color = "blue", separator = LaTeXString(";")),
+        )
+        assert_no_jet_reports("display-option merging", option_merge_report)
+
+        such_that_entries_report = JET.@report_call LAlatex._set_such_that_entries((
+            LaTeXString("x > 0"),
+            LaTeXString("x < 1"),
+        ))
+        assert_no_jet_reports("set-builder condition normalization", such_that_entries_report)
         """,
         )
     end

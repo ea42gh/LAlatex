@@ -39,6 +39,18 @@
 
     @test LAlatex.L_show(LAlatex.set(1, 2, 3)) == "\$\\left\\{ 1 , 2 , 3 \\right\\}\$\n"
 
+    @test LAlatex.L_show(
+        LAlatex.set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"),
+    ) == "\$\\left\\{ x  \\mid x > 0 ,\\; x < 1 \\right\\}\$\n"
+
+    @test LAlatex.L_show(
+        LAlatex.set(x; such_that = x > 0);
+        inline = false,
+        tag = "S",
+        label = "eq:set-builder",
+    ) ==
+          "\$\$\n\\left\\{ x  \\mid 0 < x  \\right\\} \\tag{S} \\label{eq:set-builder}\n\$\$\n"
+
     @test LAlatex.L_show(LAlatex.lc([1, -2], [[1, 0], [0, 1]])) ==
           "\$ \\left(\\begin{array}{r}\n" *
           "1 \\\\\n" *

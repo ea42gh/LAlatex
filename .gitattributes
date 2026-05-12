@@ -1,0 +1,17 @@
+# Keep source and documentation text stable across Windows and Unix checkouts.
+* text=auto eol=lf
+
+*.jl text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.ipynb text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

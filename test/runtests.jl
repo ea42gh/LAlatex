@@ -35,6 +35,8 @@ ok, sympy, pyexe = RUN_SYMPY_TESTS ? _sympy_available() : (false, nothing, nothi
 
 @testset "LAlatex" begin
     include("public_exports.jl")
+    include("release_notes.jl")
+    include("api_validation_tables.jl")
     include("display_contracts.jl")
     include("display_options.jl")
     include("display_defaults.jl")
