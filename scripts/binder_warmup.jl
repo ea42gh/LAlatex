@@ -26,11 +26,11 @@ function warmup_lalatex_binder()
     l_show(L"A = ", A, L",\quad A^T A = ", transpose(A) * A; arraystyle = :bmatrix)
     L_show(L"A = ", A; inline = false, arraystyle = :bmatrix)
     l_show(L"v = ", v, L",\quad r = ", row; arraystyle = :bmatrix)
-    l_show(L"Tuple with custom separator: ", (:alpha, :beta, 2//3); separator = L";\quad ")
+    l_show("Tuple with custom separator: ", (:alpha, :beta, 2//3); separator = L";\quad ")
     l_show(L"M = ", M, L",\quad N = ", N; arraystyle = :bmatrix)
     l_show(L"B = ", set(L"e_1", L"e_2", L"e_3"; separator = L",\;"))
     l_show(
-        L"Matrix set: ",
+        "Matrix set: ",
         set([1, 0], [0, 1]; arraystyle = :bmatrix, separator = L",\quad "),
     )
     l_show(L"S = ", set(x; such_that = (L"x > 0", L"x < 1"), separator = L",\;"))
@@ -47,7 +47,7 @@ function warmup_lalatex_binder()
         lc(coeffs, vectors; sign_policy = :signed, omit_one = true, drop_zero = true);
         arraystyle = :bmatrix,
     )
-    l_show(L"Keep zeros: ", lc(coeffs, vectors; drop_zero = false); arraystyle = :bmatrix)
+    l_show("Keep zeros: ", lc(coeffs, vectors; drop_zero = false); arraystyle = :bmatrix)
     l_show(
         L"T(v) = ",
         cases([x, 0] => L"v \in \operatorname{span}\{e_1\}", ([0, y], "otherwise"));
