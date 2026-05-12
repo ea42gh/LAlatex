@@ -36,7 +36,8 @@ jobs:
 
       - name: Install Python deps
         run: |
-          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip sympy
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip juliacall sympy
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --no-build-isolation --no-deps -e .
           "${{ steps.setup-python.outputs.python-path }}" -c "import sys, sympy; print(sys.executable); print(sympy.__version__)"
 
       - name: Smoke-check notebooks
@@ -52,11 +53,14 @@ jobs:
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+          PYTHON_JULIACALL_EXE: julia
+          PYTHON_JULIACALL_PROJECT: ${{ github.workspace }}
         run: |
           "${{ steps.setup-python.outputs.python-path }}" docs/execute_notebook_smoke.py docs/src/notebooks/LAlatex_L_show_Guide.ipynb
           "${{ steps.setup-python.outputs.python-path }}" docs/execute_notebook_smoke.py docs/src/notebooks/LAlatex_cases_Guide.ipynb
           "${{ steps.setup-python.outputs.python-path }}" docs/execute_notebook_smoke.py docs/src/notebooks/LAlatex_aligned_Guide.ipynb
           "${{ steps.setup-python.outputs.python-path }}" docs/execute_notebook_smoke.py docs/src/notebooks/LAlatex_basics.ipynb
+          "${{ steps.setup-python.outputs.python-path }}" docs/execute_all_notebooks.py docs/src/notebooks/LAlatex_from_Python.ipynb
 
       - name: Cache Julia artifacts
         uses: julia-actions/cache@v3

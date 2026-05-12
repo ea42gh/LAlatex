@@ -13,90 +13,59 @@ pyimport("sys").executable
 
 ## Python -> Julia (juliacall)
 
-Install the Python-side bridge before running Python examples:
+Install the Python bridge before running Python examples from a source checkout:
 
 ```bash
-python -m pip install juliacall
+python -m pip install -e .
 ```
 
 ```python
-from juliacall import Main as jl
-from IPython.display import Latex, display
+from pathlib import Path
 
-jl.seval("using LAlatex")
-latex = jl.LAlatex.L_show("A = ", [[1, 2], [3, 4]])
+from lalatex import L, L_show, init, l_show
 
-display(Latex(latex))
+init(project=Path.cwd())
+
+latex = L_show("A = ", [[1, 2], [3, 4]])
+l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
 ```
 
-If you are working in the `elementary-linear-algebra` notebook environment, a
-startup helper file named `10-julia-magic.py` may also define Python-side
-helpers such as `l_show(...)` and `L(...)`.
+The repository ships a small Python shim at `python/lalatex.py`, exposed by the
+checkout's `pyproject.toml` as the Python module `lalatex`. It is the canonical
+Python helper layer used by the Python interop notebook and release notebook
+executor. The examples above assume the current working directory is the
+repository root when calling `init(project=Path.cwd())`; pass the checkout path
+explicitly when running from another directory.
 
-`10-julia-magic.py` is not part of `LAlatex`. It is an external notebook
-convenience layer. `LAlatex` itself exposes Julia functions such as
-`L_show(...)` and `l_show(...)`, but it does not install Python globals named
-`l_show` or `L`.
+Python and Julia must have compatible architectures because `juliacall` loads
+`libjulia` into the Python process. On Windows, for example, an arm64 Python
+cannot load an x64 Julia. Use a Python interpreter that matches the installed
+Julia architecture, or run the interop checks in the project Docker/Binder image
+or GitHub Actions.
 
-In that environment, the Python-side helper must convert raw-LaTeX marker
-strings to Julia `LaTeXString` values before calling `L_show`:
+Helper contract:
+
+- `L("...")` marks a Python string as raw LaTeX and converts it to Julia
+  `LaTeXString`.
+- Plain Python strings render as text.
+- `L_show(...)` returns the LaTeX string produced by Julia `LAlatex.L_show`.
+- `l_show(...)` displays the rendered LaTeX in IPython when possible and
+  returns the LaTeX string. Pass `strict_display=True` to surface IPython
+  display failures as exceptions.
+- Rectangular two-dimensional Python numeric lists are converted to Julia
+  matrices before rendering. Matrix entries must be finite `bool`, `int`,
+  `float`, `complex`, or `fractions.Fraction` values.
 
 ```python
-from juliacall import Main as jl
-from IPython.display import Latex, display
-from numbers import Number
-
-jl.seval("using LAlatex, LaTeXStrings")
-
-class RawLatex(str):
-    """Marker for strings that should be passed to Julia as LaTeXString."""
-
-def L(value):
-    """Wrap a Python string as raw LaTeX for the l_show helper."""
-    return RawLatex(value)
-
-def _convert_arg(value):
-    if isinstance(value, RawLatex):
-        return jl.LaTeXString(str(value))
-    if _is_2d_list(value):
-        return _list_to_julia_matrix(value)
-    return value
-
-def L_show(*args, **kwargs):
-    return str(jl.LAlatex.L_show(*(_convert_arg(arg) for arg in args), **kwargs))
-
-def l_show(*args, **kwargs):
-    display(Latex(L_show(*args, **kwargs)))
-
-def _is_2d_list(value):
-    return (
-        isinstance(value, (list, tuple))
-        and bool(value)
-        and all(isinstance(row, (list, tuple)) for row in value)
-        and len({len(row) for row in value}) == 1
-        and all(isinstance(item, Number) for row in value for item in row)
-    )
-
-def _list_to_julia_matrix(value):
-    rows = [" ".join(_format_julia_number(item) for item in row) for row in value]
-    return jl.seval("[" + "; ".join(rows) + "]")
-
-def _format_julia_number(value):
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    if isinstance(value, int):
-        return str(value)
-    if isinstance(value, float):
-        return repr(value)
-    if isinstance(value, complex):
-        sign = "+" if value.imag >= 0 else "-"
-        return f"{_format_julia_number(value.real)} {sign} {_format_julia_number(abs(value.imag))}*im"
-    return str(value)
-
 A = [[1, 2, 4], [3, 4, 1]]
 l_show("A = ", A)
-l_show("x = ", 3, L(r";\\quad "), "x^2 = ", 9)
+l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
 ```
+
+If you are working in the `elementary-linear-algebra` notebook environment, an
+external startup file named `10-julia-magic.py` may also define Python-side
+helpers. It should import or mirror this shim rather than defining incompatible
+conversion rules.
 
 ## No-conda setup
 
@@ -104,3 +73,9 @@ Ensure the following environment variables are set so PythonCall uses the system
 
 - `JULIA_CONDAPKG_BACKEND=Null`
 - `JULIA_PYTHONCALL_EXE=/usr/local/bin/python3`
+
+For Python-to-Julia checks, also point JuliaCall at the Julia executable and
+project you want to use:
+
+- `PYTHON_JULIACALL_EXE=julia`
+- `LALATEX_PROJECT=/path/to/LAlatex.jl`

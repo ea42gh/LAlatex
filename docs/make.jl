@@ -15,7 +15,7 @@ makedocs(;
     authors="ea42_github@mail.com",
     sitename="LAlatex.jl",
     format=Documenter.HTML(;
-        canonical="https://ea42gh.github.io/LAlatex",
+        canonical="https://ea42gh.github.io/LAlatex.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -35,7 +35,7 @@ makedocs(;
 
 if get(ENV, "LALATEX_DOCS_DEPLOY", "false") == "true"
     deploydocs(;
-        repo="github.com/ea42gh/LAlatex",
+        repo="github.com/ea42gh/LAlatex.jl",
         devbranch="main",
     )
 end

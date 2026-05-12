@@ -7,6 +7,10 @@ set -euxo pipefail
 julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile(); using LAlatex, LaTeXStrings, Symbolics, BlockArrays'
 julia --project=. scripts/binder_warmup.jl
 
+# Expose the Python helper shim as `import lalatex` in Python notebooks opened
+# from any directory inside the Binder checkout.
+python -m pip install --no-build-isolation --no-deps -e .
+
 # Keep IJulia out of the package dependencies while still providing a Binder
 # notebook kernel.
 julia -e 'using Pkg; Pkg.add("IJulia"); Pkg.precompile(); using IJulia; installkernel("Julia LAlatex", "--project=@.")'

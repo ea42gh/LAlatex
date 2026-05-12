@@ -69,3 +69,41 @@ jobs:
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+
+  python-interop-smoke:
+    name: Python interop smoke - Julia 1.10 - ubuntu-latest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        id: setup-python
+        with:
+          python-version: "3.11"
+      - name: Install Python deps
+        shell: bash
+        run: |
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip juliacall sympy
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --no-build-isolation --no-deps -e .
+          "${{ steps.setup-python.outputs.python-path }}" -c "import importlib.metadata as md, sys; print(sys.executable); print(md.version('juliacall'))"
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1.10'
+          arch: x64
+      - uses: julia-actions/cache@v3
+      - uses: julia-actions/julia-buildpkg@v1
+        env:
+          JULIA_CONDAPKG_BACKEND: Null
+          JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+      - name: Run Python interop smoke
+        shell: bash
+        env:
+          JULIA_CONDAPKG_BACKEND: Null
+          JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+          JULIA_PROJECT: ${{ github.workspace }}
+          PYTHON_JULIACALL_EXE: julia
+          PYTHON_JULIACALL_PROJECT: ${{ github.workspace }}
+        run: "${{ steps.setup-python.outputs.python-path }}" scripts/python_interop_smoke.py --require-installed
