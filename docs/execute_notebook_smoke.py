@@ -6,6 +6,13 @@ import tempfile
 from pathlib import Path
 
 
+def find_repo_root(path: Path) -> Path:
+    for parent in (path.parent, *path.parents):
+        if (parent / "Project.toml").is_file() and (parent / "src" / "LAlatex.jl").is_file():
+            return parent
+    raise SystemExit(f"Could not find LAlatex repository root for {path}")
+
+
 def notebook_to_script(notebook_path: Path) -> str:
     notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
     cells = notebook.get("cells", [])
@@ -32,7 +39,7 @@ def main() -> None:
     if not notebook_path.is_file():
         raise SystemExit(f"Notebook not found: {notebook_path}")
 
-    repo_root = notebook_path.parents[3]
+    repo_root = find_repo_root(notebook_path)
     script = notebook_to_script(notebook_path)
     env = os.environ.copy()
 

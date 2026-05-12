@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+# Build the package environment from the repository Project.toml. The IJulia
+# kernel below uses --project=@. so notebooks opened under this checkout use
+# this same package environment.
+julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile(); using LAlatex, LaTeXStrings, Symbolics, BlockArrays'
+
+# Keep IJulia out of the package dependencies while still providing a Binder
+# notebook kernel.
+julia -e 'using Pkg; Pkg.add("IJulia"); Pkg.precompile(); using IJulia; installkernel("Julia LAlatex", "--project=@.")'

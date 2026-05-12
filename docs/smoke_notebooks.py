@@ -14,6 +14,8 @@ EXPECTED_NOTEBOOKS = [
     "LAlatex_from_Python.ipynb",
     "LAlatex_examples.ipynb",
 ]
+EXPECTED_NOTEBOOK_PATHS = [NOTEBOOK_DIR / name for name in EXPECTED_NOTEBOOKS]
+EXPECTED_NOTEBOOK_PATHS.append(REPO_ROOT / "notebooks" / "LAlatex_demo.ipynb")
 TEXT_SOURCES = [REPO_ROOT / "README.md", *(ROOT / "src").glob("*.md")]
 SOURCE_FORBIDDEN_SNIPPETS = [
     "1.0.0-DEV",
@@ -41,9 +43,11 @@ def check_forbidden_snippets(name: str, text: str, forbidden_snippets: list[str]
 
 
 def main() -> None:
-    missing = [name for name in EXPECTED_NOTEBOOKS if not (NOTEBOOK_DIR / name).is_file()]
+    missing = [
+        str(path.relative_to(REPO_ROOT)) for path in EXPECTED_NOTEBOOK_PATHS if not path.is_file()
+    ]
     if missing:
-        raise SystemExit(f"Missing documentation notebooks: {', '.join(missing)}")
+        raise SystemExit(f"Missing expected notebooks: {', '.join(missing)}")
 
     for path in TEXT_SOURCES:
         check_forbidden_snippets(
@@ -52,8 +56,8 @@ def main() -> None:
             SOURCE_FORBIDDEN_SNIPPETS,
         )
 
-    for name in EXPECTED_NOTEBOOKS:
-        path = NOTEBOOK_DIR / name
+    for path in EXPECTED_NOTEBOOK_PATHS:
+        name = str(path.relative_to(REPO_ROOT))
         notebook = json.loads(path.read_text(encoding="utf-8"))
         nbformat = notebook.get("nbformat", 0)
         if nbformat < 4:

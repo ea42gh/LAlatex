@@ -17,6 +17,8 @@ NOTEBOOKS = [
     "LAlatex_from_Python.ipynb",
     "LAlatex_examples.ipynb",
 ]
+NOTEBOOK_PATHS = [NOTEBOOK_DIR / name for name in NOTEBOOKS]
+NOTEBOOK_PATHS.append(REPO_ROOT / "notebooks" / "LAlatex_demo.ipynb")
 
 
 def notebook_language(path: Path) -> str:
@@ -104,12 +106,11 @@ def execute_notebook(path: Path) -> None:
 
 
 def main() -> None:
-    missing = [name for name in NOTEBOOKS if not (NOTEBOOK_DIR / name).is_file()]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in NOTEBOOK_PATHS if not path.is_file()]
     if missing:
-        raise SystemExit(f"Missing documentation notebooks: {', '.join(missing)}")
+        raise SystemExit(f"Missing expected notebooks: {', '.join(missing)}")
 
-    for name in NOTEBOOKS:
-        path = NOTEBOOK_DIR / name
+    for path in NOTEBOOK_PATHS:
         print(f"Executing {path.relative_to(REPO_ROOT)}", flush=True)
         execute_notebook(path)
 

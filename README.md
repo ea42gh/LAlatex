@@ -3,6 +3,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ea42gh.github.io/LAlatex/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ea42gh.github.io/LAlatex/dev/)
 [![Build Status](https://github.com/ea42gh/LAlatex/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ea42gh/LAlatex/actions/workflows/CI.yml?query=branch%3Amain)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ea42gh/LAlatex.jl/main?filepath=notebooks%2FLAlatex_demo.ipynb)
 
 LAlatex is a Julia package for rendering linear algebra objects and symbolic
 expressions as clean LaTeX for notebooks, lecture notes, handouts, and docs.
@@ -129,6 +130,8 @@ print(jl.LAlatex.L_show("A = ", [[1, 2], [3, 4]]))
 
 Notebook highlight:
 - `docs/src/notebooks/LAlatex_L_show_Guide.ipynb`
+- Try the live package demo on Binder:
+  `notebooks/LAlatex_demo.ipynb`
 
 Structured display helpers:
 
