@@ -106,4 +106,5 @@ jobs:
           JULIA_PROJECT: ${{ github.workspace }}
           PYTHON_JULIACALL_EXE: julia
           PYTHON_JULIACALL_PROJECT: ${{ github.workspace }}
-        run: "${{ steps.setup-python.outputs.python-path }}" scripts/python_interop_smoke.py --require-installed
+        run: |
+          "${{ steps.setup-python.outputs.python-path }}" scripts/python_interop_smoke.py --require-installed
