@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
-    name: Julia 1.10 - macos-13 - x64
-    runs-on: macos-13
+    name: Julia 1.10 - macos-15-intel - x64
+    runs-on: macos-15-intel
     timeout-minutes: 60
     permissions:
       actions: write
