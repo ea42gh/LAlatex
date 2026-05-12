@@ -5,6 +5,7 @@ set -euxo pipefail
 # kernel below uses --project=@. so notebooks opened under this checkout use
 # this same package environment.
 julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile(); using LAlatex, LaTeXStrings, Symbolics, BlockArrays'
+julia --project=. scripts/binder_warmup.jl
 
 # Keep IJulia out of the package dependencies while still providing a Binder
 # notebook kernel.
