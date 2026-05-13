@@ -59,6 +59,8 @@ class LAlatexBridge:
         self._l_show_string = jl.seval("_lalatex_python_L_show")
 
     def convert_arg(self, value: Any) -> Any:
+        if isinstance(value, (list, tuple)) and not value:
+            raise ValueError("Python vectors must have at least one entry.")
         if _is_ragged_numeric_sequence(value):
             raise ValueError("Python matrices must be rectangular.")
         if _is_2d_numeric_sequence(value):

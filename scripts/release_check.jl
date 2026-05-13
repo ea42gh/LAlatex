@@ -86,13 +86,13 @@ function release_steps()
         ),
         (
             "Python build tooling",
-            `$python -m pip install --upgrade pip setuptools wheel`,
+            `$python -m pip install --upgrade pip setuptools wheel juliacall sympy`,
             false,
         ),
         (
             "Python bridge editable install",
-            `$python -m pip install --no-build-isolation -e $ROOT`,
-            true,
+            `$python -m pip install --no-build-isolation --no-deps -e $ROOT`,
+            false,
         ),
         (
             "full Julia notebook execution",
@@ -160,7 +160,8 @@ function main(args = ARGS)
 
     dry_run = "--dry-run" in args
     allow_python_interop_skip = "--allow-python-interop-skip" in args
-    python_interop_available = dry_run ? true : python_interop_probe(python)
+    python_interop_available = true
+    python_interop_checked = false
 
     println("LAlatex release checks")
     println("Repository: $ROOT")
@@ -169,7 +170,17 @@ function main(args = ARGS)
     println("LALATEX_PROJECT: $(lalatex_project())")
     println("Dry run: $dry_run")
 
-    if !dry_run && !python_interop_available
+    function check_python_interop!()
+        if dry_run || python_interop_checked
+            return python_interop_available
+        end
+
+        python_interop_available = python_interop_probe(python)
+        python_interop_checked = true
+        if python_interop_available
+            return true
+        end
+
         message = string(
             "Python interop checks cannot run with the current Python/Julia ",
             "toolchain. This often means Python and Julia architectures do not ",
@@ -187,11 +198,15 @@ function main(args = ARGS)
             exit(1)
         end
         @warn message
+        return false
     end
 
     for (name, cmd, requires_python_interop) in steps
         println()
         println("==> $name")
+        if requires_python_interop && !dry_run
+            check_python_interop!()
+        end
         if requires_python_interop && !dry_run
             cmd = python_interop_cmd(cmd)
         end
@@ -206,7 +221,7 @@ function main(args = ARGS)
     end
 
     println()
-    if !dry_run && !python_interop_available && allow_python_interop_skip
+    if !dry_run && python_interop_checked && !python_interop_available && allow_python_interop_skip
         println("Release checks completed with Python interop checks skipped.")
     else
         println("Release checks completed.")

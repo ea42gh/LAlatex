@@ -42,22 +42,18 @@ def execute_julia_notebook(path: Path) -> None:
 
 
 def execute_python_notebook(path: Path) -> None:
+    sys.path.insert(0, str(REPO_ROOT / "python"))
     try:
         from lalatex import L, L_show, init, l_show
         from juliacall import Main as jl
-    except ImportError:
-        sys.path.insert(0, str(REPO_ROOT / "python"))
-        try:
-            from lalatex import L, L_show, init, l_show
-            from juliacall import Main as jl
-        except ImportError as retry_err:
-            raise SystemExit(
-                "Python interop notebook execution requires juliacall and the "
-                "LAlatex Python shim. Install this checkout with "
-                "`python -m pip install --upgrade pip setuptools wheel` and "
-                "`python -m pip install -e .`, or run this check in the "
-                "documented Jupyter/Binder image."
-            ) from retry_err
+    except ImportError as err:
+        raise SystemExit(
+            "Python interop notebook execution requires juliacall and the "
+            "LAlatex Python shim. Install this checkout with "
+            "`python -m pip install --upgrade pip setuptools wheel juliacall sympy` and "
+            "`python -m pip install --no-build-isolation --no-deps -e .`, or run this check in the "
+            "documented Jupyter/Binder image."
+        ) from err
     except Exception as err:
         raise SystemExit(
             "Python interop notebook execution could not initialize juliacall. "

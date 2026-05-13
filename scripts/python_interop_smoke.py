@@ -53,6 +53,20 @@ def main() -> None:
         raise AssertionError("Non-finite Python vector entries must be rejected.")
 
     try:
+        L_show("empty vector = ", [])
+    except ValueError as err:
+        check("at least one entry" in str(err), err)
+    else:
+        raise AssertionError("Empty Python list vectors must be rejected.")
+
+    try:
+        L_show("empty vector = ", ())
+    except ValueError as err:
+        check("at least one entry" in str(err), err)
+    else:
+        raise AssertionError("Empty Python tuple vectors must be rejected.")
+
+    try:
         L_show("bad vector = ", [Decimal("1.5")])
     except TypeError as err:
         check("Python numeric entries" in str(err), err)
