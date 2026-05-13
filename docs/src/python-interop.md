@@ -53,8 +53,9 @@ Helper contract:
   returns the LaTeX string. Pass `strict_display=True` to surface IPython
   display failures as exceptions.
 - Rectangular two-dimensional Python numeric lists are converted to Julia
-  matrices before rendering. Matrix entries must be finite `bool`, `int`,
-  `float`, `complex`, or `fractions.Fraction` values.
+  matrices before rendering. They must have at least one row and one column.
+  Matrix entries must be finite `bool`, `int`, `float`, `complex`, or
+  `fractions.Fraction` values.
 
 ```python
 A = [[1, 2, 4], [3, 4, 1]]

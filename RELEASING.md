@@ -17,6 +17,12 @@ julia --project=. scripts/release_check.jl
 Use `julia --project=. scripts/release_check.jl --dry-run` to inspect the
 exact commands without running them.
 
+The release check requires Python-to-Julia interop by default. If the local
+machine cannot run those checks because Python and Julia architectures differ,
+use a matching Python interpreter, Docker/Binder, or CI. The
+`--allow-python-interop-skip` flag is only for local non-release diagnostics and
+must not be used as release evidence.
+
 Confirm:
 
 - CI is green on the release commit.

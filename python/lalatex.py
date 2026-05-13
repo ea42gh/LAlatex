@@ -58,6 +58,8 @@ class LAlatexBridge:
         self._l_show_string = jl.seval("_lalatex_python_L_show")
 
     def convert_arg(self, value: Any) -> Any:
+        if _is_ragged_numeric_sequence(value):
+            raise ValueError("Python matrices must be rectangular.")
         if _is_2d_numeric_sequence(value):
             return self._list_to_julia_matrix(value)
         return value
@@ -92,6 +94,8 @@ class LAlatexBridge:
         return latex
 
     def _list_to_julia_matrix(self, value: Any) -> Any:
+        if not value or not value[0]:
+            raise ValueError("Python matrices must have at least one row and one column.")
         rows = [" ".join(_format_julia_number(item) for item in row) for row in value]
         return self.jl.seval("[" + "; ".join(rows) + "]")
 
@@ -151,6 +155,16 @@ def _is_2d_numeric_sequence(value: Any) -> bool:
         and bool(value)
         and all(isinstance(row, (list, tuple)) for row in value)
         and len({len(row) for row in value}) == 1
+        and all(isinstance(item, Number) for row in value for item in row)
+    )
+
+
+def _is_ragged_numeric_sequence(value: Any) -> bool:
+    return (
+        isinstance(value, (list, tuple))
+        and bool(value)
+        and all(isinstance(row, (list, tuple)) for row in value)
+        and len({len(row) for row in value}) != 1
         and all(isinstance(item, Number) for row in value for item in row)
     )
 

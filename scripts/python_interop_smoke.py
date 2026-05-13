@@ -28,6 +28,14 @@ def main() -> None:
     assert r"\text{A = }" in matrix, matrix
     assert r"\begin{array}" in matrix, matrix
 
+    bool_matrix = L_show("flags = ", [[True, False]])
+    assert "true" in bool_matrix, bool_matrix
+    assert "false" in bool_matrix, bool_matrix
+
+    complex_matrix = L_show("z = ", [[1 + 2j, 3 - 4j]])
+    assert r"1.0+2.0\mathit{i}" in complex_matrix, complex_matrix
+    assert r"3.0-4.0\mathit{i}" in complex_matrix, complex_matrix
+
     rational_matrix = L_show(
         "B = ",
         [[Fraction(1, 2), Fraction(2, 3)]],
@@ -43,9 +51,27 @@ def main() -> None:
     else:
         raise AssertionError("non-finite Python matrix entries must be rejected")
 
+    try:
+        L_show("empty = ", [[], []])
+    except ValueError as err:
+        assert "at least one row and one column" in str(err), err
+    else:
+        raise AssertionError("zero-column Python matrices must be rejected")
+
+    try:
+        L_show("ragged = ", [[1], [2, 3]])
+    except ValueError as err:
+        assert "rectangular" in str(err), err
+    else:
+        raise AssertionError("ragged Python matrices must be rejected")
+
     display_math = L_show(L(r"A = "), [[1, 2], [3, 4]], inline=False)
     assert display_math.startswith("$$"), display_math
     assert r"\text{A = }" not in display_math, display_math
+
+    text_display_math = L_show("A = ", [[1, 2], [3, 4]], inline=False)
+    assert text_display_math.startswith("$$"), text_display_math
+    assert r"\text{A = }" in text_display_math, text_display_math
 
     returned = l_show("A = ", [[1, 2], [3, 4]], display_result=False)
     assert returned == matrix, returned

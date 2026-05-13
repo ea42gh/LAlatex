@@ -71,12 +71,18 @@ jobs:
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
 
   python-interop-smoke:
-    name: Python interop smoke - Julia 1.10 - ubuntu-latest
-    runs-on: ubuntu-latest
+    name: Python interop smoke - Julia 1.10 - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
       actions: write
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6

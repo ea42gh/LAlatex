@@ -56,6 +56,17 @@ function release_steps()
     julia = Base.julia_cmd()
     python = python_executable()
     docs_project = joinpath(ROOT, "docs")
+    notebook_executor = joinpath(ROOT, "docs", "execute_all_notebooks.py")
+    julia_notebooks = [
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_basics.ipynb"),
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_L_show_Guide.ipynb"),
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_cases_Guide.ipynb"),
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_aligned_Guide.ipynb"),
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_HTML_Utilities.ipynb"),
+        joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_examples.ipynb"),
+        joinpath(ROOT, "notebooks", "LAlatex_demo.ipynb"),
+    ]
+    python_notebook = joinpath(ROOT, "docs", "src", "notebooks", "LAlatex_from_Python.ipynb")
 
     return [
         (
@@ -79,8 +90,13 @@ function release_steps()
             true,
         ),
         (
-            "full notebook execution",
-            `$python $(joinpath(ROOT, "docs", "execute_all_notebooks.py"))`,
+            "full Julia notebook execution",
+            `$python $notebook_executor $julia_notebooks`,
+            false,
+        ),
+        (
+            "Python interop notebook execution",
+            `$python $notebook_executor $python_notebook`,
             true,
         ),
         (
@@ -98,7 +114,7 @@ end
 
 function print_usage()
     println(
-        "Usage: julia --project=. scripts/release_check.jl [--list|--dry-run|--require-python-interop]",
+        "Usage: julia --project=. scripts/release_check.jl [--list|--dry-run|--allow-python-interop-skip]",
     )
     println()
     println(
@@ -110,6 +126,9 @@ function print_usage()
     println(
         "Set LALATEX_PROJECT to a compatible Julia project for Python interop checks.",
     )
+    println(
+        "Use --allow-python-interop-skip only for local toolchains where Python and Julia cannot interoperate.",
+    )
 end
 
 function main(args = ARGS)
@@ -118,7 +137,7 @@ function main(args = ARGS)
         return nothing
     end
 
-    valid_args = Set(["--list", "--dry-run", "--require-python-interop"])
+    valid_args = Set(["--list", "--dry-run", "--allow-python-interop-skip"])
     invalid = filter(arg -> !(arg in valid_args), args)
     if !isempty(invalid)
         error("Unknown argument(s): $(join(invalid, ", "))")
@@ -135,7 +154,7 @@ function main(args = ARGS)
     end
 
     dry_run = "--dry-run" in args
-    require_python_interop = "--require-python-interop" in args
+    allow_python_interop_skip = "--allow-python-interop-skip" in args
     python_interop_available = dry_run ? true : python_interop_probe(python)
 
     println("LAlatex release checks")
@@ -154,8 +173,12 @@ function main(args = ARGS)
             "project. CI remains strict because it uses matching Python/Julia ",
             "toolchains.",
         )
-        if require_python_interop
+        if !allow_python_interop_skip
             println(stderr, "ERROR: $message")
+            println(
+                stderr,
+                "Use --allow-python-interop-skip to run the non-Python release checks anyway.",
+            )
             exit(1)
         end
         @warn message
@@ -178,7 +201,11 @@ function main(args = ARGS)
     end
 
     println()
-    println("Release checks completed.")
+    if !dry_run && !python_interop_available && allow_python_interop_skip
+        println("Release checks completed with Python interop checks skipped.")
+    else
+        println("Release checks completed.")
+    end
     return nothing
 end
 

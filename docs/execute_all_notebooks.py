@@ -57,8 +57,22 @@ def execute_python_notebook(path: Path) -> None:
                 "`python -m pip install -e .`, or run this check in the "
                 "documented Jupyter image."
             ) from retry_err
+    except Exception as err:
+        raise SystemExit(
+            "Python interop notebook execution could not initialize juliacall. "
+            "Ensure Python and Julia have compatible architectures, and set "
+            "PYTHON_JULIACALL_EXE and LALATEX_PROJECT when using a custom "
+            "Julia installation."
+        ) from err
 
-    init(project=lalatex_project())
+    try:
+        init(project=lalatex_project())
+    except Exception as err:
+        raise SystemExit(
+            "Python interop notebook execution could not initialize LAlatex "
+            "through juliacall. Ensure LALATEX_PROJECT points to a compatible "
+            "Julia project and Python can load the selected Julia runtime."
+        ) from err
 
     namespace = {
         "L": L,
