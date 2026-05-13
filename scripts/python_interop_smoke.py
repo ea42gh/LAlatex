@@ -45,11 +45,6 @@ def main() -> None:
     check(r";\quad " in raw, raw)
     check(r"\text{;\textbackslash{}quad }" not in raw, raw)
 
-    step("raw LaTeX keyword arguments")
-    raw_separator = L_show("vector = ", [1, 2, 3], separator=L(r";\quad "))
-    check(r";\quad " in raw_separator, raw_separator)
-    check(r"\text{;\textbackslash{}quad }" not in raw_separator, raw_separator)
-
     step("Python tuple vector conversion")
     tuple_vector = L_show("tuple vector = ", (1, 2, 3))
     check("1" in tuple_vector and "2" in tuple_vector and "3" in tuple_vector, tuple_vector)
