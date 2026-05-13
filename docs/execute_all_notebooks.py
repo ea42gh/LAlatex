@@ -54,8 +54,9 @@ def execute_python_notebook(path: Path) -> None:
             raise SystemExit(
                 "Python interop notebook execution requires juliacall and the "
                 "LAlatex Python shim. Install this checkout with "
+                "`python -m pip install --upgrade pip setuptools wheel` and "
                 "`python -m pip install -e .`, or run this check in the "
-                "documented Jupyter image."
+                "documented Jupyter/Binder image."
             ) from retry_err
     except Exception as err:
         raise SystemExit(

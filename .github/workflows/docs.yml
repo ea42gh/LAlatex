@@ -36,8 +36,8 @@ jobs:
 
       - name: Install Python deps
         run: |
-          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip juliacall sympy
-          "${{ steps.setup-python.outputs.python-path }}" -m pip install --no-build-isolation --no-deps -e .
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip setuptools wheel juliacall sympy
+          "${{ steps.setup-python.outputs.python-path }}" -m pip install --no-build-isolation -e .
           "${{ steps.setup-python.outputs.python-path }}" -c "import sys, sympy; print(sys.executable); print(sympy.__version__)"
 
       - name: Smoke-check notebooks

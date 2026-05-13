@@ -85,8 +85,13 @@ function release_steps()
             false,
         ),
         (
+            "Python build tooling",
+            `$python -m pip install --upgrade pip setuptools wheel`,
+            false,
+        ),
+        (
             "Python bridge editable install",
-            `$python -m pip install --no-build-isolation --no-deps -e $ROOT`,
+            `$python -m pip install --no-build-isolation -e $ROOT`,
             true,
         ),
         (

@@ -43,6 +43,7 @@ class LAlatexBridge:
             jl.seval(command)
 
         jl.seval("using LAlatex, LaTeXStrings, LinearAlgebra")
+        self._latex_string = jl.seval("LaTeXString")
         jl.seval(
             """
             function _lalatex_python_L_show(args, raw_indices; kwargs...)
@@ -62,6 +63,8 @@ class LAlatexBridge:
             raise ValueError("Python matrices must be rectangular.")
         if _is_2d_numeric_sequence(value):
             return self._list_to_julia_matrix(value)
+        if _is_1d_numeric_sequence(value):
+            return self._list_to_julia_vector(value)
         return value
 
     def L_show(self, *args: Any, **kwargs: Any) -> str:
@@ -73,7 +76,11 @@ class LAlatexBridge:
                 converted.append(str(arg))
             else:
                 converted.append(self.convert_arg(arg))
-        return str(self._l_show_string(converted, raw_indices, **kwargs))
+        converted_kwargs = {
+            key: _raw_latex_to_julia(value, self._latex_string)
+            for key, value in kwargs.items()
+        }
+        return str(self._l_show_string(converted, raw_indices, **converted_kwargs))
 
     def l_show(
         self,
@@ -98,6 +105,12 @@ class LAlatexBridge:
             raise ValueError("Python matrices must have at least one row and one column.")
         rows = [" ".join(_format_julia_number(item) for item in row) for row in value]
         return self.jl.seval("[" + "; ".join(rows) + "]")
+
+    def _list_to_julia_vector(self, value: Any) -> Any:
+        if not value:
+            raise ValueError("Python vectors must have at least one entry.")
+        entries = ", ".join(_format_julia_number(item) for item in value)
+        return self.jl.seval("[" + entries + "]")
 
 
 _DEFAULT_BRIDGE: LAlatexBridge | None = None
@@ -124,7 +137,15 @@ def bridge() -> LAlatexBridge:
 def L(value: str) -> RawLatex:
     """Wrap a Python string as raw LaTeX for LAlatex helper calls."""
 
+    if not isinstance(value, str):
+        raise TypeError(f"L(...) expects a Python string; got {type(value).__name__}.")
     return RawLatex(value)
+
+
+def _raw_latex_to_julia(value: Any, latex_string: Any) -> Any:
+    if isinstance(value, RawLatex):
+        return latex_string(str(value))
+    return value
 
 
 def L_show(*args: Any, **kwargs: Any) -> str:
@@ -159,6 +180,14 @@ def _is_2d_numeric_sequence(value: Any) -> bool:
     )
 
 
+def _is_1d_numeric_sequence(value: Any) -> bool:
+    return (
+        isinstance(value, (list, tuple))
+        and bool(value)
+        and all(isinstance(item, Number) for item in value)
+    )
+
+
 def _is_ragged_numeric_sequence(value: Any) -> bool:
     return (
         isinstance(value, (list, tuple))
@@ -176,19 +205,19 @@ def _format_julia_number(value: Number) -> str:
         return str(value)
     if isinstance(value, float):
         if not math.isfinite(value):
-            raise ValueError("Python matrix entries must be finite numbers.")
+            raise ValueError("Python numeric entries must be finite numbers.")
         return repr(value)
     if isinstance(value, Fraction):
         return f"{value.numerator}//{value.denominator}"
     if isinstance(value, complex):
         if not (math.isfinite(value.real) and math.isfinite(value.imag)):
-            raise ValueError("Python matrix entries must be finite numbers.")
+            raise ValueError("Python numeric entries must be finite numbers.")
         real = _format_julia_number(value.real)
         imag = _format_julia_number(abs(value.imag))
         sign = "+" if value.imag >= 0 else "-"
         return f"{real} {sign} {imag}*im"
     raise TypeError(
-        "Python matrix entries must be bool, int, float, complex, or Fraction; "
+        "Python numeric entries must be bool, int, float, complex, or Fraction; "
         f"got {type(value).__name__}."
     )
 

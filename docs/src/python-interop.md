@@ -16,6 +16,7 @@ pyimport("sys").executable
 Install the Python bridge before running Python examples from a source checkout:
 
 ```bash
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 ```
 
@@ -27,6 +28,7 @@ from lalatex import L, L_show, init, l_show
 init(project=Path.cwd())
 
 latex = L_show("A = ", [[1, 2], [3, 4]])
+l_show("v = ", (1, 2, 3), separator=L(r";\quad "))
 l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
 ```
 
@@ -46,21 +48,25 @@ or GitHub Actions.
 Helper contract:
 
 - `L("...")` marks a Python string as raw LaTeX and converts it to Julia
-  `LaTeXString`.
+  `LaTeXString`. It works for positional arguments and keyword values such as
+  `tag=L(r"\ast")`.
 - Plain Python strings render as text.
 - `L_show(...)` returns the LaTeX string produced by Julia `LAlatex.L_show`.
 - `l_show(...)` displays the rendered LaTeX in IPython when possible and
   returns the LaTeX string. Pass `strict_display=True` to surface IPython
   display failures as exceptions.
-- Rectangular two-dimensional Python numeric lists are converted to Julia
-  matrices before rendering. They must have at least one row and one column.
-  Matrix entries must be finite `bool`, `int`, `float`, `complex`, or
-  `fractions.Fraction` values.
+- One-dimensional Python numeric lists or tuples are converted to Julia vectors.
+- Rectangular two-dimensional Python numeric lists or tuples are converted to Julia
+  matrices before rendering. Vectors must have at least one entry, and matrices
+  must have at least one row and one column. Numeric entries must be finite
+  `bool`, `int`, `float`, `complex`, or `fractions.Fraction` values.
 
 ```python
 A = [[1, 2, 4], [3, 4, 1]]
 l_show("A = ", A)
+l_show("v = ", (1, 2, 3), separator=L(r";\quad "))
 l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
+l_show(L(r"x = y"), inline=False, tag=L(r"\ast"), label="eq:python-interop")
 ```
 
 If you are working in the `elementary-linear-algebra` notebook environment, an

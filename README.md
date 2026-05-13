@@ -122,15 +122,21 @@ Python interop:
 
 From a source checkout:
 
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+```
+
 ```python
-# python -m pip install -e .
 from pathlib import Path
 
 from lalatex import L, L_show, init, l_show
 
 init(project=Path.cwd())
 print(L_show("A = ", [[1, 2], [3, 4]]))
+l_show("v = ", (1, 2, 3), separator=L(r";\quad "))
 l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
+l_show(L(r"x = y"), inline=False, tag=L(r"\ast"), label="eq:python-interop")
 ```
 
 Notebook highlight:
