@@ -2,15 +2,22 @@
 
 ## Unreleased
 
+## 1.2.0 - 2026-05-14
+
 - Added display-math equation annotations with `L_show`/`l_show`
   `tag` and `label` keywords.
 - Added set-builder notation through `set(...; such_that=...,
   such_that_separator=...)`.
-
-## 1.1.1 - 2026-05-10
-
 - Broadened IOCapture compatibility to allow IOCapture 1.x, avoiding
   unnecessary downgrades in environments that already use IOCapture 1.0.
+- Added a Python helper bridge for `L`, `L_show`, `l_show`, and `init`
+  through `juliacall`.
+- Added Python interop smoke coverage for raw LaTeX fragments, vector and
+  matrix conversion, display tags, and labels.
+- Added a Binder demo notebook, Binder warmup script, and `postBuild`
+  validation path.
+- Hardened release checks, docs notebook execution, Python interop CI, and
+  macOS CI runner configuration.
 
 ## 1.1.0 - 2026-05-10
 
