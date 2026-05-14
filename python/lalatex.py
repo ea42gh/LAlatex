@@ -43,16 +43,20 @@ class LAlatexBridge:
             jl.seval(command)
 
         jl.seval("using LAlatex, LaTeXStrings, LinearAlgebra")
-        self._latex_string = jl.seval("LaTeXString")
         jl.seval(
             """
-            function _lalatex_python_L_show(args, raw_indices; kwargs...)
+            function _lalatex_python_L_show(args, raw_indices, raw_kwarg_names; kwargs...)
                 raw = Set(Int.(raw_indices))
                 converted = Any[
                     i in raw ? LaTeXString(String(args[i])) : args[i]
                     for i in eachindex(args)
                 ]
-                return LAlatex.L_show(converted...; kwargs...)
+                raw_kwargs = Set(Symbol.(raw_kwarg_names))
+                converted_kwargs = (; (
+                    key => key in raw_kwargs ? LaTeXString(String(value)) : value
+                    for (key, value) in pairs(kwargs)
+                )...)
+                return LAlatex.L_show(converted...; converted_kwargs...)
             end
             """
         )
@@ -72,17 +76,28 @@ class LAlatexBridge:
     def L_show(self, *args: Any, **kwargs: Any) -> str:
         converted = []
         raw_indices = []
+        raw_kwarg_names = []
         for index, arg in enumerate(args, start=1):
             if isinstance(arg, RawLatex):
                 raw_indices.append(index)
                 converted.append(str(arg))
             else:
                 converted.append(self.convert_arg(arg))
-        converted_kwargs = {
-            key: _raw_latex_to_julia(value, self._latex_string)
-            for key, value in kwargs.items()
-        }
-        return str(self._l_show_string(converted, raw_indices, **converted_kwargs))
+        converted_kwargs = {}
+        for key, value in kwargs.items():
+            if isinstance(value, RawLatex):
+                converted_kwargs[key] = str(value)
+                raw_kwarg_names.append(key)
+            else:
+                converted_kwargs[key] = value
+        return str(
+            self._l_show_string(
+                converted,
+                raw_indices,
+                raw_kwarg_names,
+                **converted_kwargs,
+            )
+        )
 
     def l_show(
         self,
@@ -142,12 +157,6 @@ def L(value: str) -> RawLatex:
     if not isinstance(value, str):
         raise TypeError(f"L(...) expects a Python string; got {type(value).__name__}.")
     return RawLatex(value)
-
-
-def _raw_latex_to_julia(value: Any, latex_string: Any) -> Any:
-    if isinstance(value, RawLatex):
-        return latex_string(str(value))
-    return value
 
 
 def L_show(*args: Any, **kwargs: Any) -> str:
