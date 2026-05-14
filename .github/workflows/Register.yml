@@ -3,9 +3,6 @@ name: Register Package
 on:
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 permissions:
   contents: write
 
@@ -14,7 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: julia-actions/RegisterAction@v0.3.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          registrator: JuliaRegistrator
+
+      - name: Trigger Registrator
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments \
+            -f body='@JuliaRegistrator register
+
+          Release notes:
+
+          - Added display-math equation annotations with `tag` and `label`.
+          - Added set-builder notation via `such_that`.
+          - Added Python interop helpers and Binder demo support.
+          - Broadened IOCapture compatibility to include 1.x.'
