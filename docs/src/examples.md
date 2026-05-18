@@ -118,6 +118,9 @@ vectors = [x y x + y]
 
 l_show(lc(coeffs, vectors; sign_policy=:signed))
 l_show(lc([(x + y)^2], [x]; symopts=(expand=true,)))
+
+# Basis-vector labels work too.
+l_show("v = ", lc([1, -3, 1], [L"b_1", L"b_2", L"b_4"]))
 ```
 
 ## Cases and piecewise displays

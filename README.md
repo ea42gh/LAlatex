@@ -157,6 +157,8 @@ l_show("T(v) = ", cases(
     ([0, 1], "otherwise"),
 ); arraystyle=:bmatrix)
 
+l_show("v = ", lc([1, -3, 1], [L"b_1", L"b_2", L"b_4"]))
+
 l_show(aligned(
     L"Ax" => L"b",
     (L"x", L"\\in", L"\\mathcal{N}(A)"),
