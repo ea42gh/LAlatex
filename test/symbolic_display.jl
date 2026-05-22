@@ -320,6 +320,13 @@
         @test LAlatex._to_latex_matrix_entry(2 * a_py) == LAlatex.to_latex(2 * a_py)
         @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
 
+        fresh_session_render = read(
+            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "import PythonCall; using LAlatex; sympy = PythonCall.pyimport(\"sympy\"); print(LAlatex.L_show(sympy.Matrix([[1, 2], [3, 4]]), sympy.Integer(0)))"`,
+            String,
+        )
+        @test occursin("\\left(", fresh_session_render)
+        @test occursin("0", fresh_session_render)
+
         builtins = pc.pyimport("builtins")
         non_sympy_py = builtins.object()
         @test LAlatex._is_pythoncall_py(non_sympy_py)

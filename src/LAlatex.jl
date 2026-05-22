@@ -38,6 +38,9 @@ end
 
 function _is_pythoncall_py(x)
     pc = _pythoncall_module()
+    if pc === nothing
+        pc = _ensure_pythoncall()
+    end
     return pc !== nothing && x isa pc.Py
 end
 
