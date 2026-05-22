@@ -46,6 +46,9 @@ end
 
 function _sympy_module_name(x)
     pc = _pythoncall_module()
+    if pc === nothing
+        pc = _ensure_pythoncall()
+    end
     if pc === nothing || !(x isa pc.Py)
         return nothing
     end
