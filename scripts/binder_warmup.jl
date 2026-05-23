@@ -6,6 +6,9 @@ using BlockArrays
 
 LAlatex.set_backend!(:symbolics)
 LAlatex.reset_display_defaults!()
+# Force PythonCall/SymPy initialization during Binder image build so the
+# notebook session does not pay the CondaPkg startup cost on first use.
+LAlatex.import_sympy()
 @variables x y t
 
 function warmup_lalatex_binder()
