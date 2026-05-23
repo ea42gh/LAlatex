@@ -36,7 +36,7 @@ class LAlatexBridge:
 
         self.jl = jl
         if project is not None:
-            project_text = str(Path(project)) if not str(project).startswith("@") else str(project)
+            project_text = _resolve_project_text(project)
             command = f"import Pkg; Pkg.activate({json.dumps(project_text)})"
             if instantiate:
                 command += "; Pkg.instantiate()"
@@ -131,6 +131,27 @@ class LAlatexBridge:
 
 
 _DEFAULT_BRIDGE: LAlatexBridge | None = None
+
+
+def _looks_like_lalatex_root(path: Path) -> bool:
+    return (path / "Project.toml").is_file() and (path / "src" / "LAlatex.jl").is_file()
+
+
+def _resolve_repo_project_path(path: Path) -> Path:
+    path = path.resolve()
+    if path.is_file():
+        path = path.parent
+    for candidate in (path, *path.parents):
+        if _looks_like_lalatex_root(candidate):
+            return candidate
+    return path
+
+
+def _resolve_project_text(project: str | os.PathLike[str]) -> str:
+    text = str(project)
+    if text.startswith("@"):
+        return text
+    return str(_resolve_repo_project_path(Path(project)))
 
 
 def init(project: str | os.PathLike[str] | None = None, instantiate: bool = True) -> LAlatexBridge:

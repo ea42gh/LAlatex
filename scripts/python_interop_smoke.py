@@ -40,6 +40,9 @@ def main() -> None:
     step("initialize bridge")
     init(project=project)
 
+    step("initialize bridge from repo subdirectory")
+    init(project=ROOT / "docs" / "src" / "notebooks")
+
     step("raw LaTeX positional arguments")
     raw = L_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
     check(r";\quad " in raw, raw)

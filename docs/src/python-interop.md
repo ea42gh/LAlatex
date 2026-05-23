@@ -23,9 +23,10 @@ python -m pip install -e .
 ```python
 from pathlib import Path
 
+repo = Path.cwd()
 from lalatex import L, L_show, init, l_show
 
-init(project=Path.cwd())
+init(project=repo)
 
 latex = L_show("A = ", [[1, 2], [3, 4]])
 l_show("v = ", (1, 2, 3), separator=L(r";\quad "))
@@ -35,9 +36,9 @@ l_show("x = ", 3, L(r";\quad "), "x^2 = ", 9)
 The repository ships a small Python shim at `python/lalatex.py`, exposed by the
 checkout's `pyproject.toml` as the Python module `lalatex`. It is the canonical
 Python helper layer used by the Python interop notebook and release notebook
-executor. The examples above assume the current working directory is the
-repository root when calling `init(project=Path.cwd())`; pass the checkout path
-explicitly when running from another directory.
+executor. When running from a source checkout, `init(project=...)` may point to
+either the repository root or a subdirectory inside that checkout; the bridge
+resolves the enclosing `LAlatex` package root before activating Julia.
 
 Python and Julia must have compatible architectures because `juliacall` loads
 `libjulia` into the Python process. On Windows, for example, an arm64 Python
