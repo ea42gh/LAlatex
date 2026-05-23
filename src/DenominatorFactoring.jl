@@ -223,6 +223,7 @@ function factor_out_denominator(A::AbstractArray)
             xi = imag(x)
             if xr isa Symbolics.Num
                 _collect_symbolics_denominators!(denominators, xr)
+            elseif xr isa Number
             elseif _is_sympy_py(xr)
                 _push_sympy_denominator!(denominators, xr)
             elseif _is_pythoncall_py(xr)
@@ -230,6 +231,7 @@ function factor_out_denominator(A::AbstractArray)
             end
             if xi isa Symbolics.Num
                 _collect_symbolics_denominators!(denominators, xi)
+            elseif xi isa Number
             elseif _is_sympy_py(xi)
                 _push_sympy_denominator!(denominators, xi)
             elseif _is_pythoncall_py(xi)
@@ -237,12 +239,12 @@ function factor_out_denominator(A::AbstractArray)
             end
         elseif x isa Symbolics.Num
             _collect_symbolics_denominators!(denominators, x)
+        elseif x isa Number
+            # Plain Julia numbers never require PythonCall/SymPy probing.
         elseif _is_sympy_py(x)
             _push_sympy_denominator!(denominators, x)
         elseif _is_pythoncall_py(x)
             return 1, A
-        elseif x isa Number || x isa Symbolics.Num
-            # ok
         else
             return 1, A
         end

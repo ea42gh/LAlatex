@@ -288,8 +288,11 @@
     @test occursin("\\frac{1}{6} \\left", formatted_factored)
     @test occursin("3.0 & 2.0", formatted_factored)
 
+    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), ":")
+
     disabled_pythoncall_cmd = setenv(
         `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
+        "JULIA_DEPOT_PATH" => subprocess_depot,
         "LALATEX_DISABLE_PYTHONCALL" => "1",
     )
     @test readchomp(disabled_pythoncall_cmd) == "true"
@@ -321,11 +324,25 @@
         @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
 
         fresh_session_render = read(
-            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "import PythonCall; using LAlatex; sympy = PythonCall.pyimport(\"sympy\"); print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"`,
+            addenv(
+                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "import PythonCall; using LAlatex; sympy = PythonCall.pyimport(\"sympy\"); print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"`,
+                "JULIA_DEPOT_PATH" => subprocess_depot,
+            ),
             String,
         )
         @test occursin("\\left(", fresh_session_render)
         @test occursin("0", fresh_session_render)
+
+        pure_julia_render = read(
+            addenv(
+                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "using LAlatex; A = [1 2 3; 4 5 6]; print(LAlatex.L_show(L\"A = \", A, L\",\\quad A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"`,
+                "JULIA_DEPOT_PATH" => subprocess_depot,
+                "LALATEX_DISABLE_PYTHONCALL" => "1",
+            ),
+            String,
+        )
+        @test occursin("\\begin{bmatrix}", pure_julia_render)
+        @test occursin("32", pure_julia_render)
 
         builtins = pc.pyimport("builtins")
         non_sympy_py = builtins.object()
