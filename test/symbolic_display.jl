@@ -288,7 +288,8 @@
     @test occursin("\\frac{1}{6} \\left", formatted_factored)
     @test occursin("3.0 & 2.0", formatted_factored)
 
-    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), string(Base.Filesystem.path_separator))
+    depot_env_sep = Sys.iswindows() ? ";" : ":"
+    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), depot_env_sep)
 
     disabled_pythoncall_cmd = setenv(
         `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
