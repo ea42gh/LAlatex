@@ -343,7 +343,9 @@
             String,
         )
         @test occursin("\\begin{bmatrix}", pure_julia_render)
-        @test occursin("32", pure_julia_render)
+        @test occursin("17", pure_julia_render)
+        @test occursin("36", pure_julia_render)
+        @test occursin("45", pure_julia_render)
 
         builtins = pc.pyimport("builtins")
         non_sympy_py = builtins.object()
