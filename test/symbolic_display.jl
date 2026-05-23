@@ -335,7 +335,7 @@
 
         pure_julia_render = read(
             addenv(
-                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "using LAlatex; A = [1 2 3; 4 5 6]; print(LAlatex.L_show(L\"A = \", A, L\",\\quad A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"`,
+                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "using LAlatex; A = [1 2 3; 4 5 6]; print(LAlatex.L_show(\"A = \", A, \",\\quad A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"`,
                 "JULIA_DEPOT_PATH" => subprocess_depot,
                 "LALATEX_DISABLE_PYTHONCALL" => "1",
             ),
