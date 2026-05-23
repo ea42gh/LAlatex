@@ -321,7 +321,7 @@
         @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
 
         fresh_session_render = read(
-            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "import PythonCall; using LAlatex; sympy = PythonCall.pyimport(\"sympy\"); builtins = PythonCall.pyimport(\"builtins\"); py_rows = builtins.eval(\"[[1, 2], [3, 4]]\"); print(LAlatex.L_show(sympy.Matrix(py_rows), sympy.Integer(0)))"`,
+            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "import PythonCall; using LAlatex; sympy = PythonCall.pyimport(\"sympy\"); print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"`,
             String,
         )
         @test occursin("\\left(", fresh_session_render)
