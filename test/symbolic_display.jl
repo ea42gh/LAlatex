@@ -288,7 +288,7 @@
     @test occursin("\\frac{1}{6} \\left", formatted_factored)
     @test occursin("3.0 & 2.0", formatted_factored)
 
-    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), ":")
+    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), string(Base.Filesystem.path_separator))
 
     disabled_pythoncall_cmd = setenv(
         `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
@@ -335,7 +335,7 @@
 
         pure_julia_render = read(
             addenv(
-                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "using LAlatex; A = [1 2 3; 4 5 6]; print(LAlatex.L_show(\"A = \", A, \",\\quad A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"`,
+                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e "using LAlatex; A = [1 2 3; 4 5 6]; print(LAlatex.L_show(\"A = \", A, \", A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"`,
                 "JULIA_DEPOT_PATH" => subprocess_depot,
                 "LALATEX_DISABLE_PYTHONCALL" => "1",
             ),
