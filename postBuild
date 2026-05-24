@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+# Reuse Binder's primary Python for PythonCall so notebook sessions do not
+# bootstrap a separate CondaPkg/Pixi environment on first SymPy use.
+export JULIA_PYTHONCALL_EXE="$(python -c 'import sys; print(sys.executable)')"
+export JULIA_CONDAPKG_BACKEND=Null
+
 # Build the package environment from the repository Project.toml. The IJulia
 # kernel below uses --project=@. so notebooks opened under this checkout use
 # this same package environment.
@@ -15,4 +20,4 @@ PYTHON_JULIACALL_EXE=julia PYTHON_JULIACALL_PROJECT=. LALATEX_PROJECT=. python s
 
 # Keep IJulia out of the package dependencies while still providing a Binder
 # notebook kernel.
-julia -e 'using Pkg; Pkg.add("IJulia"); Pkg.precompile(); using IJulia; installkernel("Julia LAlatex", "--project=@.")'
+julia -e 'using Pkg; Pkg.add("IJulia"); Pkg.precompile(); using IJulia; installkernel("Julia LAlatex", "--project=@."; env=Dict("JULIA_PYTHONCALL_EXE" => ENV["JULIA_PYTHONCALL_EXE"], "JULIA_CONDAPKG_BACKEND" => ENV["JULIA_CONDAPKG_BACKEND"]))'
