@@ -291,9 +291,17 @@
     depot_env_sep = Sys.iswindows() ? ";" : ":"
     subprocess_depot =
         join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), depot_env_sep)
+    subprocess_project = dirname(Base.active_project())
+    subprocess_cmd(expr; startup_file = true) = Cmd(vcat(
+        collect(Base.julia_cmd().exec),
+        startup_file ? String[] : ["--startup-file=no"],
+        ["--project=$subprocess_project", "-e", expr],
+    ))
+    disabled_pythoncall_expr =
+        "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"
 
     disabled_pythoncall_cmd = setenv(
-        `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
+        subprocess_cmd(disabled_pythoncall_expr),
         "JULIA_DEPOT_PATH" => subprocess_depot,
         "LALATEX_DISABLE_PYTHONCALL" => "1",
     )
@@ -330,8 +338,7 @@
             "sympy = PythonCall.pyimport(\"sympy\"); " *
             "print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"
         )
-        fresh_session_cmd =
-            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $fresh_session_expr`
+        fresh_session_cmd = subprocess_cmd(fresh_session_expr; startup_file = false)
         fresh_session_render = read(
             addenv(
                 fresh_session_cmd,
@@ -344,10 +351,11 @@
 
         pure_julia_expr = (
             "using LAlatex; A = [1 2 3; 4 5 6]; " *
-            "print(LAlatex.L_show(\"A = \", A, \", A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"
+            "print(LAlatex.L_show(" *
+            "\"A = \", A, \", A^T A = \", transpose(A) * A; " *
+            "arraystyle=:bmatrix))"
         )
-        pure_julia_cmd =
-            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $pure_julia_expr`
+        pure_julia_cmd = subprocess_cmd(pure_julia_expr; startup_file = false)
         pure_julia_render = read(
             addenv(
                 pure_julia_cmd,
