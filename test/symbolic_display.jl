@@ -289,7 +289,8 @@
     @test occursin("3.0 & 2.0", formatted_factored)
 
     depot_env_sep = Sys.iswindows() ? ";" : ":"
-    subprocess_depot = join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), depot_env_sep)
+    subprocess_depot =
+        join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), depot_env_sep)
 
     disabled_pythoncall_cmd = setenv(
         `$(Base.julia_cmd()) --project=$(dirname(Base.active_project())) -e "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"`,
@@ -324,13 +325,16 @@
         @test LAlatex._to_latex_matrix_entry(2 * a_py) == LAlatex.to_latex(2 * a_py)
         @test LAlatex._sympy_matrix_to_julia_matrix(a_py) === nothing
 
-        fresh_session_expr =
+        fresh_session_expr = (
             "import PythonCall; using LAlatex; " *
             "sympy = PythonCall.pyimport(\"sympy\"); " *
             "print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"
+        )
+        fresh_session_cmd =
+            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $fresh_session_expr`
         fresh_session_render = read(
             addenv(
-                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $fresh_session_expr`,
+                fresh_session_cmd,
                 "JULIA_DEPOT_PATH" => subprocess_depot,
             ),
             String,
@@ -338,12 +342,15 @@
         @test occursin("\\left(", fresh_session_render)
         @test occursin("0", fresh_session_render)
 
-        pure_julia_expr =
+        pure_julia_expr = (
             "using LAlatex; A = [1 2 3; 4 5 6]; " *
             "print(LAlatex.L_show(\"A = \", A, \", A^T A = \", transpose(A) * A; arraystyle=:bmatrix))"
+        )
+        pure_julia_cmd =
+            `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $pure_julia_expr`
         pure_julia_render = read(
             addenv(
-                `$(Base.julia_cmd()) --startup-file=no --project=$(dirname(Base.active_project())) -e $pure_julia_expr`,
+                pure_julia_cmd,
                 "JULIA_DEPOT_PATH" => subprocess_depot,
                 "LALATEX_DISABLE_PYTHONCALL" => "1",
             ),
