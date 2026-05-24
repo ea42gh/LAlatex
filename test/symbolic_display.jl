@@ -292,13 +292,14 @@
     subprocess_depot =
         join(vcat("/tmp/julia-depot-subprocess", Base.DEPOT_PATH), depot_env_sep)
     subprocess_project = dirname(Base.active_project())
-    subprocess_cmd(expr; startup_file = true) = Cmd(vcat(
-        collect(Base.julia_cmd().exec),
-        startup_file ? String[] : ["--startup-file=no"],
-        ["--project=$subprocess_project", "-e", expr],
-    ))
-    disabled_pythoncall_expr =
-        "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"
+    subprocess_cmd(expr; startup_file = true) = Cmd(
+        vcat(
+            collect(Base.julia_cmd().exec),
+            startup_file ? String[] : ["--startup-file=no"],
+            ["--project=$subprocess_project", "-e", expr],
+        ),
+    )
+    disabled_pythoncall_expr = "using LAlatex; print(LAlatex._ensure_pythoncall() === nothing)"
 
     disabled_pythoncall_cmd = setenv(
         subprocess_cmd(disabled_pythoncall_expr),
@@ -339,13 +340,8 @@
             "print(LAlatex.L_show(sympy.eye(2), sympy.Integer(0)))"
         )
         fresh_session_cmd = subprocess_cmd(fresh_session_expr; startup_file = false)
-        fresh_session_render = read(
-            addenv(
-                fresh_session_cmd,
-                "JULIA_DEPOT_PATH" => subprocess_depot,
-            ),
-            String,
-        )
+        fresh_session_render =
+            read(addenv(fresh_session_cmd, "JULIA_DEPOT_PATH" => subprocess_depot), String)
         @test occursin("\\left(", fresh_session_render)
         @test occursin("0", fresh_session_render)
 
