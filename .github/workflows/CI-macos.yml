@@ -11,12 +11,19 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
-    name: Julia 1.10 - macos-15-intel - x64
+    name: Julia ${{ matrix.version }} - macos-15-intel - x64
     runs-on: macos-15-intel
     timeout-minutes: 60
     permissions:
       actions: write
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "1.10"
+          - "1.11"
+          - "1.12"
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -30,7 +37,7 @@ jobs:
           "${{ steps.setup-python.outputs.python-path }}" -c "import sys, sympy, numpy; print(sys.executable); print(sympy.__version__); print(numpy.__version__)"
       - uses: julia-actions/setup-julia@v3
         with:
-          version: "1.10"
+          version: ${{ matrix.version }}
           arch: x64
       - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1
