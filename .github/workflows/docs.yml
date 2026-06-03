@@ -23,7 +23,6 @@ jobs:
       matrix:
         julia-version:
           - "1.10"
-          - "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
