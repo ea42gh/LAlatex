@@ -6,6 +6,11 @@ set -euxo pipefail
 export JULIA_PYTHONCALL_EXE="$(python -c 'import sys; print(sys.executable)')"
 export JULIA_CONDAPKG_BACKEND=Null
 
+# Install Python-side dependencies before Julia precompilation/warmup so
+# PythonCall can import SymPy from Binder's primary Python environment.
+python -m pip install --upgrade pip setuptools wheel juliacall sympy
+python -c 'import sympy; print(sympy.__version__)'
+
 # Build the package environment from the repository Project.toml. The IJulia
 # kernel below uses --project=@. so notebooks opened under this checkout use
 # this same package environment.
@@ -14,7 +19,6 @@ julia --project=. scripts/binder_warmup.jl
 
 # Expose the Python helper shim as `import lalatex` in Python notebooks opened
 # from any directory inside the Binder checkout.
-python -m pip install --upgrade pip setuptools wheel juliacall sympy
 python -m pip install --no-build-isolation --no-deps -e .
 PYTHON_JULIACALL_EXE=julia PYTHON_JULIACALL_PROJECT=. LALATEX_PROJECT=. python scripts/python_interop_smoke.py --require-installed
 
