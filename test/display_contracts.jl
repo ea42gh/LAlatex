@@ -164,6 +164,20 @@ using LinearAlgebra
         @test occursin("\\begin{array}{rr}", matrix_payload)
         @test !occursin(" &  & ", matrix_payload)
 
+        outlined_payload = assert_lshow_display_math([1 2; 3 4]; block_sizes = [1, 1])
+        @test occursin("\\hline", outlined_payload)
+        @test occursin("|", outlined_payload)
+
+        jordan_payload = assert_lshow_display_math(
+            [2 1 0 0 0; 0 2 0 0 0; 0 0 2 0 0; 0 0 0 3 0; 0 0 0 0 3];
+            per_element_style =
+                LAlatex.jordanblock_formatter([2, 1, 2], colors = ["red", "red", "blue"]),
+            block_sizes = [2, 1, 2],
+        )
+        @test occursin("\\textcolor{red}", jordan_payload)
+        @test occursin("\\hline", jordan_payload)
+        @test occursin("|", jordan_payload)
+
         block_matrix = BlockArray([1 2; 3 4], [1, 1], [1, 1])
         block_payload = assert_lshow_display_math(block_matrix)
         @test occursin("\\hline", block_payload)

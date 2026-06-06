@@ -54,8 +54,7 @@
     @test occursin("hi", out.html)
 
     out2 = LAlatex.pr("para")
-    @test out2 isa LAlatex.HTMLOut
-    @test occursin("para", out2.html)
+    @test out2 === nothing
 
     captured = LAlatex.capture_output(() -> println("line1"))
     @test occursin("line1", captured)

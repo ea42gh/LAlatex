@@ -199,9 +199,10 @@ function show_html(
 end
 
 """
-    pr(txt; sz=15, color="black", justify="left", height=15, width=100, env="p") -> HTMLOut
+    pr(txt; sz=15, color="black", justify="left", height=15, width=100, env="p") -> nothing
 
 Convenience wrapper for paragraph-style HTML output.
+The formatted HTML is displayed immediately.
 """
 function pr(
     txt;
@@ -212,7 +213,7 @@ function pr(
     width = 100,
     env = "p",
 )
-    show_html(
+    out = show_html(
         txt;
         sz = sz,
         color = color,
@@ -221,6 +222,8 @@ function pr(
         width = width,
         env = env,
     )
+    display(out)
+    return nothing
 end
 
 """
