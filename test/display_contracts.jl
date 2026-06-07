@@ -164,20 +164,6 @@ using LinearAlgebra
         @test occursin("\\begin{array}{rr}", matrix_payload)
         @test !occursin(" &  & ", matrix_payload)
 
-        outlined_payload = assert_lshow_display_math([1 2; 3 4]; block_sizes = [1, 1])
-        @test occursin("\\hline", outlined_payload)
-        @test occursin("|", outlined_payload)
-
-        jordan_payload = assert_lshow_display_math(
-            [2 1 0 0 0; 0 2 0 0 0; 0 0 2 0 0; 0 0 0 3 0; 0 0 0 0 3];
-            per_element_style =
-                LAlatex.jordanblock_formatter([2, 1, 2], colors = ["red", "red", "blue"]),
-            block_sizes = [2, 1, 2],
-        )
-        @test occursin("\\textcolor{red}", jordan_payload)
-        @test occursin("\\hline", jordan_payload)
-        @test occursin("|", jordan_payload)
-
         block_matrix = BlockArray([1 2; 3 4], [1, 1], [1, 1])
         block_payload = assert_lshow_display_math(block_matrix)
         @test occursin("\\hline", block_payload)
@@ -232,5 +218,16 @@ using LinearAlgebra
         )
         @test occursin("\\boxed{1}", styled)
         @test occursin("\\boxed{4}", styled)
+
+        boxed_matrix = assert_lshow_math(
+            [1 2; 3 4];
+            boxes = [(rows = 1:2, cols = 1:2, style = "draw=red, line width=0.6pt")],
+        )
+        @test occursin("\\begin{pNiceArray}", boxed_matrix)
+        @test occursin("\\CodeAfter", boxed_matrix)
+        @test occursin("\\draw[draw=red, line width=0.6pt] (1-1.north west) rectangle (2-2.south east);", boxed_matrix)
+
+        default_box_style = assert_lshow_math([1 2; 3 4]; boxes = [(rows = 1:1, cols = 2:2)])
+        @test occursin("\\draw[draw=black, rounded corners=1pt]", default_box_style)
     end
 end

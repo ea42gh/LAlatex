@@ -77,6 +77,7 @@ function L_show(
     number_formatter = DISPLAY_OPTION_UNSET,
     per_element_style = DISPLAY_OPTION_UNSET,
     factor_out = DISPLAY_OPTION_UNSET,
+    boxes = DISPLAY_OPTION_UNSET,
     inline = true,
     tag = nothing,
     label = nothing,
@@ -94,6 +95,7 @@ function L_show(
         number_formatter = number_formatter,
         per_element_style = per_element_style,
         factor_out = factor_out,
+        boxes = boxes,
         symopts = symopts,
     )
     formatted_objs = [L_show_core(obj, options) for obj in objs]

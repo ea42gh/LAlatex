@@ -185,6 +185,7 @@ L_show(
 - `number_formatter`
 - `per_element_style`
 - `factor_out`
+- `boxes`
 - `symopts`
 - `color`
 
@@ -268,7 +269,7 @@ end
 Display defaults cover the shared rendering options that naturally propagate
 through `L_show`, `l_show`, `set`, `cases`, `aligned`, `lc`, and matrix entries:
 `setstyle`, `arraystyle`, `color`, `separator`, `number_formatter`,
-`per_element_style`, `factor_out`, and `symopts`.
+`per_element_style`, `factor_out`, `boxes`, and `symopts`.
 
 Display defaults intentionally do not include `inline`, because `L_show`
 string output and `l_show` notebook-display output have delimiter-sensitive
@@ -293,6 +294,7 @@ Known `set`-local options are:
 - `number_formatter`
 - `per_element_style`
 - `factor_out`
+- `boxes`
 - `symopts`
 - `such_that`
 - `such_that_separator`
