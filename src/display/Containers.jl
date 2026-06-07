@@ -10,7 +10,7 @@ end
 
 const SET_OPTION_KEYS = (DISPLAY_OPTION_KEYS..., :such_that, :such_that_separator)
 const CELL_CONTAINER_OPTION_KEYS =
-    (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :boxes, :symopts)
+    (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :symopts)
 
 function _validate_container_option_keys(
     options,

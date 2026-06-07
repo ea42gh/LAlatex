@@ -6,7 +6,6 @@ const DISPLAY_OPTION_KEYS = (
     :number_formatter,
     :per_element_style,
     :factor_out,
-    :boxes,
     :symopts,
 )
 
@@ -23,7 +22,6 @@ struct DisplayOptions
     number_formatter::Any
     per_element_style::Any
     factor_out::Bool
-    boxes::Any
     symopts::NamedTuple
 end
 
@@ -143,7 +141,6 @@ function _hardcoded_display_defaults()
         number_formatter = nothing,
         per_element_style = nothing,
         factor_out = true,
-        boxes = nothing,
         symopts = NamedTuple(),
     )
 end
@@ -239,7 +236,6 @@ function DisplayOptions(;
     number_formatter = DISPLAY_OPTION_UNSET,
     per_element_style = DISPLAY_OPTION_UNSET,
     factor_out = DISPLAY_OPTION_UNSET,
-    boxes = DISPLAY_OPTION_UNSET,
     symopts = DISPLAY_OPTION_UNSET,
 )
     defaults = _effective_display_defaults()
@@ -252,7 +248,6 @@ function DisplayOptions(;
     per_element_style =
         _resolve_display_option(defaults, :per_element_style, per_element_style)
     factor_out = _resolve_display_option(defaults, :factor_out, factor_out)
-    boxes = _resolve_display_option(defaults, :boxes, boxes)
     symopts = _resolve_display_option(defaults, :symopts, symopts)
 
     return DisplayOptions(
@@ -263,7 +258,6 @@ function DisplayOptions(;
         _validate_callback_value(number_formatter, "number_formatter"),
         _validate_callback_value(per_element_style, "per_element_style"),
         _validate_factor_out_value(factor_out),
-        boxes,
         normalize_symopts(symopts),
     )
 end
@@ -279,7 +273,6 @@ function merge_display_options(base::DisplayOptions, overrides)
         number_formatter = get(override_dict, :number_formatter, base.number_formatter),
         per_element_style = get(override_dict, :per_element_style, base.per_element_style),
         factor_out = get(override_dict, :factor_out, base.factor_out),
-        boxes = get(override_dict, :boxes, base.boxes),
         symopts = get(override_dict, :symopts, base.symopts),
     )
 end

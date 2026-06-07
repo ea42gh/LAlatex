@@ -219,15 +219,5 @@ using LinearAlgebra
         @test occursin("\\boxed{1}", styled)
         @test occursin("\\boxed{4}", styled)
 
-        boxed_matrix = assert_lshow_math(
-            [1 2; 3 4];
-            boxes = [(rows = 1:2, cols = 1:2, style = "draw=red, line width=0.6pt")],
-        )
-        @test occursin("\\begin{pNiceArray}", boxed_matrix)
-        @test occursin("\\CodeAfter", boxed_matrix)
-        @test occursin("\\draw[draw=red, line width=0.6pt] (1-1.north west) rectangle (2-2.south east);", boxed_matrix)
-
-        default_box_style = assert_lshow_math([1 2; 3 4]; boxes = [(rows = 1:1, cols = 2:2)])
-        @test occursin("\\draw[draw=black, rounded corners=1pt]", default_box_style)
     end
 end

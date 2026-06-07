@@ -11,11 +11,10 @@
         :number_formatter,
         :per_element_style,
         :factor_out,
-        :boxes,
         :symopts,
     )
     expected_cell_container_options =
-        (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :boxes, :symopts)
+        (:arraystyle, :color, :number_formatter, :per_element_style, :factor_out, :symopts)
     expected_set_options = (expected_display_options..., :such_that, :such_that_separator)
 
     @test LAlatex.DISPLAY_OPTION_KEYS == expected_display_options
@@ -37,7 +36,6 @@
         :number_formatter => (x -> x),
         :per_element_style => ((x, i, j, latex) -> latex),
         :factor_out => false,
-        :boxes => [(rows = 1:1, cols = 1:1)],
         :symopts => (expand = true,),
     )
 
