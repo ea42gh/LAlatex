@@ -35,6 +35,7 @@ docs/Manifest*.toml
 __pycache__/
 *.pyc
 *.egg-info/
+build/
 .venv/
 venv/
 env/
