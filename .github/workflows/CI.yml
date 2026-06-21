@@ -37,7 +37,7 @@ jobs:
             os: windows-latest
             arch: x64
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         id: setup-python
         with:
@@ -87,7 +87,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         id: setup-python
         with:
