@@ -62,7 +62,13 @@ jobs:
           LALATEX_DISABLE_PYTHONCALL: "1"
           LALATEX_TEST_SUITE: core
       - uses: julia-actions/julia-runtest@v1
-        if: matrix.version != 'pre'
+        if: matrix.version != 'pre' && matrix.version != '1.12'
+        env:
+          JULIA_CONDAPKG_BACKEND: Null
+          JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
+      - name: Full Julia 1.12 tests without test-only quality extras
+        if: matrix.version == '1.12'
+        run: julia --project=. test/runtests.jl
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
