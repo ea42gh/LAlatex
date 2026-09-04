@@ -37,8 +37,8 @@ jobs:
             os: windows-latest
             arch: x64
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         id: setup-python
         with:
           python-version: "3.11"
@@ -47,12 +47,12 @@ jobs:
         run: |
           "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip sympy numpy
           "${{ steps.setup-python.outputs.python-path }}" -c "import sys, sympy, numpy; print(sys.executable); print(sympy.__version__); print(numpy.__version__)"
-      - uses: julia-actions/setup-julia@v3
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v3
-      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/cache@a45e8fa8be21c18a06b7177052533149e61e9b38 # v3
+      - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
@@ -61,7 +61,7 @@ jobs:
         env:
           LALATEX_DISABLE_PYTHONCALL: "1"
           LALATEX_TEST_SUITE: core
-      - uses: julia-actions/julia-runtest@v1
+      - uses: julia-actions/julia-runtest@6e050c8013b833b1195105ff2fce9cd802f53271 # v1
         if: matrix.version != 'pre' && matrix.version != '1.12'
         env:
           JULIA_CONDAPKG_BACKEND: Null
@@ -93,8 +93,8 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         id: setup-python
         with:
           python-version: "3.11"
@@ -104,12 +104,12 @@ jobs:
           "${{ steps.setup-python.outputs.python-path }}" -m pip install --upgrade pip setuptools wheel juliacall sympy numpy
           "${{ steps.setup-python.outputs.python-path }}" -m pip install --no-build-isolation --no-deps -e .
           "${{ steps.setup-python.outputs.python-path }}" -c "import importlib.metadata as md, sys; print(sys.executable); print(md.version('juliacall'))"
-      - uses: julia-actions/setup-julia@v3
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3
         with:
           version: '1.10'
           arch: x64
-      - uses: julia-actions/cache@v3
-      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/cache@a45e8fa8be21c18a06b7177052533149e61e9b38 # v3
+      - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
         env:
           JULIA_CONDAPKG_BACKEND: Null
           JULIA_PYTHONCALL_EXE: ${{ steps.setup-python.outputs.python-path }}
